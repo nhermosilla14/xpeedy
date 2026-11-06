@@ -38,4 +38,22 @@ a mesh.
 - Desktop CPU per tick (`tests/profile_tunnel.gd`, 40 s): tunnel view 0.12 ms in every state
   (was 0.54 ms normally and 2.2 ms while morphing); mesh builds: 1.
 - Desktop, 480×320 with `opengl3_es`: 101–112 fps average, 58–72 fps 1 % low.
-- Pending: RG351P run (60 s with at least two shape changes) and the user's confirmation.
+
+## RG351P result (2026-11-06)
+- Anbernic RG351P, AmberELEC, PortMaster 2026.06.23, `godot_4.4.1` + Weston, 480×320, ~58 s run, seed 2935391032.
+- Shape changes in the run (replayed from the seed): in→flat ≈ 19 s, flat→out ≈ 28 s, out→flat ≈ 38 s,
+  flat→out ≈ 48 s. That is four morphs and an outside-tube part, so the criterion of at least two is met.
+
+  | Window | Avg fps | 1 % low |
+  |---|---|---|
+  | 0–10 s | 58.5 | 57.3 |
+  | 10–20 s | 60.0 | 60.0 |
+  | 20–30 s | 60.0 | 60.0 |
+  | 30–40 s | 60.0 | 60.0 |
+  | 40–50 s | 60.0 | 60.0 |
+
+  (Before this slice: 52–59 avg, 27–34 1 % low.)
+- No shader errors in the log; the Mali-G31 accepts the uniform arrays, so the data-texture fallback in
+  ADR 0007 is not needed. The outside-tube shape rendered on the device for the first time.
+- Pending: the user's confirmation that shape changes no longer hitch (last acceptance criterion of
+  intent 0002).
