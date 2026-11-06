@@ -1,0 +1,19 @@
+# Godot
+.godot/
+*.import
+export_presets.cfg.bak
+/build/
+/dist/
+
+# Secrets
+.env
+*.keystore
+*.jks
+*.pem
+*.key
+credentials*
+
+# OS / editor
+.directory
+.DS_Store
+*.swp
