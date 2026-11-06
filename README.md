@@ -4,7 +4,8 @@ A free, open-source clone of the discontinued tunnel racer SpeedX 3D: fly throug
 tunnel at high speed and steer around obstacles. It targets desktop, Android and PortMaster
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
-> Status: tunnel prototype in progress ([intent 0001](docs/intent/0001-tunnel-prototype.md)).
+> Status: tunnel prototype done ([intent 0001](docs/intent/0001-tunnel-prototype.md)); next, smooth
+> frame pacing on the RG351P ([intent 0002](docs/intent/0002-smooth-frame-pacing.md)).
 > A curving tunnel that switches between tube, flat and outside shapes is playable, on desktop and
 > PortMaster handhelds. Drive off a flat edge and you crash.
 

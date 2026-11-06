@@ -1,6 +1,6 @@
 # 0004. Track shapes, morphs and wall crashes
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-05
 - Owner: agent
 - Intents: 0001
@@ -28,3 +28,12 @@ and driving off a flat edge or crossing the seam mid-morph crashes the run, with
 
 ## Out of scope
 - Edge bands, starfield, obstacles.
+
+## Results (2026-11-06)
+- RG351P, AmberELEC, 480×320, `godot_4.4.1` + Weston: first 10 s (no morph) 58.9 fps avg / 58.7 fps
+  1 % low; afterwards 52–59 fps avg, 27–34 fps 1 % low. Passes the ≥ 30 fps threshold (ADR 0002).
+- User feedback: steering in tubes felt glitchy because the camera "up" snapped 22.5° at every lane
+  boundary; fixed by blending the normal across faces (commit 84ff1b2). Confirmed "much better".
+- Remaining: slight hitches on shape changes, caused by rebuilding the mesh on the CPU. Followed up
+  by intent 0002.
+- Earlier on the device, slice 0003's curving tunnel ran at a locked 60 fps.
