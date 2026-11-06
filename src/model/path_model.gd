@@ -14,10 +14,14 @@ const MIN_BEND_DEG := 10.0
 const MAX_ATTEMPTS := 6
 const SAMPLES_PER_PIECE := 64
 
-## Largest accepted bend in degrees; 50 in tubes, 30 on flat parts (set by the shape model later).
+## Largest accepted bend in degrees when `bend_limit` is not set.
 var max_bend_deg := 50.0
+## Optional `func(segment: int) -> float` giving the largest accepted bend at a control point
+## (30° on flat parts, 50° in tubes).
+var bend_limit: Callable
 ## Accepted bends and spacings, in generation order (for tests and debugging).
 var turn_log: PackedFloat32Array = []
+var turn_segments: PackedInt32Array = []
 var spacing_log: PackedFloat32Array = []
 
 var _rng: XRandom
@@ -96,14 +100,19 @@ func _next_piece() -> void:
 ## Random yaw and pitch, each up to a random 60°–90°; accepted only if the bend is in range.
 func _choose_turn() -> Vector3:
 	var right_axis := _cp_dir.cross(_cp_up).normalized()
+	var seg := _base + _pos.size() - 1
+	var max_bend := max_bend_deg
+	if bend_limit.is_valid():
+		max_bend = bend_limit.call(seg)
 	for attempt in MAX_ATTEMPTS:
 		var limit := deg_to_rad(_rng.range_float(60.0, 90.0))
 		var yaw := _rng.range_float(-limit, limit)
 		var pitch := _rng.range_float(-limit, limit)
 		var dir := _cp_dir.rotated(_cp_up, yaw).rotated(right_axis, pitch).normalized()
 		var bend := rad_to_deg(_cp_dir.angle_to(dir))
-		if bend > MIN_BEND_DEG and bend < max_bend_deg:
+		if bend > MIN_BEND_DEG and bend < max_bend:
 			turn_log.append(bend)
+			turn_segments.append(seg)
 			return dir
 	return _cp_dir
 

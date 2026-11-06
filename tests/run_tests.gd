@@ -14,6 +14,11 @@ func _init() -> void:
 		if not file.ends_with(".gd"):
 			continue
 		var script: GDScript = load(UNIT_DIR + file)
+		if script == null or not script.can_instantiate():
+			total += 1
+			failures += 1
+			print("  FAIL  %s: script failed to load" % file)
+			continue
 		for method in script.get_script_method_list():
 			var name: String = method["name"]
 			if not name.begins_with("test_"):

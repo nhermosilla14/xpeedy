@@ -3,7 +3,7 @@
 - Status: In progress
 - Date: 2026-11-05
 - Owner: Nicolás Hermosilla P., agent
-- Related ADRs: 0002, 0003, 0004
+- Related ADRs: 0002, 0003, 0004 (superseded), 0005, 0006
 
 ## Goal
 A player can fly through the Xpeedy tunnel and steer around it, with the tunnel behaving as described

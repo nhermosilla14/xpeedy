@@ -5,7 +5,8 @@ tunnel at high speed and steer around obstacles. It targets desktop, Android and
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 > Status: tunnel prototype in progress ([intent 0001](docs/intent/0001-tunnel-prototype.md)).
-> A curving tunnel you can steer around is playable, on desktop and PortMaster handhelds.
+> A curving tunnel that switches between tube, flat and outside shapes is playable, on desktop and
+> PortMaster handhelds. Drive off a flat edge and you crash.
 
 ## Prerequisites
 - [Podman](https://podman.io/) 4+. Godot 4.4.1 and its export templates come from the
@@ -38,8 +39,9 @@ Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/
 |---|---|---|
 | Steer left | ← / A | left stick, D-pad left |
 | Steer right | → / D | left stick, D-pad right |
+| Restart after a crash | R / Enter | A, Start |
 
-On handhelds, Select + Start quits. The frame rate is shown in the top-left corner.
+On handhelds, A restarts after a crash and Select + Start quits. The frame rate is shown in the top-left corner.
 
 ## Project structure
 ```
@@ -59,6 +61,8 @@ LICENSE               GPL-3.0
   in each folder and use the next number.
 - Gameplay behaviour comes only from [docs/reference/speedx3d](docs/reference/speedx3d/README.md).
 - `tools/godot.sh <args>` runs any Godot command in the container with the repo mounted at `/src`.
+  The container is killed after `GODOT_TIMEOUT` seconds (default 300), so a script that never quits
+  can't hang. Test scripts must always call `quit()`.
 - Test: `tools/test.sh`. Unit tests extend `TestCase` and live in `tests/unit/test_*.gd`; scene-level
   checks are `tests/e2e_*.gd` scripts extending `SceneTree`.
 - Export: `tools/export.sh [preset]` (default `Linux`). PortMaster zip: `tools/package-portmaster.sh`.

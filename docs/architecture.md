@@ -1,7 +1,7 @@
 # Architecture
 
-> Status: slices 0001–0003 implemented: curving inside-shape tunnel, steering, speed ramp, PortMaster
-> package. Shapes and morphs arrive with slice 0004.
+> Status: slices 0001–0004 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
+> wall crashes and restart, speed ramp, PortMaster package.
 
 ## Engine and runtime
 - Godot 4.4.1, Compatibility (OpenGL ES 3 / OpenGL 3.3) renderer, GDScript only (ADR 0002, 0003).
@@ -22,8 +22,9 @@
 │ XRandom  │────►│  TrackModel     │◄────│  RunClock         │ 200 ms cap, scale
 │(xoshiro) │     │  segment, p,    │     └──────────────────┘
 └──────────┘     │  speed ramp     │  (src/model)
-   seed          │  ├ PathModel    │  centre line: one frame (pos, fwd, up) per segment
-                 │  └ TunnelGeometry│ (segment, lane position) → world
+   seed          │  ├ PartSequence │  in / flat / out parts (own stream: seed ^ 0x5EED0001)
+                 │  ├ PathModel    │  centre line: one frame (pos, fwd, up) per segment (stream: seed)
+                 │  └ TunnelGeometry│ (segment, lane position) → world, via the face chain
                  └────────┬────────┘
                           ▼ read-only
           ┌───────────────┴───────────────┐
@@ -39,7 +40,7 @@
 |---|---|
 | `src/main.tscn`, `src/main.gd` | Entry scene; steps the model in `_physics_process` (60 Hz) and refreshes views |
 | `src/core/` | Engine-agnostic helpers: `XRandom`, `RunClock`, `Steering` |
-| `src/model/` | Gameplay state (`TrackModel`), centre line (`PathModel`), track-to-world mapping (`TunnelGeometry`) |
+| `src/model/` | Gameplay state (`TrackModel`), parts (`PartSequence`), centre line (`PathModel`), track-to-world mapping (`TunnelGeometry`) |
 | `src/view/` | Nodes that draw the model: `TunnelView`, `ShipCamera` |
 | `tests/` | Unit tests (`tests/unit/`) and end-to-end scene scripts (`tests/e2e_*.gd`) |
 | `tools/` | Container wrapper, test, export and packaging scripts |
@@ -48,16 +49,30 @@
 ## Key rules
 - **Model / view split**: the model never touches nodes; views only read it (ADR 0004).
 - **Fixed timestep**: game logic advances only in `_physics_process` at 60 Hz through `RunClock`.
-- **Deterministic randomness**: gameplay draws from an own xoshiro128** generator, decoration from a
-  separate instance (ADR 0004).
+- **Deterministic randomness** (ADR 0005): each gameplay subsystem owns an xoshiro128** stream
+  derived from the run seed, so request order never changes the track. Decoration (camera shake)
+  uses its own stream.
+
+  | Subsystem | Seed | Draw order |
+  |---|---|---|
+  | PathModel | `seed` | per control point: spacing, straight chance, then per attempt: limit, yaw, pitch |
+  | PartSequence | `seed ^ 0x5EED0001` | after in: 50 % extend draws until one fails; after flat: tube choice |
+  | ShipCamera shake | `0xDEC0` | one draw per axis per tick while morphing |
 - **Coordinates**: lane position grows to the left; positive steer moves right (to lower lanes).
   The path starts at the origin heading −Z with +Y up; one segment = 2·sin(π/16) units.
 - **Path**: control points 10–20 segments apart joined by cubic Hermite pieces, resampled at equal arc
   length into one frame per segment. "Up" is parallel-transported (minimal rotation, no twist).
-  Frames are generated lazily on request and dropped once behind the ship. Random draws per control
-  point, in order: spacing, straight chance, then per attempt: limit, yaw, pitch.
-- The tunnel mesh is rebuilt only when the ship crosses a segment boundary, from one 17-vertex ring
-  per segment.
+  Frames are generated lazily on request and dropped once behind the ship. The bend limit at each
+  control point comes from the part there (30° flat, 50° tube).
+- **Shapes** (ADR 0006): the cross-section is a chain of 16 faces anchored at lane vertex 8 below the
+  centre line, each turned by τ from its neighbour (+22.5° in, 0 flat, −22.5° out). The whole
+  visible tunnel shares one τ; during the 30-segment transition after a part boundary,
+  τ = lerp(τ_old, τ_new, progress) by the ship's progress. Seam crossing, banking and shake use the
+  same progress. Crossing the seam where it isn't allowed sets `crashed`; the run stops and
+  "restart" starts a new one.
+- The tunnel mesh is rebuilt from one 17-vertex ring per segment when the ship crosses a segment
+  boundary, and every tick while morphing (≈ 2.2 ms per tick on a desktop CPU). If that is too slow on
+  the RK3326, move the morph to a vertex shader.
 - The root node runs with process mode Always (works around the Godot 4.3+ idle bug on handhelds),
   and stdout is flushed on every print so `[bench]` lines survive the port being killed.
 - Handheld input: gptokeyb maps D-pad/left stick to arrow keys; Godot's native gamepad input stays on

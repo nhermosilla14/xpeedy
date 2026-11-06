@@ -1,11 +1,13 @@
 class_name TunnelView
 extends MeshInstance3D
 ## Draws the visible 50-segment window of the tunnel as one mesh of flat-coloured tiles.
+## Rebuilt when the window scrolls or the shape changes (every tick while morphing).
 
 const TILE_LIGHT := Color(1.0, 1.0, 1.0)
 const TILE_DARK := Color(0.82, 0.82, 0.86)
 
 var _built_from := -1
+var _built_turn := NAN
 
 
 func _ready() -> void:
@@ -18,9 +20,11 @@ func _ready() -> void:
 
 func refresh(track: TrackModel) -> void:
 	var first := track.window_start()
-	if first == _built_from:
+	var turn := track.geometry.turn
+	if first == _built_from and turn == _built_turn:
 		return
 	_built_from = first
+	_built_turn = turn
 	mesh = _build(track.geometry, first)
 
 

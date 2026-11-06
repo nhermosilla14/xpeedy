@@ -1,6 +1,6 @@
 # 0004. Track shapes, morphs and wall crashes
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-05
 - Owner: agent
 - Intents: 0001

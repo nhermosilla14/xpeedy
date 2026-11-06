@@ -1,6 +1,6 @@
 # 0004. Deterministic, fixed-step gameplay model
 
-- Status: Accepted
+- Status: Superseded by 0005
 - Date: 2026-11-05
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0001
