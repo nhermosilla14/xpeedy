@@ -17,9 +17,10 @@ var turn := TUBE_TURN:
 			turn = value
 			_build_chain()
 
-# Cross-section in the frame's (right, up) plane: 17 vertices and 16 face normals.
+# Cross-section in the frame's (right, up) plane: 17 vertices, 16 face normals and 17 vertex normals.
 var _local: PackedVector2Array = []
 var _normals: PackedVector2Array = []
+var _vertex_normals: PackedVector2Array = []
 
 
 func _init(path_model: PathModel) -> void:
@@ -55,21 +56,38 @@ func surface(lane_pos: float, seg: float) -> Vector3:
 	return _surface_at(lane_pos, s).lerp(_surface_at(lane_pos, s + 1), seg - float(s))
 
 
-## Unit normal on the ship's side of the surface, at a fractional segment.
+## Unit normal on the ship's side of the surface, at a fractional segment. It is blended across the
+## face between vertex normals, so it turns smoothly from lane to lane instead of jumping by the face
+## angle at every lane boundary; at the centre of a lane it equals the face normal.
 func normal(lane_pos: float, seg: float) -> Vector3:
 	var s := int(floor(seg))
-	var n := _normals[_face(lane_pos)]
+	var n := smooth_normal_2d(lane_pos)
 	return (_dir_to_world(n, s).lerp(_dir_to_world(n, s + 1), seg - float(s))).normalized()
 
 
+## The blended normal in the cross-section plane.
+func smooth_normal_2d(lane_pos: float) -> Vector2:
+	var f := _face_and_fraction(lane_pos)
+	var k := int(f.x)
+	return _vertex_normals[k].slerp(_vertex_normals[k + 1], f.y).normalized()
+
+
 func _surface_at(lane_pos: float, seg: int) -> Vector3:
-	var k := _face(lane_pos)
-	var x := clampf(lane_pos - float(k), 0.0, 1.0)
-	return _to_world(_local[k].lerp(_local[k + 1], x), seg)
+	var f := _face_and_fraction(lane_pos)
+	var k := int(f.x)
+	return _to_world(_local[k].lerp(_local[k + 1], f.y), seg)
 
 
-static func _face(lane_pos: float) -> int:
-	return clampi(int(floor(fposmod(lane_pos, float(TrackModel.LANES)))), 0, TrackModel.LANES - 1)
+## Face index and position across it, for a lane position in [0, 16]. 16 is the far edge of face 15
+## (the left edge on flat parts), not lane 0.
+## Returned as (face, fraction); the face is a whole number.
+static func _face_and_fraction(lane_pos: float) -> Vector2:
+	var lanes := float(TrackModel.LANES)
+	if lane_pos >= lanes:
+		return Vector2(lanes - 1.0, 1.0)
+	var x := maxf(lane_pos, 0.0)
+	var k := floorf(x)
+	return Vector2(k, x - k)
 
 
 func _to_world(p: Vector2, seg: int) -> Vector3:
@@ -93,3 +111,12 @@ func _build_chain() -> void:
 	for k in TrackModel.LANES:
 		var e := _local[k + 1] - _local[k]
 		_normals[k] = Vector2(e.y, -e.x).normalized()
+	# Inner vertices average their two faces. The seam vertices do so only when the chain is closed
+	# (a full tube); otherwise they are edges and keep their single face's normal.
+	_vertex_normals.resize(TrackModel.LANES + 1)
+	for k in range(1, TrackModel.LANES):
+		_vertex_normals[k] = (_normals[k - 1] + _normals[k]).normalized()
+	var closed := _local[0].distance_to(_local[TrackModel.LANES]) < 0.001
+	var seam := (_normals[TrackModel.LANES - 1] + _normals[0]).normalized()
+	_vertex_normals[0] = seam if closed else _normals[0]
+	_vertex_normals[TrackModel.LANES] = seam if closed else _normals[TrackModel.LANES - 1]

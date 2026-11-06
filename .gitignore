@@ -17,3 +17,6 @@ credentials*
 .directory
 .DS_Store
 *.swp
+
+# Device logs copied for analysis
+log.txt

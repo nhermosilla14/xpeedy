@@ -145,3 +145,29 @@ func test_flat_parts_bend_at_most_30_degrees() -> void:
 			any_over_30 = any_over_30 or bend >= 30.0
 	check(flat_turns > 3, "some turns on flat parts")
 	check(any_over_30, "tube parts still allow bends over 30°")
+
+
+func test_normal_turns_smoothly_across_lanes_in_a_tube() -> void:
+	# Regression: the camera "up" used to jump 22.5° at every lane boundary inside tubes.
+	var g := _geometry(TunnelGeometry.TUBE_TURN)
+	for k in range(1, 16):
+		var before := g.normal(k - 0.001, 0.0)
+		var after := g.normal(k + 0.001, 0.0)
+		check(rad_to_deg(before.angle_to(after)) < 0.1, "jump at lane boundary %d" % k)
+	var seam := rad_to_deg(g.normal(15.999, 0.0).angle_to(g.normal(0.001, 0.0)))
+	check(seam < 0.1, "jump at the seam: %f°" % seam)
+
+
+func test_normal_at_lane_centre_is_the_face_normal() -> void:
+	var g := _geometry(TunnelGeometry.TUBE_TURN)
+	for k in 16:
+		var mid := (g.vertex(k, 0) + g.vertex(k + 1, 0)) * 0.5
+		var to_centre := (Vector3(0.0, 0.0, mid.z) - mid).normalized()
+		check(g.normal(k + 0.5, 0.0).is_equal_approx(to_centre), "lane %d" % k)
+
+
+func test_flat_edge_lane_16_is_the_left_edge() -> void:
+	var g := _geometry(0.0)
+	check(g.surface(16.0, 0.0).is_equal_approx(g.vertex(16, 0)), "lane 16 is vertex 16, not vertex 0")
+	check(g.normal(16.0, 0.0).is_equal_approx(Vector3.UP), "edge normal stays up on flat")
+	check(g.normal(0.0, 0.0).is_equal_approx(Vector3.UP), "right edge normal stays up on flat")
