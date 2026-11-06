@@ -43,6 +43,11 @@ func section() -> PackedVector2Array:
 	return _local
 
 
+## The 16 face normals (pointing to the ship's side) in the frame's (right, up) plane.
+func face_normals() -> PackedVector2Array:
+	return _normals
+
+
 ## Point on the lane surface at a fractional lane position and segment.
 func surface(lane_pos: float, seg: float) -> Vector3:
 	var s := int(floor(seg))

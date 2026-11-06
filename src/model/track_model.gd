@@ -26,6 +26,8 @@ var tps := START_TPS
 var elapsed := 0.0
 var steer := 0.0
 var crashed := false
+## "wall" or "obstacle" once crashed.
+var crash_reason := ""
 ## Game time since the crash.
 var crash_time := 0.0
 var seed_value: int
@@ -63,9 +65,15 @@ func step(dt: float, steer_value: float) -> void:
 			p += -2.0 if p > 1.0 else 2.0
 		else:
 			p = clampf(p, -1.0, 1.0)
-			crashed = true
+			crash("wall")
 	path.forget_before(window_start())
 	_update_shape()
+
+
+## Ends the run; the ship stops and the crash timer starts.
+func crash(reason: String) -> void:
+	crashed = true
+	crash_reason = reason
 
 
 ## Time per segment after `t` seconds: ease-out from 300 ms to the target over 1 s (doc 17).

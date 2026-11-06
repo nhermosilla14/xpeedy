@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: slices 0001–0005 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
+> Status: slices 0001–0006 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
 > wall crashes and restart, speed ramp, PortMaster package.
 
 ## Engine and runtime
@@ -41,8 +41,8 @@
 |---|---|
 | `src/main.tscn`, `src/main.gd` | Entry scene; steps the model in `_physics_process` (60 Hz) and refreshes views |
 | `src/core/` | Engine-agnostic helpers: `XRandom`, `RunClock`, `Steering` |
-| `src/model/` | Gameplay state (`TrackModel`), parts (`PartSequence`), centre line (`PathModel`), track-to-world mapping (`TunnelGeometry`) |
-| `src/view/` | Nodes that draw the model: `TunnelView`, `ShipCamera` |
+| `src/model/` | Gameplay state (`TrackModel`), parts (`PartSequence`), centre line (`PathModel`), track-to-world mapping (`TunnelGeometry`), the Survival run (`SurvivalRun`, `RunConfig`, `RunEvent`) and obstacles (`Obstacle`, `ObstacleField`, `PatternLibrary`) |
+| `src/view/` | Nodes that draw the model: `TunnelView`, `ObstacleView`, `ShipCamera`; `TrackShaderBinding` uploads the data they share |
 | `tests/` | Unit tests (`tests/unit/`) and end-to-end scene scripts (`tests/e2e_*.gd`) |
 | `tools/` | Container wrapper, test, export and packaging scripts |
 | `packaging/portmaster/` | PortMaster port: launch script (Godot 4.4.1 runtime under Weston), metadata, gptk |
@@ -71,6 +71,21 @@
   τ = lerp(τ_old, τ_new, progress) by the ship's progress. Seam crossing, banking and shake use the
   same progress. Crossing the seam where it isn't allowed sets `crashed`; the run stops and
   "restart" starts a new one.
+- **Survival run** (ADR 0008): `SurvivalRun` owns the `TrackModel`, a `RunConfig` and an `ObstacleField`.
+  Each tick: track step, generate obstacles up to the horizon (`window_start + 50`), resolve collisions
+  over the swept segment and lane range, forget obstacles behind. Obstacles are `(segment, lane, kind,
+  colour)` on one tile and are generated only as the horizon advances, from the stream
+  `seed ^ 0x0B57AC1E`. Patterns are placed at 55, then every `max(8, 12 − ⌊d/300⌋)` segments; only the
+  level-0 pattern (one cube or beam: kind, lane, colour draws) exists so far. A tube beam (shape IN)
+  also hits lane + 8 while `flatness ≤ 0.2`; seam wrap applies on tube parts when not morphing.
+  `RunConfig.collisions_enabled` is off with `-- --ghost` for visual debugging.
+- **Obstacle drawing** (ADR 0009): `ObstacleView` has three `MultiMeshInstance3D`s (cube, beam, spike)
+  sharing `obstacle.gdshader`. Mesh vertices are tile-local `(u, v, height)`; per instance custom data
+  is `(lane, absolute segment, colour, alive)`. The shader positions each vertex from the same frames
+  and cross-section as the tunnel and lifts it along the face normal. The buffers are rewritten only
+  when `ObstacleField.version` changes. Face brightness is in UV.x, because instancing overrides the
+  vertex colour. `TrackShaderBinding` uploads frames, cross-section and face normals to every
+  registered material.
 - **Tunnel drawing** (ADR 0007): `TunnelView` builds a static 50×16-tile mesh once. Each vertex stores
   its lane vertex index (x) and segment offset (y); `tunnel.gdshader` computes its position as
   `frame_pos[s] + frame_right[s]·section[k].x + frame_up[s]·section[k].y`. The view uploads the 51

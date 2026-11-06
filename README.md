@@ -43,6 +43,7 @@ Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/
 | Steer right | → / D | left stick, D-pad right |
 | Restart after a crash | R / Enter | A, Start |
 
+Debugging: run the exported game with `-- --ghost` to pass through obstacles.
 On handhelds, A restarts after a crash and Select + Start quits. The frame rate is shown in the top-left corner.
 
 ## Project structure

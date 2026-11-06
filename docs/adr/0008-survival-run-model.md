@@ -1,6 +1,6 @@
 # 0008. Survival run model: obstacles, spots, shields and score
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0003

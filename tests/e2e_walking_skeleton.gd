@@ -14,6 +14,7 @@ var _last_lane := 0.0
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	root.add_child(_main)
+	_main.set("obstacles_enabled", false)
 	Input.action_press("steer_right")
 
 

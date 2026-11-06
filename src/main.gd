@@ -1,13 +1,17 @@
 extends Node3D
-## Entry point: runs the track model at a fixed 60 Hz, draws it, and restarts after a crash.
+## Entry point: runs a Survival run at a fixed 60 Hz, draws it, and restarts after a crash.
 
-const TARGET_TPS := 80.0
+## Tests and the benchmark can turn obstacles off before calling `start_run`.
+var obstacles_enabled := true
 
+var _run: SurvivalRun
 var _track: TrackModel
 var _clock: RunClock
 var _steering := Steering.new()
+var _binding: TrackShaderBinding
 
 @onready var _tunnel: TunnelView = $Tunnel
+@onready var _obstacles: ObstacleView = $Obstacles
 @onready var _camera: ShipCamera = $Camera
 @onready var _fps: Label = $Hud/Fps
 @onready var _message: Label = $Hud/Message
@@ -15,12 +19,21 @@ var _steering := Steering.new()
 
 func _ready() -> void:
 	$Environment.environment = ShipCamera.make_environment()
+	var materials: Array[ShaderMaterial] = [_tunnel.material, _obstacles.material]
+	_binding = TrackShaderBinding.new(materials)
+	_binding.window_changed.connect(_tunnel.on_window_changed)
+	_binding.window_changed.connect(_obstacles.on_window_changed)
 	start_run(int(Time.get_unix_time_from_system() * 1000.0) & 0xFFFFFFFF)
 
 
 func start_run(run_seed: int) -> void:
-	_track = TrackModel.new(TARGET_TPS, run_seed)
+	var config := RunConfig.standard()
+	config.generate_obstacles = obstacles_enabled
+	config.collisions_enabled = not OS.get_cmdline_user_args().has("--ghost")
+	_run = SurvivalRun.new(config, run_seed)
+	_track = _run.track
 	_clock = RunClock.new()
+	_binding.reset()
 	_camera.reset()
 	_message.visible = false
 	print("[run] seed=%d" % run_seed)
@@ -33,7 +46,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var raw := Input.get_axis("steer_left", "steer_right")
 	var dt := _clock.advance(delta)
-	_track.step(dt, _steering.process(raw))
+	_run.step(dt, _steering.process(raw))
 	_message.visible = _track.crashed
 	_refresh_view(dt)
 
@@ -43,5 +56,6 @@ func _process(_delta: float) -> void:
 
 
 func _refresh_view(dt: float) -> void:
-	_tunnel.refresh(_track)
+	_binding.refresh(_track)
+	_obstacles.refresh(_run.obstacles)
 	_camera.follow(_track, dt)

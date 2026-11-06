@@ -19,6 +19,7 @@ var _restart_tick := 0
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	root.add_child(_main)
+	_main.set("obstacles_enabled", false)
 
 
 func _physics_process(_delta: float) -> bool:

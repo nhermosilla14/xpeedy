@@ -1,6 +1,6 @@
 # 0007. Warning trails
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Owner: agent, Nicolás Hermosilla P. (device smoke test)
 - Intents: 0003

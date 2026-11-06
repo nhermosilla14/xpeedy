@@ -17,6 +17,7 @@ var _scrolls_seen := {}
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	root.add_child(_main)
+	_main.set("obstacles_enabled", false)
 
 
 func _physics_process(_delta: float) -> bool:
@@ -47,7 +48,8 @@ func _physics_process(_delta: float) -> bool:
 
 func _check_uniforms(track: TrackModel, tunnel: TunnelView) -> void:
 	_checked += 1
-	var material: ShaderMaterial = tunnel.material_override
+	var material: ShaderMaterial = tunnel.material
+	var binding: TrackShaderBinding = _main.get("_binding")
 	var first := track.window_start()
 	var section: PackedVector2Array = material.get_shader_parameter("section")
 	var model_section := track.geometry.section()
@@ -64,7 +66,7 @@ func _check_uniforms(track: TrackModel, tunnel: TunnelView) -> void:
 				or rights[i] != track.path.right(first + i) \
 				or ups[i] != track.path.up(first + i):
 			_error_once("frame %d differs from the model at window %d" % [i, first])
-	if tunnel.first_parity != (first & 1) \
+	if binding.first_parity != (first & 1) \
 			or not is_equal_approx(material.get_shader_parameter("first_parity"), float(first & 1)):
 		_error_once("checker parity wrong for window starting at %d" % first)
 

@@ -1,6 +1,6 @@
 # 0006. Obstacles and crashes
 
-- Status: Proposed
+- Status: Done
 - Date: 2026-11-06
 - Owner: agent
 - Intents: 0003
@@ -34,3 +34,17 @@ hit is a crash that uses the existing crash camera and restart.
 
 ## Out of scope
 - Trails, spikes, other patterns, shields, spots, score, HUD, effects.
+
+## Results (2026-11-06)
+- 68 unit tests and 4 end-to-end tests pass. `tools/test.sh` now also fails on any Godot script or
+  shader error (the headless renderer parses shaders: it caught a `return` that is illegal in a
+  vertex function).
+- `tests/e2e_obstacles.gd` through the real scene: the first obstacle appears at segment 55, the
+  instance buffer matches the model, flying into it crashes with reason "obstacle" and restart works,
+  and steering around the next obstacles survives past segment 96.
+- Desktop visual check (real GPU): cubes and beams in palette colours inside tubes, poles and cubes
+  standing on the flat ribbon. Found and fixed: instancing overrides the vertex colour, so the face
+  brightness moved to UV.x.
+- Desktop, 480×320 with `opengl3_es`, with obstacles: 110–118 fps average, 71–100 fps 1 % low.
+- CPU per tick (`tests/profile_tunnel.gd`): views 0.15–0.19 ms with obstacles, no growth in morphs.
+- A `-- --ghost` launch option (collisions off) was added for visual checks.

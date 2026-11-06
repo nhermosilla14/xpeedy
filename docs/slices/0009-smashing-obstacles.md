@@ -1,6 +1,6 @@
 # 0009. Smashing obstacles
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Owner: agent
 - Intents: 0003

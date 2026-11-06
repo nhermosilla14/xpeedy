@@ -1,6 +1,6 @@
 # 0011. Survival core on the RG351P
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Owner: agent, Nicolás Hermosilla P. (on-device run)
 - Intents: 0003

@@ -1,6 +1,7 @@
 extends SceneTree
-## Profiling (not part of tools/test.sh): CPU time per tick of the model step and of the tunnel view,
-## grouped by shape and morph state, over 40 s of driving straight. Run with:
+## Profiling (not part of tools/test.sh): CPU time per tick of the model step, obstacle generation and
+## the views, grouped by shape and morph state, over 40 s of driving straight (collisions are skipped
+## so the ship survives). Run with:
 ##   tools/godot.sh --headless --script res://tests/profile_tunnel.gd
 ## Always quits: a hung script would otherwise keep a container running.
 
@@ -20,15 +21,21 @@ func _physics_process(_delta: float) -> bool:
 	if _done:
 		return true
 	_done = true
-	var track: TrackModel = _main.get("_track")
+	var run: SurvivalRun = _main.get("_run")
+	var track: TrackModel = run.track
+	var binding: TrackShaderBinding = _main.get("_binding")
 	var tunnel: TunnelView = _main.get_node("Tunnel")
+	var obstacles: ObstacleView = _main.get_node("Obstacles")
 	var camera: ShipCamera = _main.get_node("Camera")
 	var stats := {}
 	for i in TICKS:
 		var t0 := Time.get_ticks_usec()
 		track.step(1.0 / 60.0, 0.0)
+		run.obstacles.generate_to(track.window_start() + TrackModel.VISIBLE_SEGMENTS)
+		run.obstacles.forget_before(track.window_start() - 2)
 		var t1 := Time.get_ticks_usec()
-		tunnel.refresh(track)
+		binding.refresh(track)
+		obstacles.refresh(run.obstacles)
 		var t2 := Time.get_ticks_usec()
 		camera.follow(track, 1.0 / 60.0)
 		var t3 := Time.get_ticks_usec()
@@ -41,7 +48,7 @@ func _physics_process(_delta: float) -> bool:
 		stats[key] = s
 	for key in stats:
 		var s: Array = stats[key]
-		print("%-10s ticks=%5d step=%6.1fus tunnel_view=%7.1fus camera=%6.1fus" % [
+		print("%-10s ticks=%5d step=%6.1fus views=%7.1fus camera=%6.1fus" % [
 			key, s[0], float(s[1]) / s[0], float(s[2]) / s[0], float(s[3]) / s[0]])
 	print("mesh builds: %d" % tunnel.mesh_builds)
 	quit()

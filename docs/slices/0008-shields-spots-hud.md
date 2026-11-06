@@ -1,6 +1,6 @@
 # 0008. Shield spots, shields and the HUD
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Owner: agent
 - Intents: 0003
