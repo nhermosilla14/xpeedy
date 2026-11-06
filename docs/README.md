@@ -16,7 +16,7 @@
 | # | Title | Status |
 |---|---|---|
 | 0001 | [Walking skeleton](slices/0001-walking-skeleton.md) | Done |
-| 0002 | [RG351P spike](slices/0002-rg351p-spike.md) | In progress |
+| 0002 | [RG351P spike](slices/0002-rg351p-spike.md) | Done |
 | 0003 | [Curving path](slices/0003-curving-path.md) | Accepted |
 | 0004 | [Shapes and morphs](slices/0004-shapes-and-morphs.md) | Accepted |
 

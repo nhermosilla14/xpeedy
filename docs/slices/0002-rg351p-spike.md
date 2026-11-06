@@ -1,6 +1,6 @@
 # 0002. RG351P spike: PortMaster package and benchmark
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-05
 - Owner: agent, Nicolás Hermosilla P. (on-device run)
 - Intents: 0001
@@ -25,3 +25,9 @@ is validated before more is built on it.
 
 ## Out of scope
 - Publishing to the PortMaster repository, testing on other handhelds.
+
+## Results (2026-11-05)
+- Device: Anbernic RG351P, 480×320, PortMaster with `godot_4.4.1` + `weston_pkg_0.2`.
+- Walking skeleton (straight tunnel, fog, FPS label): **47+ fps** sustained, reported by the user.
+- Pass (threshold ≥ 30 fps). ADR 0002 stands; no fallback to Godot 3.6 needed.
+- Select + Start quits the port.
