@@ -79,18 +79,19 @@
   level-0 pattern (one cube or beam: kind, lane, colour draws) exists so far. A tube beam (shape IN)
   also hits lane + 8 while `flatness ≤ 0.2`; seam wrap applies on tube parts when not morphing.
   `RunConfig.collisions_enabled` is off with `-- --ghost` for visual debugging.
-- **Warning trails** (ADR 0009): `SurvivalRun.trails` is a `TrailMap`, a ring buffer of 64 segment
-  rows × 16 lanes of RGBA float texels (R colour index or −1, G obstacle segment, B opposite-lane flag,
-  A spot flag; row `seg & 63`). Every obstacle added to the field paints the 25 tiles before it
+- **Warning trails** (ADR 0011): `SurvivalRun.trails` is a `TrailMap`, a ring buffer of 64 segment
+  rows × 16 lanes of RGBA8 tiles (R colour index + 1 with 0 meaning none, G the obstacle's segment minus
+  the tile's, B opposite-lane flag, A spot flag; row `seg & 63`). Every obstacle added to the field paints the 25 tiles before it
   (nearest obstacle ahead wins; a tube beam also paints lane + 8 with B = 1). A row is cleared when a
   different segment claims it, either on a write or when the window advances, so scrolling rewrites
-  nothing. `TrailTexture` uploads the map as a 16 × 64 `FORMAT_RGBAF` texture only when its version
-  changes. `tunnel.gdshader` fetches the tile's texel per vertex and applies the fade (invisible at 25
+  nothing. `TrailTexture` uploads the map as a 16 × 64 `FORMAT_RGBA8` texture only when its version
+  changes. The handhelds cannot sample float textures (Godot converts them to half-float with an error
+  per upload, and half-floats lose whole numbers above 2048), so data textures must be RGBA8. `tunnel.gdshader` fetches the tile's texel per vertex and applies the fade (invisible at 25
   segments, full at 15), the red-orange highlight (0 at 15, full at 5, × √(1.5 − lateral lanes), the
   lateral distance wrapping when the seam is open) and the tube-ness weight for opposite-lane trails,
   from per-tick uniforms (`ship_segment`, `ship_lane`, `wrap_seam`, `tube_weight`). `TrailMath` holds
   the same formulas in GDScript for the tests.
-- **Obstacle drawing** (ADR 0009): `ObstacleView` has three `MultiMeshInstance3D`s (cube, beam, spike)
+- **Obstacle drawing** (ADR 0011): `ObstacleView` has three `MultiMeshInstance3D`s (cube, beam, spike)
   sharing `obstacle.gdshader`. Mesh vertices are tile-local `(u, v, height)`; per instance custom data
   is `(lane, absolute segment, colour, alive)`. The shader positions each vertex from the same frames
   and cross-section as the tunnel and lifts it along the face normal. The buffers are rewritten only

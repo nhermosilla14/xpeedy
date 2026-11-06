@@ -1,6 +1,6 @@
 # 0009. Obstacles, trails and spots drawn on the GPU
 
-- Status: Accepted
+- Status: Superseded by 0011
 - Date: 2026-11-06
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0003

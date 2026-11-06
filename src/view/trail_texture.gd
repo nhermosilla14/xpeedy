@@ -1,6 +1,6 @@
 class_name TrailTexture
 extends RefCounted
-## The `TrailMap` as a 16 × 64 float texture the tunnel shader reads per tile (ADR 0009). Uploaded only
+## The `TrailMap` as a 16 × 64 RGBA8 texture the tunnel shader reads per tile (ADR 0011). Uploaded only
 ## when the map changes. Image data is kept on the CPU side too, so headless tests can read it.
 
 var texture: ImageTexture
@@ -11,8 +11,7 @@ var _built_version := -1
 
 
 func _init() -> void:
-	image = Image.create(TrailMap.LANES, TrailMap.ROWS, false, Image.FORMAT_RGBAF)
-	image.fill(Color(-1.0, 0.0, 0.0, 0.0))
+	image = Image.create(TrailMap.LANES, TrailMap.ROWS, false, Image.FORMAT_RGBA8)
 	texture = ImageTexture.create_from_image(image)
 
 
@@ -23,5 +22,5 @@ func refresh(map: TrailMap) -> void:
 		return
 	_built_for = id
 	_built_version = map.version
-	image.set_data(TrailMap.LANES, TrailMap.ROWS, false, Image.FORMAT_RGBAF, map.data.to_byte_array())
+	image.set_data(TrailMap.LANES, TrailMap.ROWS, false, Image.FORMAT_RGBA8, map.data)
 	texture.update(image)

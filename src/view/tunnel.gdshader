@@ -13,7 +13,8 @@ uniform vec2 section[17];
 uniform float first_segment = 0.0;
 uniform float first_parity = 0.0;
 uniform vec3 palette[5];
-// 16 x 64 RGBAF: R colour index or -1, G obstacle segment, B opposite-lane flag, A spot flag.
+// 16 x 64 RGBA8 (ADR 0011): R colour index + 1 (0 = no trail), G obstacle segment minus the tile's
+// segment, B opposite-lane flag, A spot flag. The handhelds can't sample float textures.
 uniform sampler2D trail_tex : filter_nearest;
 uniform float ship_segment = 0.0;
 uniform float ship_lane = 7.5;
@@ -33,17 +34,20 @@ void vertex() {
 	float parity = abs(COLOR.r - first_parity);
 	vec3 colour = mix(TILE_LIGHT, TILE_DARK, parity);
 	int tile_lane = int(UV.x + 0.5);
-	int tile_seg = int(first_segment) + int(UV.y + 0.5);
-	vec4 trail = texelFetch(trail_tex, ivec2(tile_lane, tile_seg & 63), 0);
-	if (trail.r > -0.5) {
-		float dist = trail.g - ship_segment;
-		float weight = trail.b > 0.5 ? tube_weight : 1.0;
+	int tile_offset = int(UV.y + 0.5);
+	int tile_seg = int(first_segment) + tile_offset;
+	vec4 raw = texelFetch(trail_tex, ivec2(tile_lane, tile_seg & 63), 0);
+	float code = floor(raw.r * 255.0 + 0.5);
+	if (code > 0.5) {
+		float obstacle_seg = float(tile_seg) + floor(raw.g * 255.0 + 0.5);
+		float dist = obstacle_seg - ship_segment;
+		float weight = raw.b > 0.5 ? tube_weight : 1.0;
 		float fade = clamp((25.0 - dist) / 10.0, 0.0, 1.0);
 		float lane_d = abs(ship_lane - (float(tile_lane) + 0.5));
 		lane_d = mix(lane_d, min(lane_d, 16.0 - lane_d), wrap_seam);
 		float approach = clamp((15.0 - dist) / 10.0, 0.0, 1.0);
 		float hl = clamp(approach * sqrt(max(0.0, 1.5 - lane_d)), 0.0, 1.0);
-		colour = mix(colour, palette[int(trail.r + 0.5)], fade * weight);
+		colour = mix(colour, palette[int(code - 0.5)], fade * weight);
 		colour = mix(colour, WARNING, hl * weight);
 	}
 	COLOR = vec4(colour, 1.0);

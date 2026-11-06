@@ -43,3 +43,18 @@ proximity highlight near the ship's lane, and the opposite-lane trail for tube b
   average, 51–71 fps 1 % low.
 - Pending: the device smoke test on the RG351P (tunnel and trails render; frame rate holds). If vertex
   texture fetch fails, apply the RGBA8 fallback from ADR 0009.
+
+## RG351P smoke test (2026-11-06) and the fix
+- Device: RG351P, AmberELEC, PortMaster 2026.06.23, ~120 s run. The user found the tunnel and trails
+  render fine, with some stutter at the start.
+- `log.txt`: 57.6 fps average / 48.0 fps 1 % low in the first 10 s window, then a locked 60.0 / 60.0 for
+  the rest of the run. But the log also had 1,269 `RGBA32 float texture not supported, converting to
+  RGBA16` errors: the Mali-G31 build of Godot cannot use float textures, so every upload converted to
+  half-float. That costs CPU per upload (the likely cause of the early stutter) and half-floats lose
+  whole numbers above 2048, so trail timing would have drifted after ~2.5 minutes.
+- Fix (ADR 0011, replacing 0009): the trail texture is RGBA8; each tile stores the obstacle's distance
+  from the tile (0–25) instead of an absolute segment. Regression tests cover trails at segments 2047,
+  2049, 4097, 100000 and 16777000, and the byte layout. Desktop visual check repeated: same result, no
+  errors in the log.
+- Pending: a second device run to confirm the early stutter is gone and the log has no float-texture
+  errors.

@@ -191,3 +191,25 @@ func test_the_run_paints_trails_for_generated_obstacles() -> void:
 	var o := run.obstacles.at_segment(55)[0]
 	check_eq(run.trails.texel(50, o.lane).g, 55.0, "trail towards the first obstacle")
 	check_eq(run.trails.texel(50, o.lane).r, float(o.colour), "in the obstacle's colour")
+
+
+func test_trails_are_exact_far_into_a_run() -> void:
+	# Regression: half-float storage could not hold whole segment numbers above 2048.
+	for base in [2047, 2049, 4097, 100000, 16777000]:
+		var map := _map(base - 30)
+		map.add_obstacle(_cube(base, 6, 3))
+		for seg in range(base - 25, base + 1):
+			var t := map.texel(seg, 6)
+			check_eq([t.r, int(t.g)], [3.0, base], "obstacle at %d seen from tile %d" % [base, seg])
+
+
+func test_bytes_are_laid_out_for_an_rgba8_texture() -> void:
+	var map := _map(60)
+	map.add_obstacle(_beam(100, 3, Shape.IN))
+	var own := ((100 - 7 & 63) * 16 + 3) * 4  # tile at segment 93, lane 3: 7 segments before the beam
+	check_eq([map.data[own], map.data[own + 1], map.data[own + 2], map.data[own + 3]], [3, 7, 0, 0],
+		"colour + 1, distance to the obstacle, not opposite, no spot")
+	var opposite := ((100 - 7 & 63) * 16 + 11) * 4
+	check_eq([map.data[opposite], map.data[opposite + 1], map.data[opposite + 2]], [3, 7, 255],
+		"opposite lane flagged in blue")
+	check_eq(map.data.size(), 64 * 16 * 4, "16 x 64 RGBA8")

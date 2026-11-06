@@ -139,8 +139,7 @@ func _check_instances(run: SurvivalRun) -> void:
 ## The trail texture the shader reads must hold the model's trail map, with the first obstacle's trail.
 func _check_trails(run: SurvivalRun, first: Obstacle) -> void:
 	var texture: TrailTexture = _main.get("_trail_texture")
-	var uploaded := texture.image.get_data().to_float32_array()
-	if uploaded != run.trails.data:
+	if texture.image.get_data() != run.trails.data:
 		_errors.append("the trail texture differs from the model's trail map")
 	var tile := run.trails.texel(first.seg - 3, first.lane)
 	if tile.r != float(first.colour) or tile.g != float(first.seg):
