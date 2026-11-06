@@ -1,6 +1,6 @@
 # 0002. RG351P spike: PortMaster package and benchmark
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-05
 - Owner: agent, Nicolás Hermosilla P. (on-device run)
 - Intents: 0001

@@ -40,7 +40,8 @@
 | `src/model/` | Gameplay state (`TrackModel`) and track-to-world mapping (`TunnelGeometry`) |
 | `src/view/` | Nodes that draw the model: `TunnelView`, `ShipCamera` |
 | `tests/` | Unit tests (`tests/unit/`) and end-to-end scene scripts (`tests/e2e_*.gd`) |
-| `tools/` | Container wrapper, test and export scripts |
+| `tools/` | Container wrapper, test, export and packaging scripts |
+| `packaging/portmaster/` | PortMaster port: launch script (Godot 4.4.1 runtime under Weston), metadata, gptk |
 
 ## Key rules
 - **Model / view split**: the model never touches nodes; views only read it (ADR 0004).
@@ -50,3 +51,7 @@
 - **Coordinates**: lane position grows to the left; positive steer moves right (to lower lanes).
   The straight path runs along −Z, one segment = 2·sin(π/16) units.
 - The tunnel mesh is rebuilt only when the ship crosses a segment boundary.
+- The root node runs with process mode Always (works around the Godot 4.3+ idle bug on handhelds),
+  and stdout is flushed on every print so `[bench]` lines survive the port being killed.
+- Handheld input: gptokeyb maps D-pad/left stick to arrow keys; Godot's native gamepad input stays on
+  (both drive the same actions, so a double input just saturates the axis).

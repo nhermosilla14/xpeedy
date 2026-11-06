@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gameList>
+  <game>
+    <path>./Xpeedy.sh</path>
+    <name>Xpeedy</name>
+    <desc>A fast first-person tunnel racer: steer around a curving 16-lane tunnel at high speed. A free clone of SpeedX 3D.</desc>
+    <developer>Nicolás Hermosilla P.</developer>
+    <publisher>Open Source</publisher>
+    <genre>Racing</genre>
+  </game>
+</gameList>

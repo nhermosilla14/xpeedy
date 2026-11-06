@@ -1,0 +1,35 @@
+{
+  "version": 4,
+  "name": "xpeedy.zip",
+  "items": [
+    "Xpeedy.sh",
+    "xpeedy"
+  ],
+  "items_opt": [],
+  "attr": {
+    "title": "Xpeedy",
+    "porter": [
+      "Nicolás Hermosilla P."
+    ],
+    "desc": "A fast first-person tunnel racer: steer around a curving 16-lane tunnel at high speed. A free clone of SpeedX 3D.",
+    "desc_md": null,
+    "inst": "Ready to run.",
+    "inst_md": null,
+    "genres": [
+      "racing",
+      "arcade"
+    ],
+    "image": null,
+    "rtr": true,
+    "exp": true,
+    "runtime": [
+      "godot_4.4.1.squashfs",
+      "weston_pkg_0.2.squashfs"
+    ],
+    "store": [],
+    "availability": "full",
+    "reqs": [],
+    "arch": [],
+    "min_glibc": ""
+  }
+}

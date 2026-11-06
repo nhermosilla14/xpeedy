@@ -21,19 +21,32 @@ tools/export.sh      # builds build/linux/xpeedy.x86_64
 build/linux/xpeedy.x86_64
 ```
 
+### PortMaster (handhelds)
+```sh
+tools/package-portmaster.sh   # builds build/portmaster/xpeedy.zip
+```
+Install it on the handheld in one of two ways:
+- Copy `xpeedy.zip` to PortMaster's `autoinstall/` folder on the SD card and open PortMaster, or
+- unzip it into the `ports/` folder (it contains `Xpeedy.sh` and `xpeedy/`).
+
+The port needs the `godot_4.4.1` and `weston_pkg_0.2` runtimes; PortMaster downloads them on first
+launch if Wi-Fi is available, otherwise copy the `.squashfs` files into `PortMaster/libs/`.
+Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/xpeedy/log.txt` every 10 s.
+
 ## Usage
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | Steer left | ← / A | left stick, D-pad left |
 | Steer right | → / D | left stick, D-pad right |
 
-The frame rate is shown in the top-left corner.
+On handhelds, Select + Start quits. The frame rate is shown in the top-left corner.
 
 ## Project structure
 ```
 src/                  game code: core/ (helpers), model/ (gameplay state), view/ (drawing), main scene
 tests/                unit tests (unit/), end-to-end scene scripts (e2e_*.gd), runner
-tools/                godot.sh (containerised Godot), test.sh, export.sh
+tools/                godot.sh (containerised Godot), test.sh, export.sh, package-portmaster.sh
+packaging/portmaster/ PortMaster launch script, port.json, gameinfo.xml, gptk mapping
 docs/                 vision, architecture, intents, slices, ADRs
 docs/reference/       behavioural reference of the original game (clean-room spec)
 project.godot         Godot project; export_presets.cfg holds export targets
@@ -48,7 +61,7 @@ LICENSE               GPL-3.0
 - `tools/godot.sh <args>` runs any Godot command in the container with the repo mounted at `/src`.
 - Test: `tools/test.sh`. Unit tests extend `TestCase` and live in `tests/unit/test_*.gd`; scene-level
   checks are `tests/e2e_*.gd` scripts extending `SceneTree`.
-- Export: `tools/export.sh [preset]` (default `Linux`).
+- Export: `tools/export.sh [preset]` (default `Linux`). PortMaster zip: `tools/package-portmaster.sh`.
 - Style: statically typed GDScript, official Godot style guide, tabs.
 - Trunk-based on `main`, small focused commits.
 
