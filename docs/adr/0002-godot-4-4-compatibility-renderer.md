@@ -1,6 +1,6 @@
 # 0002. Godot 4.4 with the Compatibility renderer
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-05
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0001

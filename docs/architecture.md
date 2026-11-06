@@ -1,36 +1,52 @@
 # Architecture
 
-> Status: planned. Nothing is implemented yet; this describes the intended shape from the accepted
-> or proposed ADRs and will be updated as slices land.
+> Status: slice 0001 (walking skeleton) implemented: straight inside-shape tunnel, steering, speed ramp.
+> Curves, shapes and morphs arrive with slices 0003–0004.
 
 ## Engine and runtime
-- Godot 4.4.x, Compatibility (OpenGL ES 3 / OpenGL 3.3) renderer, GDScript only (ADR 0002, 0003).
+- Godot 4.4.1, Compatibility (OpenGL ES 3 / OpenGL 3.3) renderer, GDScript only (ADR 0002, 0003).
 - One Godot project at the repository root, exported to desktop, Android and a PortMaster `.pck`.
+- Development uses Godot from a container image; see `README.md`.
 
-## Components (planned)
+## Components
 
 ```
-            input devices (keys, gamepad, touch, tilt)
-                          │
+   keys / gamepad ──► input map (steer_left / steer_right)
+                          │  Input.get_axis
                           ▼
                  ┌─────────────────┐
-                 │  SteerInput     │  any device ─► steer value (doc 03 pipeline)
+                 │  Steering       │  response curve |x|^0.66, invert  (src/core)
                  └────────┬────────┘
                           ▼
 ┌──────────┐     ┌─────────────────┐     ┌──────────────────┐
-│ XRandom  │────►│  TrackModel     │◄────│  RunClock         │ fixed 60 Hz game time
-│ (PCG32)  │     │  path, parts,   │     └──────────────────┘
-└──────────┘     │  morphs, ship   │
-                 └────────┬────────┘
-                          ▼ (read-only)
-                 ┌─────────────────┐
-                 │  TunnelView     │  ArrayMesh 51×17 grid, camera, fog
-                 └─────────────────┘
+│ XRandom  │····►│  TrackModel     │◄────│  RunClock         │ 200 ms cap, scale
+│(xoshiro) │     │  segment, p,    │     └──────────────────┘
+└──────────┘     │  speed ramp     │  (src/model)
+ (used from      └────────┬────────┘
+  slice 0003)             ▼ read-only, via TunnelGeometry (track → world)
+          ┌───────────────┴───────────────┐
+          ▼                               ▼
+ ┌─────────────────┐             ┌─────────────────┐
+ │  TunnelView     │             │  ShipCamera     │  (src/view)
+ │  50×16 tile mesh│             │  eye, look-ahead│
+ └─────────────────┘             │  fog env        │
+                                 └─────────────────┘
 ```
 
-- **Model / view split**: gameplay state (track, ship position, speed) lives in plain GDScript
-  classes that don't depend on scene nodes, so they can be unit-tested headless. Views read it.
-- **Fixed timestep**: game logic advances in `_physics_process` at 60 Hz, with the 200 ms frame
-  cap from the reference.
-- **Deterministic randomness**: gameplay draws from an own PCG32 generator, decoration from a
-  separate one (ADR 0004).
+| Path | Role |
+|---|---|
+| `src/main.tscn`, `src/main.gd` | Entry scene; steps the model in `_physics_process` (60 Hz) and refreshes views |
+| `src/core/` | Engine-agnostic helpers: `XRandom`, `RunClock`, `Steering` |
+| `src/model/` | Gameplay state (`TrackModel`) and track-to-world mapping (`TunnelGeometry`) |
+| `src/view/` | Nodes that draw the model: `TunnelView`, `ShipCamera` |
+| `tests/` | Unit tests (`tests/unit/`) and end-to-end scene scripts (`tests/e2e_*.gd`) |
+| `tools/` | Container wrapper, test and export scripts |
+
+## Key rules
+- **Model / view split**: the model never touches nodes; views only read it (ADR 0004).
+- **Fixed timestep**: game logic advances only in `_physics_process` at 60 Hz through `RunClock`.
+- **Deterministic randomness**: gameplay draws from an own xoshiro128** generator, decoration from a
+  separate instance (ADR 0004).
+- **Coordinates**: lane position grows to the left; positive steer moves right (to lower lanes).
+  The straight path runs along −Z, one segment = 2·sin(π/16) units.
+- The tunnel mesh is rebuilt only when the ship crosses a segment boundary.

@@ -1,6 +1,6 @@
 # 0001. Tunnel prototype
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-05
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0002, 0003, 0004

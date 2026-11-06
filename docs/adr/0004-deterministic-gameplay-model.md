@@ -1,6 +1,6 @@
 # 0004. Deterministic, fixed-step gameplay model
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-05
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0001
@@ -15,7 +15,7 @@ the same sequence across engine versions. Gameplay rules should also be testable
   (`RefCounted`) with no scene dependencies. Nodes only read the model to draw it.
 - **Fixed timestep**: game logic runs in `_physics_process` at 60 Hz on a game clock that is capped
   at 200 ms per frame and can be scaled (for Time Dilation later).
-- **Own PRNG**: a PCG32 generator implemented in GDScript. Gameplay generation uses one instance
+- **Own PRNG**: xoshiro128** (seeded through a SplitMix32-style mixer) implemented in GDScript using only 32-bit arithmetic, so it never relies on signed 64-bit overflow. Gameplay generation uses one instance
   with a fixed draw order. Decoration (shake, particles) uses a separate instance.
 - Headless unit tests exercise the model with Godot's `--headless` mode.
 

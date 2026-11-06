@@ -1,6 +1,6 @@
 # 0003. GDScript only
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-05
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0001

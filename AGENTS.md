@@ -44,7 +44,7 @@ These rules apply to every change, by humans or agents:
 8. **Update this file** when conventions or rules change.
 
 ## Conventions
-- Tooling: Godot 4.4.x editor and headless mode; test runner TBD in slice 0001.
+- Tooling: Godot 4.4.1 runs from the `docker.io/barichello/godot-ci:4.4.1` podman image (includes export templates) via `tools/godot.sh`; no host install needed. Tests: own minimal runner (`tests/run_tests.gd`, `TestCase`) plus `tests/e2e_*.gd` scene scripts, run by `tools/test.sh`. Exports via `tools/export.sh`.
 - Workflow: trunk-based on `main`, small focused commits, short-lived branches only when needed.
 - Style: statically typed GDScript following the official Godot style guide; tabs for indentation.
 - Never commit secrets (Android keystores, signing passwords); keep them out of git via `.gitignore`.

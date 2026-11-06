@@ -1,6 +1,6 @@
 # 0001. Walking skeleton: straight tunnel with steering
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-05
 - Owner: agent
 - Intents: 0001
