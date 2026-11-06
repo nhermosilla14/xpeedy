@@ -23,7 +23,7 @@
 | 0004 | [Shapes and morphs](slices/0004-shapes-and-morphs.md) | Done |
 | 0005 | [GPU tunnel](slices/0005-gpu-tunnel.md) | Done |
 | 0006 | [Obstacles and crashes](slices/0006-obstacles-and-crashes.md) | Done |
-| 0007 | [Warning trails](slices/0007-warning-trails.md) | In progress |
+| 0007 | [Warning trails](slices/0007-warning-trails.md) | Done |
 | 0008 | [Shield spots, shields and the HUD](slices/0008-shields-spots-hud.md) | Accepted |
 | 0009 | [Smashing obstacles](slices/0009-smashing-obstacles.md) | Accepted |
 | 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Accepted |

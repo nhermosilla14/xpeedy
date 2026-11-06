@@ -1,6 +1,6 @@
 # 0007. Warning trails
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-06
 - Owner: agent, Nicolás Hermosilla P. (device smoke test)
 - Intents: 0003
@@ -56,5 +56,6 @@ proximity highlight near the ship's lane, and the opposite-lane trail for tube b
   from the tile (0–25) instead of an absolute segment. Regression tests cover trails at segments 2047,
   2049, 4097, 100000 and 16777000, and the byte layout. Desktop visual check repeated: same result, no
   errors in the log.
-- Pending: a second device run to confirm the early stutter is gone and the log has no float-texture
-  errors.
+- Second device run (RGBA8 build, ~100 s): 0 float-texture errors, no shader errors; 58.5 avg / 59.5
+  1 % low in the first 10 s, then a locked 60.0 / 60.0 in every later window. The user confirmed the
+  tunnel and trails look fine.

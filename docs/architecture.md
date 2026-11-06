@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: slices 0001–0007 implemented (0007 awaits its device smoke test): curving tunnel with in/flat/out shapes and morphs, steering,
+> Status: slices 0001–0007 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
 > wall crashes and restart, speed ramp, PortMaster package.
 
 ## Engine and runtime
