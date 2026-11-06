@@ -21,25 +21,28 @@ func refresh(track: TrackModel) -> void:
 	if first == _built_from:
 		return
 	_built_from = first
-	mesh = _build(first)
+	mesh = _build(track.geometry, first)
 
 
-func _build(first: int) -> ArrayMesh:
+func _build(geometry: TunnelGeometry, first: int) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var colors := PackedColorArray()
 	var indices := PackedInt32Array()
+	var near := geometry.ring(first)
 	for s in TrackModel.VISIBLE_SEGMENTS:
 		var seg := first + s
+		var far := geometry.ring(seg + 1)
 		for lane in TrackModel.LANES:
 			var base := verts.size()
-			verts.append(TunnelGeometry.vertex(lane, seg))
-			verts.append(TunnelGeometry.vertex(lane + 1, seg))
-			verts.append(TunnelGeometry.vertex(lane + 1, seg + 1))
-			verts.append(TunnelGeometry.vertex(lane, seg + 1))
+			verts.append(near[lane])
+			verts.append(near[lane + 1])
+			verts.append(far[lane + 1])
+			verts.append(far[lane])
 			var c := TILE_LIGHT if (seg + lane) % 2 == 0 else TILE_DARK
 			for i in 4:
 				colors.append(c)
 			indices.append_array([base, base + 1, base + 2, base, base + 2, base + 3])
+		near = far
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts

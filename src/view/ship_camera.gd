@@ -16,9 +16,10 @@ func _ready() -> void:
 
 func follow(track: TrackModel) -> void:
 	var lane := track.lane_position()
-	var up := TunnelGeometry.normal(lane, track.segment)
-	var eye := TunnelGeometry.surface(lane, track.segment) + up * EYE_HEIGHT
-	var target := TunnelGeometry.surface(lane, track.segment + LOOK_AHEAD)
+	var geometry := track.geometry
+	var up := geometry.normal(lane, track.segment)
+	var eye := geometry.surface(lane, track.segment) + up * EYE_HEIGHT
+	var target := geometry.surface(lane, track.segment + LOOK_AHEAD)
 	look_at_from_position(eye, target, up)
 
 

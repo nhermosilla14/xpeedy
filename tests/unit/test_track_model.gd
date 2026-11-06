@@ -71,7 +71,8 @@ func test_response_curve_and_invert() -> void:
 
 
 func test_lane_width_equals_segment_length() -> void:
-	var a := TunnelGeometry.vertex(0, 0.0)
-	var b := TunnelGeometry.vertex(1, 0.0)
+	var geometry := TrackModel.new().geometry
+	var a := geometry.vertex(0, 0)
+	var b := geometry.vertex(1, 0)
 	check_near(a.distance_to(b), TrackModel.SEGMENT_LENGTH, 0.0001, "lane width")
 	check_near(TrackModel.SEGMENT_LENGTH, 0.390, 0.001, "≈ 0.390")

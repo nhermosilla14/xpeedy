@@ -1,9 +1,9 @@
 extends Node3D
-## Slice 0001 entry point: runs the track model at a fixed 60 Hz and draws it.
+## Entry point: runs the track model at a fixed 60 Hz and draws it.
 
 const TARGET_TPS := 80.0
 
-var _track := TrackModel.new(TARGET_TPS)
+var _track := TrackModel.new(TARGET_TPS, int(Time.get_unix_time_from_system() * 1000.0) & 0xFFFFFFFF)
 var _clock := RunClock.new()
 var _steering := Steering.new()
 

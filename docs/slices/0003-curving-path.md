@@ -1,6 +1,6 @@
 # 0003. Curving path
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-05
 - Owner: agent
 - Intents: 0001

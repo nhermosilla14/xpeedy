@@ -19,10 +19,16 @@ var segment := START_SEGMENT
 var p := 1.0 - START_LANE_POSITION / 8.0
 var tps := START_TPS
 var elapsed := 0.0
+var seed_value: int
+var path: PathModel
+var geometry: TunnelGeometry
 
 
-func _init(target_tps_ms: float = 80.0) -> void:
+func _init(target_tps_ms: float = 80.0, run_seed: int = 0) -> void:
 	target_tps = target_tps_ms
+	seed_value = run_seed
+	path = PathModel.new(run_seed, SEGMENT_LENGTH)
+	geometry = TunnelGeometry.new(path)
 
 
 func lane_position() -> float:
@@ -39,6 +45,7 @@ func step(dt: float, steer: float) -> void:
 		p -= 2.0
 	elif p < -1.0:
 		p += 2.0
+	path.forget_before(window_start())
 
 
 ## Time per segment after `t` seconds: ease-out from 300 ms to the target over 1 s (doc 17).

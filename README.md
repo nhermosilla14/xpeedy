@@ -5,7 +5,7 @@ tunnel at high speed and steer around obstacles. It targets desktop, Android and
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 > Status: tunnel prototype in progress ([intent 0001](docs/intent/0001-tunnel-prototype.md)).
-> A straight tunnel you can steer around is playable.
+> A curving tunnel you can steer around is playable, on desktop and PortMaster handhelds.
 
 ## Prerequisites
 - [Podman](https://podman.io/) 4+. Godot 4.4.1 and its export templates come from the
