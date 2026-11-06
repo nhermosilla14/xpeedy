@@ -4,8 +4,8 @@ A free, open-source clone of the discontinued tunnel racer SpeedX 3D: fly throug
 tunnel at high speed and steer around obstacles. It targets desktop, Android and PortMaster
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
-> Status: tunnel prototype done ([intent 0001](docs/intent/0001-tunnel-prototype.md)); next, smooth
-> frame pacing on the RG351P ([intent 0002](docs/intent/0002-smooth-frame-pacing.md)).
+> Status: tunnel prototype done ([intent 0001](docs/intent/0001-tunnel-prototype.md)); smooth frame
+> pacing on the RG351P in progress ([intent 0002](docs/intent/0002-smooth-frame-pacing.md)).
 > A curving tunnel that switches between tube, flat and outside shapes is playable, on desktop and
 > PortMaster handhelds. Drive off a flat edge and you crash.
 
@@ -66,6 +66,7 @@ LICENSE               GPL-3.0
   can't hang. Test scripts must always call `quit()`.
 - Test: `tools/test.sh`. Unit tests extend `TestCase` and live in `tests/unit/test_*.gd`; scene-level
   checks are `tests/e2e_*.gd` scripts extending `SceneTree`.
+- Profile (CPU per tick by shape): `tools/godot.sh --headless --script res://tests/profile_tunnel.gd`.
 - Export: `tools/export.sh [preset]` (default `Linux`). PortMaster zip: `tools/package-portmaster.sh`.
 - Style: statically typed GDScript, official Godot style guide, tabs.
 - Trunk-based on `main`, small focused commits.

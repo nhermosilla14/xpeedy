@@ -38,16 +38,9 @@ func vertex(lane_vertex: int, seg: int) -> Vector3:
 	return _to_world(_local[lane_vertex], seg)
 
 
-## All 17 vertices of the cross-section at an integer segment.
-func ring(seg: int) -> PackedVector3Array:
-	var centre := path.position(seg)
-	var r := path.right(seg)
-	var u := path.up(seg)
-	var result := PackedVector3Array()
-	result.resize(_local.size())
-	for k in _local.size():
-		result[k] = centre + r * _local[k].x + u * _local[k].y
-	return result
+## The 17 cross-section points in the frame's (right, up) plane, for the current turn angle.
+func section() -> PackedVector2Array:
+	return _local
 
 
 ## Point on the lane surface at a fractional lane position and segment.

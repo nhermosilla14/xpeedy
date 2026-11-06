@@ -1,6 +1,6 @@
 # 0005. GPU tunnel
 
-- Status: Proposed
+- Status: In progress
 - Date: 2026-11-06
 - Owner: agent, Nicolás Hermosilla P. (on-device run)
 - Intents: 0002
@@ -29,3 +29,13 @@ a mesh.
 
 ## Out of scope
 - Moving the camera or gameplay maths to the GPU.
+
+## Results so far (2026-11-06)
+- All unit tests (47) and end-to-end tests (3) pass, including `tests/e2e_gpu_tunnel.gd`: through the
+  real scene the mesh is built once; over 301 ticks (63 window scrolls, 144 inside a morph) the frames,
+  cross-section and checker parity uploaded to the shader match the model.
+- Desktop visual check (real GPU): tube, curves, morph, flat ribbon and rolling back up look as before.
+- Desktop CPU per tick (`tests/profile_tunnel.gd`, 40 s): tunnel view 0.12 ms in every state
+  (was 0.54 ms normally and 2.2 ms while morphing); mesh builds: 1.
+- Desktop, 480×320 with `opengl3_es`: 101–112 fps average, 58–72 fps 1 % low.
+- Pending: RG351P run (60 s with at least two shape changes) and the user's confirmation.

@@ -85,11 +85,3 @@ func test_forget_before_keeps_later_frames() -> void:
 	check_eq(path.position(500), expected)
 	check_eq(path.position(400) != Vector3.ZERO, true, "frame 400 kept")
 
-
-func test_ring_matches_vertex() -> void:
-	var geometry := TunnelGeometry.new(_path())
-	for seg in [0, 37, 500]:
-		var ring := geometry.ring(seg)
-		check_eq(ring.size(), 17, "ring size")
-		for k in 17:
-			check(ring[k].is_equal_approx(geometry.vertex(k, seg)), "seg %d vertex %d" % [seg, k])

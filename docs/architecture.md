@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: slices 0001–0004 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
+> Status: slices 0001–0005 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
 > wall crashes and restart, speed ramp, PortMaster package.
 
 ## Engine and runtime
@@ -31,7 +31,8 @@
           ▼                               ▼
  ┌─────────────────┐             ┌─────────────────┐
  │  TunnelView     │             │  ShipCamera     │  (src/view)
- │  50×16 tile mesh│             │  eye, look-ahead│
+ │  static mesh +  │             │  eye, look-ahead│
+ │  vertex shader  │             │                 │
  └─────────────────┘             │  fog env        │
                                  └─────────────────┘
 ```
@@ -70,9 +71,14 @@
   τ = lerp(τ_old, τ_new, progress) by the ship's progress. Seam crossing, banking and shake use the
   same progress. Crossing the seam where it isn't allowed sets `crashed`; the run stops and
   "restart" starts a new one.
-- The tunnel mesh is rebuilt from one 17-vertex ring per segment when the ship crosses a segment
-  boundary, and every tick while morphing (≈ 2.2 ms per tick on a desktop CPU). If that is too slow on
-  the RK3326, move the morph to a vertex shader.
+- **Tunnel drawing** (ADR 0007): `TunnelView` builds a static 50×16-tile mesh once. Each vertex stores
+  its lane vertex index (x) and segment offset (y); `tunnel.gdshader` computes its position as
+  `frame_pos[s] + frame_right[s]·section[k].x + frame_up[s]·section[k].y`. The view uploads the 51
+  visible frames when the ship enters a new segment (≈ 12 times per second), and the 17-point
+  cross-section (`TunnelGeometry.section()`) only when the turn angle changes. Checker parity is
+  computed in the shader from the first visible segment's parity. The mesh has a custom AABB around
+  the first visible segment so it is never culled by its untransformed bounds. Headless runs use a
+  dummy renderer, so shaders are only verified on a real GPU.
 - The root node runs with process mode Always (works around the Godot 4.3+ idle bug on handhelds),
   and stdout is flushed on every print so `[bench]` lines survive the port being killed.
 - Handheld input: gptokeyb maps D-pad/left stick to arrow keys; Godot's native gamepad input stays on

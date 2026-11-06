@@ -1,52 +1,81 @@
 class_name TunnelView
 extends MeshInstance3D
-## Draws the visible 50-segment window of the tunnel as one mesh of flat-coloured tiles.
-## Rebuilt when the window scrolls or the shape changes (every tick while morphing).
+## Draws the visible 50-segment window of the tunnel (ADR 0007). The mesh is built once; a vertex
+## shader places every vertex from the per-segment frames and the 17-point cross-section, which this
+## node uploads when the window scrolls (frames) or the shape changes (cross-section).
 
-const TILE_LIGHT := Color(1.0, 1.0, 1.0)
-const TILE_DARK := Color(0.82, 0.82, 0.86)
+const SEGMENTS := TrackModel.VISIBLE_SEGMENTS
+const FRAMES := SEGMENTS + 1
+## Half-size of the culling box around the first visible segment; the window is ~20 units long.
+const CULL_MARGIN := 40.0
+const TunnelShader := preload("res://src/view/tunnel.gdshader")
 
+## How many times the mesh was created (always 1 after _ready).
+var mesh_builds := 0
+## Checker parity of the first visible segment, as last uploaded.
+var first_parity := 0
+
+var _material := ShaderMaterial.new()
 var _built_from := -1
 var _built_turn := NAN
 
 
 func _ready() -> void:
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.vertex_color_use_as_albedo = true
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material_override = material
+	_material.shader = TunnelShader
+	material_override = _material
+	mesh = _build_mesh()
+	mesh_builds += 1
 
 
+## Uploads whatever changed since the last call.
 func refresh(track: TrackModel) -> void:
 	var first := track.window_start()
-	var turn := track.geometry.turn
-	if first == _built_from and turn == _built_turn:
-		return
-	_built_from = first
-	_built_turn = turn
-	mesh = _build(track.geometry, first)
+	var geometry := track.geometry
+	if first != _built_from:
+		_built_from = first
+		_upload_frames(geometry.path, first)
+	if geometry.turn != _built_turn:
+		_built_turn = geometry.turn
+		_material.set_shader_parameter("section", geometry.section())
 
 
-func _build(geometry: TunnelGeometry, first: int) -> ArrayMesh:
+func _upload_frames(path: PathModel, first: int) -> void:
+	var positions := PackedVector3Array()
+	var rights := PackedVector3Array()
+	var ups := PackedVector3Array()
+	positions.resize(FRAMES)
+	rights.resize(FRAMES)
+	ups.resize(FRAMES)
+	for i in FRAMES:
+		positions[i] = path.position(first + i)
+		rights[i] = path.right(first + i)
+		ups[i] = path.up(first + i)
+	first_parity = first & 1
+	_material.set_shader_parameter("frame_pos", positions)
+	_material.set_shader_parameter("frame_right", rights)
+	_material.set_shader_parameter("frame_up", ups)
+	_material.set_shader_parameter("first_parity", float(first_parity))
+	# Vertices are positioned in the shader, so the mesh's own bounds mean nothing to the culler.
+	var centre := positions[0]
+	mesh.custom_aabb = AABB(centre - Vector3.ONE * CULL_MARGIN, Vector3.ONE * CULL_MARGIN * 2.0)
+
+
+## Static mesh: vertex x = lane vertex index, y = segment offset, z unused; color.r = tile parity.
+func _build_mesh() -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var colors := PackedColorArray()
 	var indices := PackedInt32Array()
-	var near := geometry.ring(first)
-	for s in TrackModel.VISIBLE_SEGMENTS:
-		var seg := first + s
-		var far := geometry.ring(seg + 1)
+	for s in SEGMENTS:
 		for lane in TrackModel.LANES:
 			var base := verts.size()
-			verts.append(near[lane])
-			verts.append(near[lane + 1])
-			verts.append(far[lane + 1])
-			verts.append(far[lane])
-			var c := TILE_LIGHT if (seg + lane) % 2 == 0 else TILE_DARK
+			verts.append(Vector3(lane, s, 0.0))
+			verts.append(Vector3(lane + 1, s, 0.0))
+			verts.append(Vector3(lane + 1, s + 1, 0.0))
+			verts.append(Vector3(lane, s + 1, 0.0))
+			var parity := float((s + lane) % 2)
 			for i in 4:
-				colors.append(c)
+				colors.append(Color(parity, 0.0, 0.0))
 			indices.append_array([base, base + 1, base + 2, base, base + 2, base + 3])
-		near = far
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts

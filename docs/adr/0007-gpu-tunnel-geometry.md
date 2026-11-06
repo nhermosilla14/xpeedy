@@ -1,6 +1,6 @@
 # 0007. Tunnel geometry evaluated on the GPU
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0002
