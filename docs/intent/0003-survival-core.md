@@ -1,9 +1,9 @@
 # 0003. Survival core: obstacles, shields and score
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-06
 - Owner: Nicolás Hermosilla P., agent
-- Related ADRs: (to be filled in during design)
+- Related ADRs: 0008, 0009, 0010
 
 ## Goal
 A player can play an endless Survival run at Standard difficulty on the tunnel built in intents 0001
