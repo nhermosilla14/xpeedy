@@ -11,6 +11,7 @@ const BEAM_OPPOSITE_MAX_FLATNESS := 0.2
 var config: RunConfig
 var track: TrackModel
 var obstacles: ObstacleField
+var trails := TrailMap.new()
 
 var _events: Array[RunEvent] = []
 
@@ -19,6 +20,8 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 	config = run_config
 	track = TrackModel.new(config.target_tps, run_seed)
 	obstacles = ObstacleField.new(run_seed, track.parts)
+	obstacles.obstacle_added.connect(trails.add_obstacle)
+	trails.advance(track.window_start())
 	_generate()
 
 
@@ -32,6 +35,7 @@ func step(dt: float, steer: float) -> void:
 	track.step(dt, steer)
 	if track.crashed:
 		return
+	trails.advance(track.window_start())
 	_generate()
 	if config.collisions_enabled:
 		_resolve_obstacles(seg_before, lane_before)
@@ -61,7 +65,7 @@ func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
 		lane_after += TrackModel.LANES
 	var lane_min := minf(lane_before, lane_after) - SHIP_HALF_WIDTH
 	var lane_max := maxf(lane_before, lane_after) + SHIP_HALF_WIDTH
-	var wrap := track.current_shape() != PartSequence.Shape.FLAT and not track.is_morphing()
+	var wrap := track.obstacles_wrap_seam()
 	var opposite := track.geometry.flatness() <= BEAM_OPPOSITE_MAX_FLATNESS
 
 	for s in range(ceili(seg_before - 1.0), floori(seg_after + SHIP_BACK) + 1):

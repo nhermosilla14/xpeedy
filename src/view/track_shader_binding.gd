@@ -1,9 +1,10 @@
 class_name TrackShaderBinding
 extends RefCounted
 ## Uploads the track data that every GPU-placed object shares (ADR 0007, 0009): the 51 visible segment
-## frames, the 17-point cross-section and 16 face normals, and the first visible segment. It applies
-## them to every registered material, and tells views when the window moves so they can update their
-## culling boxes. Uniforms a shader doesn't declare are simply ignored by Godot.
+## frames, the 17-point cross-section and 16 face normals, the first visible segment, the obstacle
+## palette, and the ship's position (for trail highlights). It applies them to every registered
+## material, and tells views when the window moves so they can update their culling boxes. Uniforms a
+## shader doesn't declare are simply ignored by Godot.
 
 ## Emitted when the window starts at a new segment; `origin` is the first frame's position.
 signal window_changed(origin: Vector3)
@@ -20,6 +21,7 @@ var _built_turn := NAN
 
 func _init(materials: Array[ShaderMaterial]) -> void:
 	_materials = materials
+	_set_all("palette", Palette.obstacle_vectors())
 
 
 ## Forgets what was uploaded, so the next refresh uploads everything (new run).
@@ -39,6 +41,10 @@ func refresh(track: TrackModel) -> void:
 		_built_turn = geometry.turn
 		_set_all("section", geometry.section())
 		_set_all("face_normal", geometry.face_normals())
+	_set_all("ship_segment", track.segment)
+	_set_all("ship_lane", track.lane_position())
+	_set_all("wrap_seam", 1.0 if track.obstacles_wrap_seam() else 0.0)
+	_set_all("tube_weight", 1.0 - geometry.flatness())
 
 
 func _upload_frames(path: PathModel, first: int) -> void:

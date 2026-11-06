@@ -26,10 +26,12 @@ func on_window_changed(origin: Vector3) -> void:
 	mesh.custom_aabb = AABB(origin - Vector3.ONE * CULL_MARGIN, Vector3.ONE * CULL_MARGIN * 2.0)
 
 
-## Static mesh: vertex x = lane vertex index, y = segment offset, z unused; color.r = tile parity.
+## Static mesh: vertex x = lane vertex index, y = segment offset, z unused; UV = the tile's (lane,
+## segment offset); color.r = tile parity.
 func _build_mesh() -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var colors := PackedColorArray()
+	var tiles := PackedVector2Array()
 	var indices := PackedInt32Array()
 	for s in SEGMENTS:
 		for lane in TrackModel.LANES:
@@ -41,11 +43,13 @@ func _build_mesh() -> ArrayMesh:
 			var parity := float((s + lane) % 2)
 			for i in 4:
 				colors.append(Color(parity, 0.0, 0.0))
+				tiles.append(Vector2(lane, s))
 			indices.append_array([base, base + 1, base + 2, base, base + 2, base + 3])
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts
 	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_TEX_UV] = tiles
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var result := ArrayMesh.new()
 	result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)

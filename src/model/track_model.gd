@@ -124,6 +124,11 @@ func can_cross_seam() -> bool:
 	return false
 
 
+## Obstacle hit boxes and trail distances wrap across the seam on tube parts when not morphing.
+func obstacles_wrap_seam() -> bool:
+	return current_shape() != Shape.FLAT and not is_morphing()
+
+
 static func turn_for(shape: Shape) -> float:
 	match shape:
 		Shape.IN:

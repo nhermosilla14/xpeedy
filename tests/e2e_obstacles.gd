@@ -132,7 +132,22 @@ func _check_instances(run: SurvivalRun) -> void:
 			found = true
 	if not found:
 		_errors.append("the obstacle at 55 is missing from the instance buffer")
+	_check_trails(run, first)
 	_checked_instances = true
+
+
+## The trail texture the shader reads must hold the model's trail map, with the first obstacle's trail.
+func _check_trails(run: SurvivalRun, first: Obstacle) -> void:
+	var texture: TrailTexture = _main.get("_trail_texture")
+	var uploaded := texture.image.get_data().to_float32_array()
+	if uploaded != run.trails.data:
+		_errors.append("the trail texture differs from the model's trail map")
+	var tile := run.trails.texel(first.seg - 3, first.lane)
+	if tile.r != float(first.colour) or tile.g != float(first.seg):
+		_errors.append("no trail towards the obstacle at 55: %s" % [tile])
+	var tunnel: TunnelView = _main.get_node("Tunnel")
+	if tunnel.material.get_shader_parameter("trail_tex") != texture.texture:
+		_errors.append("the tunnel material does not use the trail texture")
 
 
 func _send_restart(pressed: bool) -> void:

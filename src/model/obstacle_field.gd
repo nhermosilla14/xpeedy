@@ -5,6 +5,9 @@ extends RefCounted
 ## Placement is driven only by `generate_to`, never by a request from a view, so the track depends on
 ## the seed alone. Own PRNG stream: seed ^ SEED_SALT.
 
+## Emitted for every obstacle that is added.
+signal obstacle_added(o: Obstacle)
+
 const SEED_SALT := 0x0B57AC1E
 const FIRST_PATTERN := 55
 const LEVEL_SEGMENTS := 150
@@ -49,6 +52,7 @@ func add(o: Obstacle) -> void:
 		_by_segment[o.seg] = [] as Array[Obstacle]
 	_by_segment[o.seg].append(o)
 	version += 1
+	obstacle_added.emit(o)
 
 
 ## Obstacles on exactly this segment (empty array if none).

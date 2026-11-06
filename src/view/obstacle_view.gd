@@ -9,10 +9,6 @@ const CULL_MARGIN := 40.0
 const BEAM_HEIGHT := 1.96  # units; doc 04
 const SPIKE_HEIGHT := BEAM_HEIGHT / 4.0
 const ObstacleShader := preload("res://src/view/obstacle.gdshader")
-## Doc 15: amber, green, lime, teal, mauve.
-const PALETTE: Array[Color] = [
-	Color("FBAF02"), Color("38C36D"), Color("94C137"), Color("47B4B3"), Color("A95795"),
-]
 
 var material := ShaderMaterial.new()
 
@@ -24,10 +20,6 @@ var _built_version := -1
 
 func _ready() -> void:
 	material.shader = ObstacleShader
-	var colours := PackedVector3Array()
-	for c in PALETTE:
-		colours.append(Vector3(c.r, c.g, c.b))
-	material.set_shader_parameter("palette", colours)
 	material.set_shader_parameter("lane_width", TrackModel.SEGMENT_LENGTH)
 	var lane_width := TrackModel.SEGMENT_LENGTH
 	var meshes: Array[ArrayMesh] = [

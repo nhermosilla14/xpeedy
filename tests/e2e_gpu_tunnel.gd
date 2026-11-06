@@ -66,9 +66,22 @@ func _check_uniforms(track: TrackModel, tunnel: TunnelView) -> void:
 				or rights[i] != track.path.right(first + i) \
 				or ups[i] != track.path.up(first + i):
 			_error_once("frame %d differs from the model at window %d" % [i, first])
+	_check_ship_uniforms(track, material)
 	if binding.first_parity != (first & 1) \
 			or not is_equal_approx(material.get_shader_parameter("first_parity"), float(first & 1)):
 		_error_once("checker parity wrong for window starting at %d" % first)
+
+
+func _check_ship_uniforms(track: TrackModel, material: ShaderMaterial) -> void:
+	if not is_equal_approx(material.get_shader_parameter("ship_segment"), track.segment):
+		_error_once("ship_segment differs from the model at tick %d" % _ticks)
+	if not is_equal_approx(material.get_shader_parameter("ship_lane"), track.lane_position()):
+		_error_once("ship_lane differs from the model at tick %d" % _ticks)
+	var wrap := 1.0 if track.obstacles_wrap_seam() else 0.0
+	if material.get_shader_parameter("wrap_seam") != wrap:
+		_error_once("wrap_seam differs from the model at tick %d" % _ticks)
+	if not is_equal_approx(material.get_shader_parameter("tube_weight"), 1.0 - track.geometry.flatness()):
+		_error_once("tube_weight differs from the model at tick %d" % _ticks)
 
 
 func _error_once(message: String) -> void:

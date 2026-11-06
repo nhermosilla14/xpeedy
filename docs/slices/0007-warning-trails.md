@@ -1,6 +1,6 @@
 # 0007. Warning trails
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-06
 - Owner: agent, Nicolás Hermosilla P. (device smoke test)
 - Intents: 0003
@@ -29,3 +29,17 @@ proximity highlight near the ship's lane, and the opposite-lane trail for tube b
 
 ## Out of scope
 - Spot painting (slice 0008), blackout and phase shift trail variants (later targets).
+
+## Results so far (2026-11-06)
+- 83 unit tests and 4 end-to-end tests pass: the doc 04 numbers for fade, highlight and lateral falloff;
+  trail extent, opposite-lane trails for tube beams only, nearest-obstacle ownership in either order,
+  row reuse and clearing, writes behind or too far ahead ignored, removal re-exposing the farther
+  trail; through the real scene, the uploaded texture equals the model's map and the shader's ship
+  uniforms equal the model every tick.
+- Desktop visual check (real GPU, vertex texture fetch of an RGBAF texture): coloured stripes appear on
+  the lanes ahead of obstacles, fade in, and turn red-orange when the ship is in the lane close to the
+  obstacle.
+- CPU per tick: views 0.12–0.14 ms (unchanged). Desktop at 480×320 with `opengl3_es`: 98–114 fps
+  average, 51–71 fps 1 % low.
+- Pending: the device smoke test on the RG351P (tunnel and trails render; frame rate holds). If vertex
+  texture fetch fails, apply the RGBA8 fallback from ADR 0009.

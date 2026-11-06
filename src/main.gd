@@ -9,6 +9,7 @@ var _track: TrackModel
 var _clock: RunClock
 var _steering := Steering.new()
 var _binding: TrackShaderBinding
+var _trail_texture := TrailTexture.new()
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
@@ -23,6 +24,7 @@ func _ready() -> void:
 	_binding = TrackShaderBinding.new(materials)
 	_binding.window_changed.connect(_tunnel.on_window_changed)
 	_binding.window_changed.connect(_obstacles.on_window_changed)
+	_tunnel.material.set_shader_parameter("trail_tex", _trail_texture.texture)
 	start_run(int(Time.get_unix_time_from_system() * 1000.0) & 0xFFFFFFFF)
 
 
@@ -58,4 +60,5 @@ func _process(_delta: float) -> void:
 func _refresh_view(dt: float) -> void:
 	_binding.refresh(_track)
 	_obstacles.refresh(_run.obstacles)
+	_trail_texture.refresh(_run.trails)
 	_camera.follow(_track, dt)
