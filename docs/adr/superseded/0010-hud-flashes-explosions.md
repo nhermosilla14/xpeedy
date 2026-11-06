@@ -1,6 +1,6 @@
 # 0010. HUD, flashes and explosions
 
-- Status: Accepted
+- Status: Superseded by 0012
 - Date: 2026-11-06
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0003

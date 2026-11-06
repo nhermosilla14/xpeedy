@@ -1,6 +1,6 @@
 extends SceneTree
 ## End-to-end check for slice 0008 through the real scene: the first shield spot is painted on the
-## track, flying over it gives a shield, the HUD shows score and shields, the pick-up flash appears and
+## track, flying over it gives a shield, the HUD shows the score and the common shield bar, the pick-up flash appears and
 ## the spot's paint disappears; shields decay with game time.
 
 const SEED := 21
@@ -63,12 +63,14 @@ func _physics_process(_delta: float) -> bool:
 				return false
 			if run.shields.count != 1:
 				_errors.append("expected one shield, have %d" % run.shields.count)
-			if hud.shown_shields != run.shields.count or hud.shown_slots != 4:
-				_errors.append("HUD shows %d of %d shields" % [hud.shown_shields, hud.shown_slots])
+			if hud.shown_slots != 4:
+				_errors.append("HUD bar has %d compartments, expected 4" % hud.shown_slots)
 			if hud.shown_score != run.score or run.score <= 0:
 				_errors.append("HUD score %d, model score %d" % [hud.shown_score, run.score])
-			if not is_equal_approx(hud.shown_fraction, run.shields.fraction()):
-				_errors.append("HUD decay level differs from the model")
+			if not is_equal_approx(hud.shown_level, run.shields.level()):
+				_errors.append("HUD bar level %f differs from the model's %f" % [hud.shown_level, run.shields.level()])
+			if hud.shown_level < 0.9 or hud.shown_level > 1.0:
+				_errors.append("one fresh shield should fill about one compartment, not %f" % hud.shown_level)
 			if run.shields.time_left >= run.shields.decay_seconds:
 				_errors.append("the decay timer is not running")
 			if not _flash_seen:

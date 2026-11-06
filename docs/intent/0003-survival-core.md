@@ -3,7 +3,7 @@
 - Status: Accepted
 - Date: 2026-11-06
 - Owner: Nicolás Hermosilla P., agent
-- Related ADRs: 0008, 0009 (superseded), 0010, 0011
+- Related ADRs: 0008, 0009 (superseded), 0010 (superseded), 0011, 0012
 
 ## Goal
 A player can play an endless Survival run at Standard difficulty on the tunnel built in intents 0001

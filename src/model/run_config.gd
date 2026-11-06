@@ -10,6 +10,8 @@ var shield_decay_seconds := 20.0
 var generate_obstacles := true
 ## Tests can turn shield spot generation off.
 var generate_spots := true
+## Debugging: shields the run starts with (`--shields=N` on the command line).
+var start_shields := 0
 ## Debugging: with collisions off the ship passes through obstacles (`--ghost` on the command line).
 var collisions_enabled := true
 

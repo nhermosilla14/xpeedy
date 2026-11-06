@@ -41,5 +41,6 @@
 | 0007 | [Tunnel geometry evaluated on the GPU](adr/0007-gpu-tunnel-geometry.md) | Accepted |
 | 0008 | [Survival run model](adr/0008-survival-run-model.md) | Accepted |
 | 0009 | [Obstacles, trails and spots on the GPU](adr/superseded/0009-gpu-obstacles-trails-spots.md) | Superseded by 0011 |
-| 0010 | [HUD, flashes and explosions](adr/0010-hud-flashes-explosions.md) | Accepted |
+| 0010 | [HUD, flashes and explosions](adr/superseded/0010-hud-flashes-explosions.md) | Superseded by 0012 |
 | 0011 | [Obstacles, trails and spots on the GPU, RGBA8 trail texture](adr/0011-gpu-obstacles-trails-spots-rgba8.md) | Accepted |
+| 0012 | [HUD with a common shield bar, flashes and explosions](adr/0012-hud-common-shield-bar.md) | Accepted |

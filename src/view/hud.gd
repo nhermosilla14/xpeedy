@@ -1,20 +1,19 @@
 class_name Hud
 extends Control
-## In-run HUD (ADR 0010): score at the bottom left, one slot per possible shield unit at the bottom
-## right. Filled slots show the remaining decay time as their fill level. Sized by screen height / 320,
+## In-run HUD (ADR 0012): score at the bottom left, and one common shield bar at the bottom right: a
+## frame split into one compartment per possible unit, with a single fill from the left that shrinks
+## from the right as the shields decay (one compartment per decay period). Sized by screen height / 320,
 ## as the original scaled its HUD (doc 17). Read-only: it never changes the model.
 
 const REFERENCE_HEIGHT := 320.0
-const SLOT_SIZE := Vector2(14.0, 22.0)
-const SLOT_GAP := 4.0
+const SEGMENT_SIZE := Vector2(22.0, 18.0)
 const MARGIN := 8.0
 const SHIELD_COLOUR := Color(1.0, 0.7, 0.2)
 
 ## What is currently shown (tests read these).
 var shown_score := -1
-var shown_shields := -1
+var shown_level := -1.0
 var shown_slots := 0
-var shown_fraction := 0.0
 
 var _score_label := Label.new()
 
@@ -28,15 +27,13 @@ func _ready() -> void:
 
 
 func update(run: SurvivalRun) -> void:
-	var fraction := run.shields.fraction()
+	var level := run.shields.level()
 	if run.score != shown_score:
 		shown_score = run.score
 		_score_label.text = str(shown_score)
-	if run.shields.count != shown_shields or run.shields.max_count != shown_slots \
-			or not is_equal_approx(fraction, shown_fraction):
-		shown_shields = run.shields.count
+	if run.shields.max_count != shown_slots or not is_equal_approx(level, shown_level):
 		shown_slots = run.shields.max_count
-		shown_fraction = fraction
+		shown_level = level
 		queue_redraw()
 
 
@@ -52,15 +49,17 @@ func _layout() -> void:
 
 
 func _draw() -> void:
+	if shown_slots <= 0:
+		return
 	var s := _scale()
-	var slot := SLOT_SIZE * s
-	var total_width := shown_slots * slot.x + maxi(shown_slots - 1, 0) * SLOT_GAP * s
-	var origin := Vector2(size.x - MARGIN * s - total_width, size.y - MARGIN * s - slot.y)
-	for i in shown_slots:
-		var rect := Rect2(origin + Vector2(i * (slot.x + SLOT_GAP * s), 0.0), slot)
-		if i < shown_shields:
-			var filled := rect
-			filled.size.y = slot.y * maxf(shown_fraction, 0.15)
-			filled.position.y = rect.end.y - filled.size.y
-			draw_rect(filled, SHIELD_COLOUR)
-		draw_rect(rect, Color(SHIELD_COLOUR, 0.8), false, maxf(1.0, 1.5 * s))
+	var bar := Vector2(SEGMENT_SIZE.x * shown_slots, SEGMENT_SIZE.y) * s
+	var frame := Rect2(Vector2(size.x - MARGIN * s - bar.x, size.y - MARGIN * s - bar.y), bar)
+	draw_rect(frame, Color(0.0, 0.0, 0.0, 0.35))
+	var fill := frame
+	fill.size.x = bar.x * clampf(shown_level / shown_slots, 0.0, 1.0)
+	draw_rect(fill, SHIELD_COLOUR)
+	var line := maxf(1.0, 1.5 * s)
+	for k in range(1, shown_slots):
+		var x := frame.position.x + bar.x * k / shown_slots
+		draw_line(Vector2(x, frame.position.y), Vector2(x, frame.end.y), Color(0.0, 0.0, 0.0, 0.7), line)
+	draw_rect(frame, Color(SHIELD_COLOUR, 0.9), false, line)

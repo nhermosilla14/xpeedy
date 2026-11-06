@@ -95,6 +95,35 @@ func test_fraction_for_the_hud() -> void:
 	check_near(stack.fraction(), 0.5, 0.0001)
 
 
+func test_the_bar_level_drains_one_segment_per_period() -> void:
+	var stack := ShieldStack.new(4, 20.0)
+	check_near(stack.level(), 0.0, 0.0001, "empty")
+	for i in 4:
+		stack.add()
+	check_near(stack.level(), 4.0, 0.0001, "full bar")
+	stack.tick(10.0)
+	check_near(stack.level(), 3.5, 0.0001, "after 10 s the last segment is half drained")
+	stack.tick(10.0)
+	check_near(stack.level(), 3.0, 0.0001, "after 20 s the last segment is gone")
+	stack.tick(10.0)
+	check_near(stack.level(), 2.5, 0.0001, "and the next one drains")
+	stack.tick(30.0)
+	check_near(stack.level(), 1.0, 0.0001, "30 s later")
+	stack.tick(100.0)
+	check_near(stack.level(), 0.0, 0.0001, "never negative")
+
+
+func test_the_bar_level_falls_smoothly_across_an_expiry() -> void:
+	var stack := ShieldStack.new(4, 20.0)
+	for i in 3:
+		stack.add()
+	stack.tick(19.5)  # 0.5 s left on the third unit
+	var before := stack.level()
+	stack.tick(1.0)  # the unit expires during this second
+	check_near(before - stack.level(), 1.0 / 20.0, 0.0001, "0.05 segments per second, no jump")
+	check_eq(stack.count, 2)
+
+
 func test_the_timer_idles_while_there_are_no_shields() -> void:
 	var stack := ShieldStack.new(4, 20.0)
 	stack.tick(50.0)
@@ -247,6 +276,15 @@ func test_picking_up_a_spot_when_full_still_restarts_the_timer() -> void:
 	_place(run, 101.0, 5.5)
 	check_eq(run.shields.count, 4, "still four")
 	check_near(run.shields.time_left, 20.0, 0.0001, "timer restarted")
+
+
+func test_a_run_can_start_with_shields() -> void:
+	var config := _config()
+	config.start_shields = 3
+	var run := SurvivalRun.new(config, 1)
+	check_eq(run.shields.count, 3)
+	check_near(run.shields.level(), 3.0, 0.0001)
+	check_eq(_run().shields.count, 0, "none by default")
 
 
 func test_the_run_decays_shields_with_game_time() -> void:

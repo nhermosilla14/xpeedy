@@ -28,6 +28,8 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 	spots = SpotField.new(run_seed)
 	spots.spot_added.connect(trails.add_spot)
 	shields = ShieldStack.new(config.max_shields, config.shield_decay_seconds)
+	for i in config.start_shields:
+		shields.add()
 	trails.advance(track.window_start())
 	_generate()
 

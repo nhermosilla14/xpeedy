@@ -44,3 +44,11 @@ func tick(dt: float) -> void:
 ## Remaining time as a fraction of the decay period, for the HUD.
 func fraction() -> float:
 	return clampf(time_left / decay_seconds, 0.0, 1.0)
+
+
+## The common bar's charge in segments, 0 to `max_count`: the full units below the draining one plus
+## the draining unit's remaining time. It falls steadily at one segment per decay period.
+func level() -> float:
+	if count == 0:
+		return 0.0
+	return float(count - 1) + fraction()

@@ -34,6 +34,9 @@ func start_run(run_seed: int) -> void:
 	var config := RunConfig.standard()
 	config.generate_obstacles = obstacles_enabled
 	config.collisions_enabled = not OS.get_cmdline_user_args().has("--ghost")
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--shields="):
+			config.start_shields = arg.trim_prefix("--shields=").to_int()
 	_run = SurvivalRun.new(config, run_seed)
 	_track = _run.track
 	_clock = RunClock.new()

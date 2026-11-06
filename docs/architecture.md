@@ -87,8 +87,10 @@
   decay timer even when full; the timer then runs in game time and removes one unit per expiry. Score is
   +1 per whole segment travelled. Spots are painted through the trail map's A byte and drawn orange by
   the tunnel shader; collecting clears the paint. `SurvivalRun` reports pick-ups as `RunEvent`s and
-  `main.gd` turns them into an orange `ScreenFlash`; `Hud` reads the run each frame (score bottom left,
-  one slot per possible shield bottom right, filled slots at the decay level, scaled by height / 320).
+  `main.gd` turns them into an orange `ScreenFlash`; `Hud` reads the run each frame (ADR 0012): score
+  bottom left, and one common shield bar bottom right: a frame with one compartment per possible shield
+  and a single fill from the left of width `ShieldStack.level() / max`, shrinking from the right at one
+  compartment per 20 s (scaled by height / 320).
 - **Warning trails** (ADR 0011): `SurvivalRun.trails` is a `TrailMap`, a ring buffer of 64 segment
   rows × 16 lanes of RGBA8 tiles (R colour index + 1 with 0 meaning none, G the obstacle's segment minus
   the tile's, B opposite-lane flag, A spot flag; row `seg & 63`). Every obstacle added to the field paints the 25 tiles before it
