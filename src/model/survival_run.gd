@@ -11,9 +11,13 @@ const BEAM_OPPOSITE_MAX_FLATNESS := 0.2
 var config: RunConfig
 var track: TrackModel
 var obstacles: ObstacleField
+var spots: SpotField
+var shields: ShieldStack
 var trails := TrailMap.new()
+var score := 0
 
 var _events: Array[RunEvent] = []
+var _distance_scored := 0
 
 
 func _init(run_config: RunConfig, run_seed: int) -> void:
@@ -21,6 +25,9 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 	track = TrackModel.new(config.target_tps, run_seed)
 	obstacles = ObstacleField.new(run_seed, track.parts)
 	obstacles.obstacle_added.connect(trails.add_obstacle)
+	spots = SpotField.new(run_seed)
+	spots.spot_added.connect(trails.add_spot)
+	shields = ShieldStack.new(config.max_shields, config.shield_decay_seconds)
 	trails.advance(track.window_start())
 	_generate()
 
@@ -39,7 +46,12 @@ func step(dt: float, steer: float) -> void:
 	_generate()
 	if config.collisions_enabled:
 		_resolve_obstacles(seg_before, lane_before)
+	if not track.crashed:
+		_resolve_spots(seg_before, lane_before)
+		shields.tick(dt)
+		_score_distance()
 	obstacles.forget_before(track.window_start() - 2)
+	spots.forget_before(track.window_start() - Spot.LENGTH - 2)
 
 
 ## Returns the events since the last call and clears them.
@@ -50,21 +62,27 @@ func take_events() -> Array[RunEvent]:
 
 
 func _generate() -> void:
+	var horizon := track.window_start() + TrackModel.VISIBLE_SEGMENTS
 	if config.generate_obstacles:
-		obstacles.generate_to(track.window_start() + TrackModel.VISIBLE_SEGMENTS)
+		obstacles.generate_to(horizon)
+	if config.generate_spots:
+		spots.generate_to(horizon)
+
+
+## +1 point per whole segment travelled since the start (doc 09).
+func _score_distance() -> void:
+	var travelled := int(floor(track.segment - TrackModel.START_SEGMENT))
+	if travelled > _distance_scored:
+		score += travelled - _distance_scored
+		_distance_scored = travelled
 
 
 ## The ship's hit box is swept over everything it covered this tick, so a long tick can't skip an obstacle.
 func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
 	var seg_after := track.segment
-	var lane_after := track.lane_position()
-	# A seam crossing makes the lane position jump by ~16; keep the sweep continuous.
-	if lane_after - lane_before > 8.0:
-		lane_after -= TrackModel.LANES
-	elif lane_before - lane_after > 8.0:
-		lane_after += TrackModel.LANES
-	var lane_min := minf(lane_before, lane_after) - SHIP_HALF_WIDTH
-	var lane_max := maxf(lane_before, lane_after) + SHIP_HALF_WIDTH
+	var swept := _swept_lanes(lane_before)
+	var lane_min := swept.x
+	var lane_max := swept.y
 	var wrap := track.obstacles_wrap_seam()
 	var opposite := track.geometry.flatness() <= BEAM_OPPOSITE_MAX_FLATNESS
 
@@ -74,6 +92,29 @@ func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
 				track.crash("obstacle")
 				_events.append(RunEvent.obstacle_crash(o))
 				return
+
+
+## Collects the shield spots the ship flew over this tick (same sweep as obstacles, three segments long).
+func _resolve_spots(seg_before: float, lane_before: float) -> void:
+	var swept := _swept_lanes(lane_before)
+	var wrap := track.obstacles_wrap_seam()
+	for s in range(ceili(seg_before - Spot.LENGTH), floori(track.segment + SHIP_BACK) + 1):
+		for spot in spots.at_segment(s):
+			if not spot.collected and _lane_hit(spot.lane, swept.x, swept.y, wrap):
+				spot.collected = true
+				trails.remove_spot(spot)
+				shields.add()
+				_events.append(RunEvent.shield_pickup(spot))
+
+
+## The ship's lane range this tick including its half width, kept continuous across the seam.
+func _swept_lanes(lane_before: float) -> Vector2:
+	var lane_after := track.lane_position()
+	if lane_after - lane_before > 8.0:
+		lane_after -= TrackModel.LANES
+	elif lane_before - lane_after > 8.0:
+		lane_after += TrackModel.LANES
+	return Vector2(minf(lane_before, lane_after) - SHIP_HALF_WIDTH, maxf(lane_before, lane_after) + SHIP_HALF_WIDTH)
 
 
 static func _touches(o: Obstacle, lane_min: float, lane_max: float, wrap: bool, opposite: bool) -> bool:

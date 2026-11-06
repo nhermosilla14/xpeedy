@@ -60,6 +60,16 @@ func remove_obstacle(o: Obstacle, field: ObstacleField) -> void:
 	version += 1
 
 
+## Marks the three tiles of a shield spot.
+func add_spot(spot: Spot) -> void:
+	_set_spot_flag(spot, 255)
+
+
+## Clears the spot marks of a collected spot.
+func remove_spot(spot: Spot) -> void:
+	_set_spot_flag(spot, 0)
+
+
 ## A tile as (colour index, obstacle segment, opposite lane 0/1, spot 0/1). The colour is -1 and the
 ## segment 0 when the tile has no trail.
 func texel(seg: int, lane: int) -> Color:
@@ -90,6 +100,15 @@ func _paint(lane: int, obstacle_seg: int, colour: int, opposite: bool) -> void:
 		data[i] = colour + 1
 		data[i + 1] = obstacle_seg - seg
 		data[i + 2] = 255 if opposite else 0
+	version += 1
+
+
+func _set_spot_flag(spot: Spot, value: int) -> void:
+	for seg in range(spot.seg, spot.seg + Spot.LENGTH):
+		if seg < _first or seg >= _first + ROWS:
+			continue
+		_claim(seg)
+		data[_index(seg, spot.lane) + 3] = value
 	version += 1
 
 

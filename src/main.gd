@@ -16,6 +16,8 @@ var _trail_texture := TrailTexture.new()
 @onready var _camera: ShipCamera = $Camera
 @onready var _fps: Label = $Hud/Fps
 @onready var _message: Label = $Hud/Message
+@onready var _status: Hud = $Hud/Status
+@onready var _flash: ScreenFlash = $Hud/Flash
 
 
 func _ready() -> void:
@@ -49,8 +51,16 @@ func _physics_process(delta: float) -> void:
 	var raw := Input.get_axis("steer_left", "steer_right")
 	var dt := _clock.advance(delta)
 	_run.step(dt, _steering.process(raw))
+	_show_events()
 	_message.visible = _track.crashed
 	_refresh_view(dt)
+
+
+## Feedback for what happened this tick (ADR 0010).
+func _show_events() -> void:
+	for event in _run.take_events():
+		if event.kind == RunEvent.Kind.SHIELD_PICKUP:
+			_flash.flash(Color(1.0, 0.7, 0.2), 0.75, 0.3)
 
 
 func _process(_delta: float) -> void:
@@ -61,4 +71,5 @@ func _refresh_view(dt: float) -> void:
 	_binding.refresh(_track)
 	_obstacles.refresh(_run.obstacles)
 	_trail_texture.refresh(_run.trails)
+	_status.update(_run)
 	_camera.follow(_track, dt)

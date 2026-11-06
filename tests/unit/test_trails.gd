@@ -213,3 +213,40 @@ func test_bytes_are_laid_out_for_an_rgba8_texture() -> void:
 	check_eq([map.data[opposite], map.data[opposite + 1], map.data[opposite + 2]], [3, 7, 255],
 		"opposite lane flagged in blue")
 	check_eq(map.data.size(), 64 * 16 * 4, "16 x 64 RGBA8")
+
+
+# --- Shield spots in the map ---
+
+func test_a_spot_marks_three_tiles_on_its_lane() -> void:
+	var map := _map(60)
+	map.add_spot(Spot.make(70, 4))
+	for seg in range(70, 73):
+		check_eq(map.texel(seg, 4).a, 1.0, "spot tile at %d" % seg)
+		check_eq(map.data[((seg & 63) * 16 + 4) * 4 + 3], 255, "alpha byte at %d" % seg)
+	check_eq(map.texel(69, 4).a, 0.0, "before the spot")
+	check_eq(map.texel(73, 4).a, 0.0, "after the spot")
+	check_eq(map.texel(71, 5).a, 0.0, "other lanes")
+	map.remove_spot(Spot.make(70, 4))
+	check_eq(map.texel(71, 4).a, 0.0, "cleared")
+
+
+func test_spots_and_trails_do_not_clear_each_other() -> void:
+	var map := _map(60)
+	map.add_spot(Spot.make(90, 3))
+	var field := ObstacleField.new(1, PartSequence.new(1))
+	var cube := _cube(100, 3)
+	field.add(cube)
+	map.add_obstacle(cube)
+	check_eq(map.texel(91, 3).a, 1.0, "the trail did not clear the spot")
+	check_eq(map.texel(91, 3).r, 1.0, "both are there")
+	map.remove_obstacle(cube, field)
+	check_eq(map.texel(91, 3).a, 1.0, "removing the trail left the spot")
+	check_eq(map.texel(91, 3).r, -1.0, "and removed the trail")
+
+
+func test_a_reused_row_loses_its_spots() -> void:
+	var map := _map(0)
+	map.add_spot(Spot.make(20, 2))
+	map.advance(70)
+	for seg in range(70, 120):
+		check_eq(map.texel(seg, 2).a, 0.0, "stale spot at %d" % seg)

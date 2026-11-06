@@ -1,6 +1,6 @@
 # 0008. Shield spots, shields and the HUD
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-06
 - Owner: agent
 - Intents: 0003
@@ -31,3 +31,19 @@ points. Collecting a spot gives the orange flash. Shields are not yet spent on o
 
 ## Out of scope
 - Spending shields on obstacles, smash points (slice 0009), bonus spots.
+
+## Results (2026-11-06)
+- 110 unit tests and 5 end-to-end tests pass. New unit tests cover: the shield stack (cap of 4, one unit
+  per 20 s, long ticks, restart on pick-up even when full, restart on loss, idle at zero); spot
+  placement against doc 10 (first group at 100, gaps of at least 3 × the obstacle spacing and the whole
+  36–47 range early on, size 1 before segment 450 and up to 2 and 3 later, even ring spread, same seed
+  and request-order independence); collection (three segments long, ±0.25 lanes, seam wrap, once only,
+  events, timer restart when full); distance score; and the spot flag in the trail map.
+- `tests/e2e_shields_spots.gd`, through the real scene: the first spot is painted in the map and in the
+  uploaded texture, steering onto it gives one shield, the HUD shows the right score, slots and decay
+  level, the pick-up flash appears, the spot's paint is gone and the texture is up to date.
+- Desktop visual check at 480×320 with `opengl3_es` (real GPU): orange spot tiles on the track, score
+  bottom left, four shield slots bottom right with the fill level dropping as the timer runs, and the
+  count rising on pick-up.
+- Desktop frame rate with obstacles, trails and spots: 103–115 fps average, 54–79 fps 1 % low. CPU per
+  tick: views 0.10–0.12 ms.

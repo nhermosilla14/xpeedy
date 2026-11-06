@@ -24,6 +24,7 @@ uniform float tube_weight = 1.0;
 const vec3 TILE_LIGHT = vec3(1.0, 1.0, 1.0);
 const vec3 TILE_DARK = vec3(0.82, 0.82, 0.86);
 const vec3 WARNING = vec3(0.94, 0.12, 0.05);
+const vec3 SHIELD_SPOT = vec3(1.0, 0.7, 0.2);
 
 void vertex() {
 	int k = int(VERTEX.x + 0.5);
@@ -49,6 +50,9 @@ void vertex() {
 		float hl = clamp(approach * sqrt(max(0.0, 1.5 - lane_d)), 0.0, 1.0);
 		colour = mix(colour, palette[int(code - 0.5)], fade * weight);
 		colour = mix(colour, WARNING, hl * weight);
+	}
+	if (raw.a > 0.5) {
+		colour = SHIELD_SPOT;
 	}
 	COLOR = vec4(colour, 1.0);
 }

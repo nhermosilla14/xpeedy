@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: slices 0001–0007 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
+> Status: slices 0001–0008 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
 > wall crashes and restart, speed ramp, PortMaster package.
 
 ## Engine and runtime
@@ -41,8 +41,8 @@
 |---|---|
 | `src/main.tscn`, `src/main.gd` | Entry scene; steps the model in `_physics_process` (60 Hz) and refreshes views |
 | `src/core/` | Engine-agnostic helpers: `XRandom`, `RunClock`, `Steering` |
-| `src/model/` | Gameplay state (`TrackModel`), parts (`PartSequence`), centre line (`PathModel`), track-to-world mapping (`TunnelGeometry`), the Survival run (`SurvivalRun`, `RunConfig`, `RunEvent`) and obstacles (`Obstacle`, `ObstacleField`, `PatternLibrary`), warning trails (`TrailMap`, `TrailMath`) |
-| `src/view/` | Nodes that draw the model: `TunnelView`, `ObstacleView`, `ShipCamera`; `TrackShaderBinding` uploads the data they share; `TrailTexture` uploads the trail map; `Palette` holds the obstacle colours |
+| `src/model/` | Gameplay state (`TrackModel`), parts (`PartSequence`), centre line (`PathModel`), track-to-world mapping (`TunnelGeometry`), the Survival run (`SurvivalRun`, `RunConfig`, `RunEvent`) and obstacles (`Obstacle`, `ObstacleField`, `PatternLibrary`), warning trails (`TrailMap`, `TrailMath`), shield spots and shields (`Spot`, `SpotField`, `ShieldStack`) |
+| `src/view/` | Nodes that draw the model: `TunnelView`, `ObstacleView`, `ShipCamera`; `TrackShaderBinding` uploads the data they share; `TrailTexture` uploads the trail map; `Palette` holds the obstacle colours; `Hud` and `ScreenFlash` show score, shields and flashes |
 | `tests/` | Unit tests (`tests/unit/`) and end-to-end scene scripts (`tests/e2e_*.gd`) |
 | `tools/` | Container wrapper, test, export and packaging scripts |
 | `packaging/portmaster/` | PortMaster port: launch script (Godot 4.4.1 runtime under Weston), metadata, gptk |
@@ -79,6 +79,16 @@
   level-0 pattern (one cube or beam: kind, lane, colour draws) exists so far. A tube beam (shape IN)
   also hits lane + 8 while `flatness ≤ 0.2`; seam wrap applies on tube parts when not morphing.
   `RunConfig.collisions_enabled` is off with `-- --ghost` for visual debugging.
+- **Shields, spots and score** (ADR 0008, 0010): `SurvivalRun` also owns a `SpotField`, a `ShieldStack`
+  and the score. Spot groups are generated from the stream `seed ^ 0x5B07` (draw order per group:
+  skip chance 1/8; if kept, size 1 + random(0…⌊d/450⌋) capped at 3, then the start lane; then the gap
+  3·s + random(0…s−1)); a spot is one lane × three segments. Each tick, after obstacles, the ship's
+  swept box collects spots (same wrap rule), each pick-up adds a shield and restarts the single 20 s
+  decay timer even when full; the timer then runs in game time and removes one unit per expiry. Score is
+  +1 per whole segment travelled. Spots are painted through the trail map's A byte and drawn orange by
+  the tunnel shader; collecting clears the paint. `SurvivalRun` reports pick-ups as `RunEvent`s and
+  `main.gd` turns them into an orange `ScreenFlash`; `Hud` reads the run each frame (score bottom left,
+  one slot per possible shield bottom right, filled slots at the decay level, scaled by height / 320).
 - **Warning trails** (ADR 0011): `SurvivalRun.trails` is a `TrailMap`, a ring buffer of 64 segment
   rows × 16 lanes of RGBA8 tiles (R colour index + 1 with 0 meaning none, G the obstacle's segment minus
   the tile's, B opposite-lane flag, A spot flag; row `seg & 63`). Every obstacle added to the field paints the 25 tiles before it

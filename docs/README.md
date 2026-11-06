@@ -24,7 +24,7 @@
 | 0005 | [GPU tunnel](slices/0005-gpu-tunnel.md) | Done |
 | 0006 | [Obstacles and crashes](slices/0006-obstacles-and-crashes.md) | Done |
 | 0007 | [Warning trails](slices/0007-warning-trails.md) | Done |
-| 0008 | [Shield spots, shields and the HUD](slices/0008-shields-spots-hud.md) | Accepted |
+| 0008 | [Shield spots, shields and the HUD](slices/0008-shields-spots-hud.md) | Done |
 | 0009 | [Smashing obstacles](slices/0009-smashing-obstacles.md) | Accepted |
 | 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Accepted |
 | 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | Accepted |
@@ -41,5 +41,5 @@
 | 0007 | [Tunnel geometry evaluated on the GPU](adr/0007-gpu-tunnel-geometry.md) | Accepted |
 | 0008 | [Survival run model](adr/0008-survival-run-model.md) | Accepted |
 | 0009 | [Obstacles, trails and spots on the GPU](adr/superseded/0009-gpu-obstacles-trails-spots.md) | Superseded by 0011 |
-| 0010 | [HUD, flashes and explosions](adr/0010-hud-flashes-explosions.md) | Proposed |
+| 0010 | [HUD, flashes and explosions](adr/0010-hud-flashes-explosions.md) | Accepted |
 | 0011 | [Obstacles, trails and spots on the GPU, RGBA8 trail texture](adr/0011-gpu-obstacles-trails-spots-rgba8.md) | Accepted |

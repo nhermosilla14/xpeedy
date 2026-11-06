@@ -1,10 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1"]
 [ext_resource type="Script" path="res://src/view/tunnel_view.gd" id="2"]
 [ext_resource type="Script" path="res://src/view/ship_camera.gd" id="3"]
 [ext_resource type="Script" path="res://src/view/frame_stats.gd" id="4"]
 [ext_resource type="Script" path="res://src/view/obstacle_view.gd" id="5"]
+[ext_resource type="Script" path="res://src/view/hud.gd" id="6"]
+[ext_resource type="Script" path="res://src/view/screen_flash.gd" id="7"]
 
 [node name="Main" type="Node3D"]
 process_mode = 3
@@ -23,6 +25,26 @@ current = true
 script = ExtResource("3")
 
 [node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="Flash" type="ColorRect" parent="Hud"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+script = ExtResource("7")
+
+[node name="Status" type="Control" parent="Hud"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6")
 
 [node name="Fps" type="Label" parent="Hud"]
 offset_left = 8.0
