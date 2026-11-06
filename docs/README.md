@@ -11,7 +11,7 @@
 | # | Title | Status |
 |---|---|---|
 | 0001 | [Tunnel prototype](intent/0001-tunnel-prototype.md) | Done |
-| 0002 | [Smooth frame pacing on the RG351P](intent/0002-smooth-frame-pacing.md) | In progress |
+| 0002 | [Smooth frame pacing on the RG351P](intent/0002-smooth-frame-pacing.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -20,7 +20,7 @@
 | 0002 | [RG351P spike](slices/0002-rg351p-spike.md) | Done |
 | 0003 | [Curving path](slices/0003-curving-path.md) | Done |
 | 0004 | [Shapes and morphs](slices/0004-shapes-and-morphs.md) | Done |
-| 0005 | [GPU tunnel](slices/0005-gpu-tunnel.md) | In progress |
+| 0005 | [GPU tunnel](slices/0005-gpu-tunnel.md) | Done |
 
 ## ADRs
 | # | Title | Status |

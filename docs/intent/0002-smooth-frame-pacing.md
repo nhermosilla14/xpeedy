@@ -1,6 +1,6 @@
 # 0002. Smooth frame pacing on the RG351P
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-06
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0007

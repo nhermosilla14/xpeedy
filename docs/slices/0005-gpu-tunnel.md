@@ -1,6 +1,6 @@
 # 0005. GPU tunnel
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-06
 - Owner: agent, Nicolás Hermosilla P. (on-device run)
 - Intents: 0002
@@ -55,5 +55,4 @@ a mesh.
   (Before this slice: 52–59 avg, 27–34 1 % low.)
 - No shader errors in the log; the Mali-G31 accepts the uniform arrays, so the data-texture fallback in
   ADR 0007 is not needed. The outside-tube shape rendered on the device for the first time.
-- Pending: the user's confirmation that shape changes no longer hitch (last acceptance criterion of
-  intent 0002).
+- User confirmation: "It works great, it feels much smoother." All criteria of intent 0002 are met.
