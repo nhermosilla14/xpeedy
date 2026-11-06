@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: slices 0001–0008 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
+> Status: slices 0001–0009 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
 > wall crashes and restart, speed ramp, PortMaster package.
 
 ## Engine and runtime
@@ -40,9 +40,9 @@
 | Path | Role |
 |---|---|
 | `src/main.tscn`, `src/main.gd` | Entry scene; steps the model in `_physics_process` (60 Hz) and refreshes views |
-| `src/core/` | Engine-agnostic helpers: `XRandom`, `RunClock`, `Steering` |
+| `src/core/` | Engine-agnostic helpers: `XRandom`, `RunClock`, `Steering`, `Autopilot` (debug pilot) |
 | `src/model/` | Gameplay state (`TrackModel`), parts (`PartSequence`), centre line (`PathModel`), track-to-world mapping (`TunnelGeometry`), the Survival run (`SurvivalRun`, `RunConfig`, `RunEvent`) and obstacles (`Obstacle`, `ObstacleField`, `PatternLibrary`), warning trails (`TrailMap`, `TrailMath`), shield spots and shields (`Spot`, `SpotField`, `ShieldStack`) |
-| `src/view/` | Nodes that draw the model: `TunnelView`, `ObstacleView`, `ShipCamera`; `TrackShaderBinding` uploads the data they share; `TrailTexture` uploads the trail map; `Palette` holds the obstacle colours; `Hud` and `ScreenFlash` show score, shields and flashes |
+| `src/view/` | Nodes that draw the model: `TunnelView`, `ObstacleView`, `ShipCamera`; `TrackShaderBinding` uploads the data they share; `TrailTexture` uploads the trail map; `Palette` holds the obstacle colours; `Hud` and `ScreenFlash` show score, shields and flashes; `ExplosionView` draws smash fragments |
 | `tests/` | Unit tests (`tests/unit/`) and end-to-end scene scripts (`tests/e2e_*.gd`) |
 | `tools/` | Container wrapper, test, export and packaging scripts |
 | `packaging/portmaster/` | PortMaster port: launch script (Godot 4.4.1 runtime under Weston), metadata, gptk |
@@ -79,7 +79,18 @@
   level-0 pattern (one cube or beam: kind, lane, colour draws) exists so far. A tube beam (shape IN)
   also hits lane + 8 while `flatness ≤ 0.2`; seam wrap applies on tube parts when not morphing.
   `RunConfig.collisions_enabled` is off with `-- --ghost` for visual debugging.
-- **Shields, spots and score** (ADR 0008, 0010): `SurvivalRun` also owns a `SpotField`, a `ShieldStack`
+- **Smashing** (ADR 0008): when the swept hit box touches an obstacle, in segment order, it is smashed
+  if the shields cover its cost (cube and spike 1, beam 2) and a crash otherwise (a beam with one
+  shield keeps that shield). A smash spends the shields (restarting the decay timer), adds 100 or 300
+  points, destroys the obstacle (`ObstacleField.destroy` bumps the version so the view drops the
+  instance), removes its trail (re-exposing the farther trails it covered) and emits
+  `OBSTACLE_SMASHED`; crashes emit `CRASH` with the reason (`obstacle` or `wall`). `main.gd` turns
+  events into feedback: pink-white flash for a smash, white 1 s flash for a crash, and an explosion.
+  `ExplosionView` is a pool of 96 quads (12 per smash) in one `MultiMesh`; `fragments.gdshader` moves
+  each from its seed (direction, speed, spin), shrinks it and hides it after 0.8 s of `game_time`.
+  `Hud` fades out the lost part of the shield bar for 250 ms when the level drops by half a segment
+  or more. `Autopilot.plough` (debug) steers into the nearest obstacle the shields can pay for.
+- **Shields, spots and score** (ADR 0008, 0012): `SurvivalRun` also owns a `SpotField`, a `ShieldStack`
   and the score. Spot groups are generated from the stream `seed ^ 0x5B07` (draw order per group:
   skip chance 1/8; if kept, size 1 + random(0…⌊d/450⌋) capped at 3, then the start lane; then the gap
   3·s + random(0…s−1)); a spot is one lane × three segments. Each tick, after obstacles, the ship's

@@ -27,3 +27,13 @@ static func make(segment: int, lane_index: int, obstacle_kind: Kind, colour_inde
 ## True for a beam that also occupies the opposite lane while the tunnel is tube-shaped.
 func is_tube_beam() -> bool:
 	return kind == Kind.BEAM and shape == PartSequence.Shape.IN
+
+
+## Shield units needed to smash it (doc 04): a beam needs 2, everything else 1.
+func shield_cost() -> int:
+	return 2 if kind == Kind.BEAM else 1
+
+
+## Points for smashing it (doc 04, 09).
+func smash_points() -> int:
+	return 300 if kind == Kind.BEAM else 100

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1"]
 [ext_resource type="Script" path="res://src/view/tunnel_view.gd" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/view/obstacle_view.gd" id="5"]
 [ext_resource type="Script" path="res://src/view/hud.gd" id="6"]
 [ext_resource type="Script" path="res://src/view/screen_flash.gd" id="7"]
+[ext_resource type="Script" path="res://src/view/explosion_view.gd" id="8"]
 
 [node name="Main" type="Node3D"]
 process_mode = 3
@@ -19,6 +20,9 @@ script = ExtResource("2")
 
 [node name="Obstacles" type="Node3D" parent="."]
 script = ExtResource("5")
+
+[node name="Explosions" type="Node3D" parent="."]
+script = ExtResource("8")
 
 [node name="Camera" type="Camera3D" parent="."]
 current = true

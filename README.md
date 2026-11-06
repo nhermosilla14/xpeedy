@@ -43,8 +43,15 @@ Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/
 | Steer right | → / D | left stick, D-pad right |
 | Restart after a crash | R / Enter | A, Start |
 
-Debugging: run the exported game with `-- --ghost` to pass through obstacles and `-- --shields=4` to start
-with shields.
+Debugging options for the exported game, after `--` on the command line:
+
+| Option | Effect |
+|---|---|
+| `--ghost` | pass through obstacles |
+| `--shields=4` | start the run with 4 shields |
+| `--autopilot=plough` | a pilot flies into what it can smash, else towards shield spots |
+| `--timescale=0.2` | slow motion |
+
 On handhelds, A restarts after a crash and Select + Start quits. The frame rate is shown in the top-left corner.
 
 ## Project structure

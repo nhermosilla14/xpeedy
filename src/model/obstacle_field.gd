@@ -55,6 +55,12 @@ func add(o: Obstacle) -> void:
 	obstacle_added.emit(o)
 
 
+## Marks an obstacle as destroyed (smashed); views stop drawing it.
+func destroy(o: Obstacle) -> void:
+	o.alive = false
+	version += 1
+
+
 ## Obstacles on exactly this segment (empty array if none).
 func at_segment(seg: int) -> Array[Obstacle]:
 	if _by_segment.has(seg):

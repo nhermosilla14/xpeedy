@@ -222,7 +222,8 @@ func test_a_crash_is_reported_once_and_stops_the_ship() -> void:
 	check_eq(run.track.crash_reason, "obstacle")
 	var events := run.take_events()
 	check_eq(events.size(), 1, "one event")
-	check_eq(events[0].kind, RunEvent.Kind.OBSTACLE_CRASH)
+	check_eq(events[0].kind, RunEvent.Kind.CRASH)
+	check_eq(events[0].reason, "obstacle")
 	check(events[0].obstacle == o, "the obstacle that was hit")
 	check(run.take_events().is_empty(), "events are cleared when taken")
 	var seg := run.track.segment

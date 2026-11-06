@@ -15,9 +15,10 @@ var spots: SpotField
 var shields: ShieldStack
 var trails := TrailMap.new()
 var score := 0
+## The part of `score` that came from distance (+1 per segment); the rest are smash points.
+var distance_points := 0
 
 var _events: Array[RunEvent] = []
-var _distance_scored := 0
 
 
 func _init(run_config: RunConfig, run_seed: int) -> void:
@@ -43,6 +44,7 @@ func step(dt: float, steer: float) -> void:
 	var lane_before := track.lane_position()
 	track.step(dt, steer)
 	if track.crashed:
+		_events.append(RunEvent.crash(track.crash_reason))
 		return
 	trails.advance(track.window_start())
 	_generate()
@@ -74,12 +76,13 @@ func _generate() -> void:
 ## +1 point per whole segment travelled since the start (doc 09).
 func _score_distance() -> void:
 	var travelled := int(floor(track.segment - TrackModel.START_SEGMENT))
-	if travelled > _distance_scored:
-		score += travelled - _distance_scored
-		_distance_scored = travelled
+	if travelled > distance_points:
+		score += travelled - distance_points
+		distance_points = travelled
 
 
 ## The ship's hit box is swept over everything it covered this tick, so a long tick can't skip an obstacle.
+## Each obstacle it touches is smashed if the shields cover its cost, in segment order, else it is a crash.
 func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
 	var seg_after := track.segment
 	var swept := _swept_lanes(lane_before)
@@ -90,10 +93,21 @@ func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
 
 	for s in range(ceili(seg_before - 1.0), floori(seg_after + SHIP_BACK) + 1):
 		for o in obstacles.at_segment(s):
-			if o.alive and _touches(o, lane_min, lane_max, wrap, opposite):
+			if not (o.alive and _touches(o, lane_min, lane_max, wrap, opposite)):
+				continue
+			if shields.count < o.shield_cost():
 				track.crash("obstacle")
-				_events.append(RunEvent.obstacle_crash(o))
+				_events.append(RunEvent.crash("obstacle", o))
 				return
+			_smash(o)
+
+
+func _smash(o: Obstacle) -> void:
+	shields.lose(o.shield_cost())
+	score += o.smash_points()
+	obstacles.destroy(o)
+	trails.remove_obstacle(o, obstacles)
+	_events.append(RunEvent.obstacle_smashed(o))
 
 
 ## Collects the shield spots the ship flew over this tick (same sweep as obstacles, three segments long).

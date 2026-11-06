@@ -25,7 +25,7 @@
 | 0006 | [Obstacles and crashes](slices/0006-obstacles-and-crashes.md) | Done |
 | 0007 | [Warning trails](slices/0007-warning-trails.md) | Done |
 | 0008 | [Shield spots, shields and the HUD](slices/0008-shields-spots-hud.md) | Done |
-| 0009 | [Smashing obstacles](slices/0009-smashing-obstacles.md) | Accepted |
+| 0009 | [Smashing obstacles](slices/0009-smashing-obstacles.md) | Done |
 | 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Accepted |
 | 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | Accepted |
 
