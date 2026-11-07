@@ -20,6 +20,8 @@ var options: LaunchOptions
 var _restart_wait := 0.0
 var _shot_time := 0.0
 var _paused := false
+## The Survival difficulty of the current run (a `Difficulty` key).
+var difficulty := Difficulty.STANDARD
 var _best := PersonalBest.new()
 var _plain := false
 var _over_shown := false
@@ -55,11 +57,12 @@ func _ready() -> void:
 	var run_seed := options.run_seed
 	if run_seed < 0:
 		run_seed = int(Time.get_unix_time_from_system() * 1000.0) & 0xFFFFFFFF
+	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
 	start_run(run_seed)
 
 
 func start_run(run_seed: int) -> void:
-	var config := RunConfig.standard()
+	var config := Difficulty.config(difficulty)
 	config.generate_obstacles = obstacles_enabled and not options.clean
 	config.generate_spots = not options.clean
 	_plain = countdown_enabled and options.is_plain_run()
@@ -79,7 +82,7 @@ func start_run(run_seed: int) -> void:
 	_over_shown = false
 	_restart_wait = 0.0
 	if _plain:
-		_status.show_best(_best.get_best(PersonalBest.SURVIVAL_STANDARD))
+		_status.show_best(_best.get_best(PersonalBest.key(difficulty)))
 	print("[run] seed=%d" % run_seed)
 	_refresh_view(0.0)
 
@@ -137,7 +140,7 @@ func _show_game_over() -> void:
 	if not (_plain and _track.crashed) or _over_shown or _track.crash_time < GAME_OVER_DELAY:
 		return
 	_over_shown = true
-	var key := PersonalBest.SURVIVAL_STANDARD
+	var key := PersonalBest.key(difficulty)
 	_best.submit(key, _run.score)
 	_screen.open("game over", ["score: %d" % _run.score, "personal best: %d" % _best.get_best(key)] as Array[String],
 		["try again"] as Array[String])

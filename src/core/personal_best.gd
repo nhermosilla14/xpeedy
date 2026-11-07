@@ -4,7 +4,10 @@ extends RefCounted
 ## corrupt file counts as no best.
 
 const SECTION := "best"
-const SURVIVAL_STANDARD := "survival_standard"
+
+## The key of a Survival difficulty ("survival_standard" is the first one ever saved).
+static func key(difficulty: String) -> String:
+	return "survival_" + difficulty
 
 var _path: String
 var _scores := {}

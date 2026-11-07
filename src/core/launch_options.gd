@@ -20,6 +20,8 @@ var start_segment := 0.0
 var clean := false
 ## Show the frame-rate counter.
 var fps := false
+## Survival difficulty key (see `Difficulty`).
+var difficulty := "standard"
 ## Skip the start sequence (tests and debugging).
 var no_countdown := false
 ## "in", "flat" or "out": start inside the first part of that shape (for looking at it).
@@ -62,6 +64,8 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 				o.start_segment = value.to_float()
 			"--no-countdown":
 				o.no_countdown = true
+			"--difficulty":
+				o.difficulty = value
 			"--fps":
 				o.fps = true
 			"--clean":

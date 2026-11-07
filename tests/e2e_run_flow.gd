@@ -16,7 +16,7 @@ var _seed := 0
 
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
-	_main.set("options", LaunchOptions.parse(PackedStringArray(["--seed=44"])))
+	_main.set("options", LaunchOptions.parse(PackedStringArray(["--seed=44", "--difficulty=extreme"])))
 	root.add_child(_main)
 
 
@@ -48,6 +48,8 @@ func _physics_process(_delta: float) -> bool:
 		Phase.RACE:
 			if _ticks == 1 and lights.visible:
 				_errors.append("lights still visible when racing")
+			if _ticks == 1 and run.config.target_tps != 67.0:
+				_errors.append("the run is not at the extreme speed")
 			if _ticks == 90:
 				if run.score <= 0:
 					_errors.append("no score while racing")
@@ -83,6 +85,9 @@ func _physics_process(_delta: float) -> bool:
 					_errors.append("no Game Over panel after the crash")
 				elif not screen.lines[0].begins_with("score: ") or not screen.lines[1].begins_with("personal best: "):
 					_errors.append("Game Over lines are wrong: %s" % [screen.lines])
+				var best: PersonalBest = _main.get("_best")
+				if best.get_best("survival_extreme") <= 0:
+					_errors.append("the best was not saved under the extreme key")
 				_main.call("_on_choice", 0)
 				if (_main.get("_track") as TrackModel).crashed or (_main.get("_track") as TrackModel).seed_value == _seed:
 					_errors.append("try again did not start a new run")

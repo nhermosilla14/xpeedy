@@ -1,6 +1,6 @@
 # 0018. Survival difficulties and per-difficulty bests
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0005
