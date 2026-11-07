@@ -31,6 +31,12 @@ var _plain := false
 var _over_shown := false
 var _in_menu := false
 var _settings := Settings.new()
+## Stage mode (ADR 0025): the stage (1-4, 0 for Survival) and race (1-12) being played, the catalogue and the
+## progress saved on the device.
+var stage := 0
+var race := 0
+var _catalogue := StageCatalogue.new()
+var _progress := StageProgress.new()
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
@@ -73,6 +79,8 @@ func _ready() -> void:
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
 	if start_in_menu and options.starts_in_menu():
 		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS}.get(options.screen, MenuController.Page.MAIN))
+	elif options.race.contains("-"):
+		start_race(options.race.get_slice("-", 0).to_int(), options.race.get_slice("-", 1).to_int())
 	else:
 		start_run(_new_seed())
 
@@ -103,14 +111,25 @@ func _set_menu_visible(menu: bool) -> void:
 
 func _on_play_requested(key: String) -> void:
 	difficulty = key
+	stage = 0
 	start_run(_new_seed())
+
+
+## Starts race `race_number` of stage `stage_number` (ADR 0025), carrying the stage's running score.
+func start_race(stage_number: int, race_number: int) -> void:
+	stage = stage_number
+	race = race_number
+	var spec := _catalogue.race(stage, race)
+	start_run(spec.seed_value if spec.seed_value >= 0 else _new_seed())
 
 
 func start_run(run_seed: int) -> void:
 	_set_menu_visible(false)
 	var config := Difficulty.config(difficulty)
+	if stage > 0:
+		config = RaceConfig.from_spec(_catalogue.race(stage, race), _progress.score(stage))
 	config.generate_obstacles = obstacles_enabled and not options.clean
-	config.generate_spots = not options.clean
+	config.generate_spots = config.generate_spots and not options.clean
 	_plain = countdown_enabled and options.is_plain_run()
 	config.countdown = _plain
 	# Debug and benchmark runs ignore the player's settings so they stay comparable.
@@ -257,6 +276,12 @@ func _show_events() -> void:
 				_explosions.spawn(_obstacle_centre(event.obstacle), event.obstacle.colour, _clock.time)
 			RunEvent.Kind.CRASH:
 				_flash.flash(Color.WHITE, 1.0, 1.0)
+				if stage > 0 and options.is_plain_run():
+					_progress.crash(stage)
+			RunEvent.Kind.RACE_FINISHED:
+				_flash.flash(Color(0.5, 1.0, 0.5), 0.75, 1.0)
+				if options.is_plain_run():
+					_progress.finish_race(stage, race, _run.score)
 			RunEvent.Kind.STOMP:
 				_camera.shake(STOMP_SECONDS)
 			RunEvent.Kind.BONUS_PICKUP:
@@ -345,6 +370,7 @@ func _refresh_zone() -> void:
 	var kind: Zone.Kind = _run.zone if active else Zone.Kind.NONE
 	RenderingServer.global_shader_parameter_set("zone", float(kind))
 	RenderingServer.global_shader_parameter_set("zone_time", _run.zone_time)
+	RenderingServer.global_shader_parameter_set("finish_segment", float(_run.config.run_length) if _run.config.run_length > 0 else -1.0)
 	$Environment.environment.fog_density = ShipCamera.fog_density(kind, _run.zone_time)
 	_camera.apply_zone(kind, _run.gravity_value())
 	_banner.visible = _run.zone_state == SurvivalRun.ZoneState.COUNTDOWN

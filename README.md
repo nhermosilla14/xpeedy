@@ -60,6 +60,7 @@ Debugging options for the exported game, after `--` on the command line:
 | `--screen=main\|difficulty\|settings` | open the menu on that page (for screenshots) |
 | `--no-countdown` | skip the start sequence (debug options that change the run also skip it, and never save a best) |
 | `--zone=blackout\|gravity\|hue\|nebula\|plasma` | start with that hazard zone active (for looking at it) |
+| `--race=S-R` | start stage race S-R (for example 1-1) directly, skipping the menu |
 | `--clean` | no obstacles or shield spots (for looking at the tunnel) |
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |

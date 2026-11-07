@@ -1,6 +1,6 @@
 # 0035. Finishing a race and stage progress
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0009
@@ -15,3 +15,11 @@ Finish detection and event, the finish line and the black fade, the carried scor
 
 ## Out of scope
 - Menus.
+
+## Results
+- `SurvivalRun.finished` and `RACE_FINISHED`, the finish line (trail code 11; the alpha step became 20), the
+  `finish_segment` global uniform and the black fade in the tunnel shader, `StageProgress`
+  (`tests/unit/test_stage_progress.gd`, 10 tests), `Main.start_race`, progress saved on finish and reset on a
+  crash, and `--race=S-R`. `tests/e2e_races.gd` covers the finish, flash, stop, saved progress and the crash reset.
+- The capture `build/look/finish.png` shows the fade towards black but not the green line itself; the finish
+  line colour is untested on screen.

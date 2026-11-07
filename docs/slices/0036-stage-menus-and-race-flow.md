@@ -1,6 +1,6 @@
 # 0036. Mode and stage menus, and the race flow
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0009

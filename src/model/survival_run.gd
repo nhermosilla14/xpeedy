@@ -9,6 +9,8 @@ const SHIP_HALF_WIDTH := 0.25
 const BEAM_OPPOSITE_MAX_FLATNESS := 0.2
 ## Landings of rollers up to this many segments ahead shake the camera.
 const STOMP_RANGE := 12.0
+## The finish line is drawn this many segments before the run length.
+const FINISH_LINE_BEFORE := 2
 
 var config: RunConfig
 var track: TrackModel
@@ -17,6 +19,8 @@ var spots: SpotField
 var shields: ShieldStack
 var trails := TrailMap.new()
 var score := 0
+## A stage race is finished once the ship has travelled the run length (doc 11); the run then stops.
+var finished := false
 ## The part of `score` that came from distance (+1 per segment); the rest are smash points.
 var distance_points := 0
 ## Game time of the run in seconds (the sum of the steps): rollers and bouncers move with it (ADR 0020).
@@ -56,6 +60,7 @@ var _gravity_phase1 := 0.0
 var _gravity_phase2 := 0.0
 var _vortex_next := 0
 var _countdown_second := 0
+var _finish_painted := false
 
 
 func _init(run_config: RunConfig, run_seed: int) -> void:
@@ -84,6 +89,8 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 
 ## Advances the run by `dt` seconds of game time with the processed steer value.
 func step(dt: float, steer: float) -> void:
+	if finished:
+		return
 	if track.crashed:
 		track.step(dt, steer)
 		return
@@ -112,6 +119,7 @@ func step(dt: float, steer: float) -> void:
 			_tick_countdown(dt)
 		else:
 			_score_distance()
+		_check_finish()
 	obstacles.forget_before(track.window_start() - 2)
 	spots.forget_before(track.window_start() - Spot.LENGTH - 2)
 	zones.forget_before(track.window_start() - 2)
@@ -295,6 +303,13 @@ func _resolve_vortices(seg_before: float, lane_before: float) -> void:
 			_events.append(RunEvent.plasma_touched())
 
 
+## Finishes a stage race at its run length.
+func _check_finish() -> void:
+	if config.run_length > 0 and track.segment >= config.run_length and not finished:
+		finished = true
+		_events.append(RunEvent.race_finished())
+
+
 func _tick_countdown(dt: float) -> void:
 	countdown_time += dt
 	if countdown_time >= COUNTDOWN_SECONDS:
@@ -337,6 +352,9 @@ func _generate() -> void:
 	if config.generate_spots:
 		spots.generate_to(horizon)
 	zones.generate_to(horizon)
+	if config.run_length > 0 and not _finish_painted and horizon >= config.run_length - FINISH_LINE_BEFORE:
+		_finish_painted = true
+		trails.add_finish(config.run_length - FINISH_LINE_BEFORE)
 
 
 ## +1 point per whole segment travelled since the start (doc 09).

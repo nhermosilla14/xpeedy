@@ -31,11 +31,14 @@ varying float v_trail_fade;    // how much of the trail colour shows (0 = no tra
 varying float v_trail_highlight;
 varying float v_spot;
 varying float v_lane;
+varying float v_seg;
 
 // Hazard zone in force (0 none, 1 blackout, 2 gravity well, 3 hue shift, 4 dark nebula, 5 plasma cloud) and the
 // seconds since it started (ADR 0023). Global uniforms: cheap to change every frame.
 global uniform float zone;
 global uniform float zone_time;
+// Segment of the finish line of a stage race (-1 when there is none): the tiles fade to black before it.
+global uniform float finish_segment;
 
 void vertex() {
 	int k = int(VERTEX.x + 0.5);
@@ -48,6 +51,7 @@ void vertex() {
 	v_lane = float(tile_lane);
 	int tile_offset = int(UV.y + 0.5);
 	int tile_seg = int(first_segment) + tile_offset;
+	v_seg = float(tile_seg);
 	v_band_base = mod(float(tile_seg), BAND_PERIOD);
 
 	v_trail_colour = vec3(0.0);
@@ -68,7 +72,7 @@ void vertex() {
 		v_trail_fade = clamp((25.0 - dist) / 10.0, 0.0, 1.0) * weight * shown;
 		v_trail_highlight = clamp(approach * sqrt(max(0.0, 1.5 - lane_d)), 0.0, 1.0) * weight * shown;
 	}
-	v_spot = floor(raw.a * 255.0 / 25.0 + 0.5);
+	v_spot = floor(raw.a * 255.0 / 20.0 + 0.5);
 }
 
 void fragment() {
@@ -107,7 +111,10 @@ void fragment() {
 	colour = mix(colour, v_trail_colour, edge);
 	colour = mix(colour, WARNING, v_trail_highlight * max(edge, 0.35));
 
-	if (v_spot > 9.5) {
+	if (v_spot > 10.5) {
+		// Finish line: light green, full width.
+		colour = vec3(0.55, 1.0, 0.6);
+	} else if (v_spot > 9.5) {
 		// Plasma vortex: a pulsing blue tile.
 		float pulse = 0.5 + 0.5 * sin(zone_time * 8.0 + v_lane);
 		colour = mix(vec3(0.15, 0.2, 0.9), vec3(0.8, 0.9, 1.0), pulse * (1.0 - length(v_local - 0.5)));
@@ -123,6 +130,10 @@ void fragment() {
 		p.x += 0.5 * mod(floor(p.y), 2.0);
 		float dots = 1.0 - smoothstep(SPOT_RADIUS * 0.8, SPOT_RADIUS, length(fract(p) - 0.5));
 		colour = mix(SPOT_BASE, spot_colour, dots);
+	}
+	if (finish_segment > 0.0) {
+		// The last segments fade to black over 10 segments (doc 11).
+		colour *= 1.0 - clamp((v_seg + v_local.y - (finish_segment - 15.0)) / 10.0, 0.0, 1.0);
 	}
 	ALBEDO = colour;
 }

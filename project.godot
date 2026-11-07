@@ -78,6 +78,10 @@ zone_time={
 "type": "float",
 "value": 0.0
 }
+finish_segment={
+"type": "float",
+"value": -1.0
+}
 
 [physics]
 

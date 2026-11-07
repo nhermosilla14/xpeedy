@@ -5,7 +5,7 @@ extends RefCounted
 ##   R = palette colour index + 1, or 0 when the tile has no trail
 ##   G = the obstacle's segment minus the tile's segment (0-25)
 ##   B = 255 for the opposite-lane trail of a tube beam, else 0
-##   A = 0, or code x 25: 1-4 pick-up spot kinds, 5-9 zone marks, 10 a plasma vortex (ADR 0022, 0023)
+##   A = 0, or code x 20: 1-4 pick-up spot kinds, 5-9 zone marks, 10 a plasma vortex, 11 the finish line (ADR 0022-0024)
 ## Row `seg & 63` belongs to segment `seg`; a row is cleared when a different segment claims it, so
 ## nothing is rewritten when the window scrolls.
 
@@ -13,9 +13,10 @@ const ROWS := 64
 const LANES := TrackModel.LANES
 const TRAIL_LENGTH := 25
 const BYTES_PER_TILE := 4
-const ALPHA_STEP := 25
+const ALPHA_STEP := 20
 const MARK_CODE := 4  # zone kind + 4 gives codes 5-9
 const VORTEX_CODE := 10
+const FINISH_CODE := 11
 
 ## The tiles, row-major: ((seg & 63) * 16 + lane) * 4.
 var data := PackedByteArray()
@@ -84,6 +85,11 @@ func add_spot(spot: Spot) -> void:
 ## Paints a zone mark over all 16 lanes of its segment.
 func add_mark(mark: ZoneField.Mark) -> void:
 	_claim_and_flag(mark.seg, range(LANES), (mark.zone + MARK_CODE) * ALPHA_STEP)
+
+
+## Paints the finish line of a race over all 16 lanes of `seg`.
+func add_finish(seg: int) -> void:
+	_claim_and_flag(seg, range(LANES), FINISH_CODE * ALPHA_STEP)
 
 
 ## Paints a plasma vortex on its tile, and removes it again.
