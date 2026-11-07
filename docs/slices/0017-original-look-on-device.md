@@ -1,6 +1,6 @@
 # 0017. The original look on the RG351P
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (on-device run and final review)
 - Intents: 0004

@@ -1,6 +1,6 @@
 # 0012. Tunnel look: violet surface, bands and rails
 
-- Status: Proposed
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0004

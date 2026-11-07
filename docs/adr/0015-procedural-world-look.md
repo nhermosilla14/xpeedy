@@ -1,6 +1,6 @@
 # 0015. The original's world look, drawn procedurally in the shaders
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-07
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0004

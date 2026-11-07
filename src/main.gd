@@ -13,6 +13,7 @@ var _trail_texture := TrailTexture.new()
 ## Launch options; tests can set them before the scene is added to the tree.
 var options: LaunchOptions
 var _restart_wait := 0.0
+var _shot_time := 0.0
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
@@ -45,11 +46,12 @@ func _ready() -> void:
 
 func start_run(run_seed: int) -> void:
 	var config := RunConfig.standard()
-	config.generate_obstacles = obstacles_enabled
+	config.generate_obstacles = obstacles_enabled and not options.clean
+	config.generate_spots = not options.clean
 	config.collisions_enabled = not options.ghost
 	config.crash_on_obstacles = not options.invulnerable
 	config.start_shields = options.shields
-	config.start_segment = options.start_segment
+	config.start_segment = _start_segment(run_seed)
 	_run = SurvivalRun.new(config, run_seed)
 	_track = _run.track
 	_clock = RunClock.new()
@@ -101,6 +103,21 @@ func _obstacle_centre(o: Obstacle) -> Vector3:
 	return geometry.surface(lane, seg) + geometry.normal(lane, seg) * height
 
 
+## Where the run starts: `--start-segment`, or well inside the first part of the shape asked for with
+## `--start-shape` (past the 30-segment morph).
+func _start_segment(run_seed: int) -> float:
+	var shapes := {"in": PartSequence.Shape.IN, "flat": PartSequence.Shape.FLAT, "out": PartSequence.Shape.OUT}
+	if not shapes.has(options.start_shape):
+		return options.start_segment
+	if options.start_shape == "in":
+		return 100.0
+	var parts := PartSequence.new(run_seed)
+	for i in range(1, 100):
+		if parts.shape(i) == shapes[options.start_shape]:
+			return float(parts.start(i)) + 50.0
+	return options.start_segment
+
+
 ## What the benchmark log shows next to the frame rate, to tell how dense the track was.
 func _state_text() -> String:
 	var level := ObstacleField.level_at(maxi(_track.window_start(), 0))
@@ -108,8 +125,21 @@ func _state_text() -> String:
 		_track.window_start(), level, _run.obstacles.all().size(), _run.shields.count, _run.score]
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_fps.text = "%d fps" % Engine.get_frames_per_second()
+	if options.screenshot_path != "":
+		_shot_time += delta
+		if _shot_time >= options.screenshot_seconds:
+			_capture(options.screenshot_path)
+			options.screenshot_path = ""
+
+
+## Saves what is on screen to a PNG and quits.
+func _capture(path: String) -> void:
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(path)
+	print("[screenshot] %s" % path)
+	get_tree().quit()
 
 
 func _refresh_view(dt: float) -> void:

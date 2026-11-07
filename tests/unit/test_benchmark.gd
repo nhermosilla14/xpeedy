@@ -24,6 +24,18 @@ func test_single_options() -> void:
 	check_near(o.timescale, 0.5, 0.0001)
 
 
+func test_look_review_options() -> void:
+	var o := LaunchOptions.parse(PackedStringArray(["--clean", "--start-shape=flat", "--screenshot=/tmp/a.png,3.5"]))
+	check(o.clean, "clean")
+	check_eq(o.start_shape, "flat")
+	check_eq(o.screenshot_path, "/tmp/a.png")
+	check_near(o.screenshot_seconds, 3.5, 0.0001, "seconds")
+	var plain := LaunchOptions.parse(PackedStringArray(["--screenshot=/tmp/b.png"]))
+	check_eq(plain.screenshot_path, "/tmp/b.png")
+	check_near(plain.screenshot_seconds, 2.0, 0.0001, "default delay")
+	check(not plain.clean and plain.start_shape == "", "defaults")
+
+
 func test_the_benchmark_bundles_a_comparable_run() -> void:
 	var o := LaunchOptions.parse(PackedStringArray(["--benchmark"]))
 	check(o.benchmark and o.invulnerable and not o.ghost, "benchmark flags")
