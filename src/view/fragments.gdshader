@@ -4,6 +4,8 @@ render_mode unshaded, cull_disabled;
 // (its transform's translation); INSTANCE_CUSTOM = (spawn time, colour index, seed, active). Direction,
 // speed and spin come from the seed. Fragments fly out ballistically, tumble, shrink and vanish.
 
+#include "res://src/view/look.gdshaderinc"
+
 uniform float game_time = 0.0;
 uniform vec3 palette[5];
 
@@ -25,7 +27,10 @@ mat3 rotation(vec3 axis, float angle) {
 		vec3(t * a.x * a.z + s * a.y, t * a.y * a.z - s * a.x, t * a.z * a.z + c));
 }
 
+varying vec2 v_quad;
+
 void vertex() {
+	v_quad = VERTEX.xy + 0.5;
 	float age = game_time - INSTANCE_CUSTOM.x;
 	float seed = INSTANCE_CUSTOM.z;
 	bool shown = INSTANCE_CUSTOM.w > 0.5 && age >= 0.0 && age < LIFE;
@@ -40,5 +45,6 @@ void vertex() {
 }
 
 void fragment() {
-	ALBEDO = COLOR.rgb;
+	float edge = 1.0 - smoothstep(0.1, 0.2, min(min(v_quad.x, 1.0 - v_quad.x), min(v_quad.y, 1.0 - v_quad.y)));
+	ALBEDO = mix(COLOR.rgb * BODY_BRIGHTNESS * 1.5, COLOR.rgb, edge);
 }

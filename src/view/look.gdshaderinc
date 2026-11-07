@@ -25,3 +25,8 @@ const float SPOT_RADIUS = 0.34;
 
 const vec3 WARNING = vec3(0.94, 0.12, 0.05);
 const vec3 SHIELD_SPOT = vec3(1.0, 0.7, 0.2);
+
+// Obstacles: a dark body (fraction of the colour) with bright edge lines (lane widths wide).
+const float BODY_BRIGHTNESS = 0.16;
+const float OBSTACLE_EDGE = 0.07;
+const float SPIKE_EDGE = 0.06;

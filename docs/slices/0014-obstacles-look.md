@@ -1,6 +1,6 @@
 # 0014. Obstacles and fragments look
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0004

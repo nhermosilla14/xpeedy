@@ -106,12 +106,14 @@ static func _prism_mesh(inset: float, height: float) -> ArrayMesh:
 	var corners := [Vector2(lo, lo), Vector2(hi, lo), Vector2(hi, hi), Vector2(lo, hi)]
 	var verts := PackedVector3Array()
 	var shades := PackedVector2Array()
+	var extra := PackedVector2Array()
 	var indices := PackedInt32Array()
 	var add_quad := func(a: Vector3, b: Vector3, c: Vector3, d: Vector3, brightness: float) -> void:
 		var base := verts.size()
 		verts.append_array([a, b, c, d])
 		for i in 4:
 			shades.append(Vector2(brightness, 0.0))
+			extra.append(Vector2(inset, height))
 		indices.append_array([base, base + 1, base + 2, base, base + 2, base + 3])
 	add_quad.call(Vector3(lo, lo, height), Vector3(hi, lo, height), Vector3(hi, hi, height),
 		Vector3(lo, hi, height), 1.0)
@@ -121,7 +123,7 @@ static func _prism_mesh(inset: float, height: float) -> ArrayMesh:
 		var b: Vector2 = corners[(i + 1) % 4]
 		add_quad.call(Vector3(a.x, a.y, 0.0), Vector3(b.x, b.y, 0.0), Vector3(b.x, b.y, height),
 			Vector3(a.x, a.y, height), side_brightness[i])
-	return _to_mesh(verts, shades, indices)
+	return _to_mesh(verts, shades, extra, indices)
 
 
 ## A four-sided pyramid on the whole tile, `height` lane widths tall.
@@ -131,6 +133,7 @@ static func _spike_mesh(height: float) -> ArrayMesh:
 	var brightness := [0.75, 0.6, 0.85, 0.65]
 	var verts := PackedVector3Array()
 	var shades := PackedVector2Array()
+	var extra := PackedVector2Array()
 	var indices := PackedInt32Array()
 	for i in 4:
 		var a: Vector2 = corners[i]
@@ -138,16 +141,18 @@ static func _spike_mesh(height: float) -> ArrayMesh:
 		var base := verts.size()
 		verts.append_array([Vector3(a.x, a.y, 0.0), Vector3(b.x, b.y, 0.0), apex])
 		for j in 3:
-			shades.append(Vector2(brightness[i], 0.0))
+			shades.append(Vector2(brightness[i], 1.0))
+		extra.append_array([Vector2(1, 0), Vector2(0, 1), Vector2(0, 0)])
 		indices.append_array([base, base + 1, base + 2])
-	return _to_mesh(verts, shades, indices)
+	return _to_mesh(verts, shades, extra, indices)
 
 
-static func _to_mesh(verts: PackedVector3Array, shades: PackedVector2Array, indices: PackedInt32Array) -> ArrayMesh:
+static func _to_mesh(verts: PackedVector3Array, shades: PackedVector2Array, extra: PackedVector2Array, indices: PackedInt32Array) -> ArrayMesh:
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts
 	arrays[Mesh.ARRAY_TEX_UV] = shades
+	arrays[Mesh.ARRAY_TEX_UV2] = extra
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
