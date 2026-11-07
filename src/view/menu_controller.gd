@@ -1,12 +1,16 @@
 class_name MenuController
 extends Control
-## The menu pages and the way between them (ADR 0018): main, difficulty and, later, settings. It reads the
+## The menu pages and the way between them (ADR 0018, 0025): main, mode, difficulty, stages, the restart
+## question and settings. It reads the
 ## navigation actions when `poll` is called and only emits names; it knows nothing of the game.
 
 signal play_requested(difficulty: String)
 signal quit_requested
+## A stage was chosen (it starts its next unfinished race), or its restart was confirmed.
+signal race_requested(stage: int)
+signal restart_stage_requested(stage: int)
 
-enum Page { MAIN, DIFFICULTY, SETTINGS }
+enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART }
 
 ## The Quit item is hidden where programs do not quit (Android, web).
 var can_quit := not (OS.has_feature("mobile") or OS.has_feature("web"))
@@ -14,11 +18,14 @@ var can_quit := not (OS.has_feature("mobile") or OS.has_feature("web"))
 var preferred_difficulty := Difficulty.STANDARD
 ## The settings the Settings page edits; the owner sets it.
 var settings := Settings.new()
+## The stage progress the stage list shows (bars, padlocks); the owner sets it.
+var progress := StageProgress.new()
 
 var _stack: Array[Page] = []
 var _backdrop := MenuBackdrop.new()
 var _screen := MenuScreen.new()
 var _main_items: Array[String] = []
+var _pending_stage := 0
 
 
 func _ready() -> void:
@@ -31,10 +38,13 @@ func _ready() -> void:
 	_screen.gear_pressed.connect(_open_settings)
 
 
-## Shows the page `page`, with the pages before it on the way back (difficulty is reached from main).
+## Shows the page `page`, with the pages before it on the way back (difficulty and stages are reached from
+## the mode page, which is reached from main).
 func open(page: Page) -> void:
 	_stack.clear()
 	_stack.append(Page.MAIN)
+	if page == Page.DIFFICULTY or page == Page.STAGES:
+		_stack.append(Page.MODE)
 	if page != Page.MAIN:
 		_stack.append(page)
 	_show_top()
@@ -96,6 +106,21 @@ func _show_top(selected_item := 0) -> void:
 			for key in Difficulty.keys():
 				items.append({"text": key, "colour": Difficulty.colour(key), "triangles": Difficulty.triangles(key)})
 			_screen.show_items(items, true, false, Difficulty.keys().find(preferred_difficulty))
+		Page.MODE:
+			items.append({"text": "single"})
+			items.append({"text": "survival"})
+			_screen.show_items(items, true, false)
+		Page.STAGES:
+			for stage in range(1, StageProgress.STAGES + 1):
+				items.append({"text": "stage %02d" % stage,
+					"progress": float(progress.done(stage)) / StageProgress.RACES,
+					"count": "%d/%d" % [progress.done(stage), StageProgress.RACES],
+					"locked": not progress.is_unlocked(stage)})
+			_screen.show_items(items, true, false, selected_item)
+		Page.RESTART:
+			items.append({"text": "restart stage %02d" % _pending_stage})
+			items.append({"text": "keep it"})
+			_screen.show_items(items, true, false, 1)
 		Page.SETTINGS:
 			items.append({"text": "invert: %s" % ("on" if settings.invert else "off")})
 			items.append({"text": "buttons: %s" % settings.layout})
@@ -111,12 +136,30 @@ func _on_activated(index: int) -> void:
 	match _stack.back():
 		Page.MAIN:
 			if _main_items[index] == "play":
-				_stack.append(Page.DIFFICULTY)
+				_stack.append(Page.MODE)
 				_show_top()
 			else:
 				quit_requested.emit()
+		Page.MODE:
+			_stack.append(Page.STAGES if index == 0 else Page.DIFFICULTY)
+			_show_top()
 		Page.DIFFICULTY:
 			play_requested.emit(Difficulty.keys()[index])
+		Page.STAGES:
+			var stage := index + 1
+			if not progress.is_unlocked(stage):
+				return
+			if progress.is_complete(stage):
+				_pending_stage = stage
+				_stack.append(Page.RESTART)
+				_show_top()
+			else:
+				race_requested.emit(stage)
+		Page.RESTART:
+			if index == 0:
+				restart_stage_requested.emit(_pending_stage)
+			else:
+				back()
 		Page.SETTINGS:
 			if index == 0:
 				settings.invert = not settings.invert

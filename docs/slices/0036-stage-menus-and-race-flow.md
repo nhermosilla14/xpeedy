@@ -1,6 +1,6 @@
 # 0036. Mode and stage menus, and the race flow
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0009
@@ -15,3 +15,10 @@ Mode page, stage page with bars and padlocks, the restart dialog, race start and
 
 ## Out of scope
 - Upgrades, credits.
+
+## Results
+- Menu pages mode, stages (bars, counts, padlocks) and restart; `MenuScreen` draws progress items; the race
+  label, "run finished" and "stage finished" panels, retry of the same race after Game Over, the best-score
+  label per stage; `--screen=mode|stages`. `tests/e2e_stage_flow.gd` covers the whole flow; `tests/e2e_menus.gd`
+  was updated for play, then the mode page. Captures `build/look/m-mode.png` and `m-stages.png`.
+- Pause "restart" and the restart key retry the same race in a stage.

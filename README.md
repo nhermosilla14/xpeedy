@@ -5,8 +5,8 @@ tunnel at high speed and steer around obstacles. It targets desktop, Android and
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 > Status: the Survival core is playable on desktop and on the RG351P at a locked 60 fps ([intent 0003](docs/intent/0003-survival-core.md)):
-> menus, five difficulties, tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Rollers and bouncers ([intent 0006](docs/intent/0006-rollers-and-bouncers.md)) are in on every difficulty but Pure. Bonuses (Quake, Time Dilation, Space Fold; [intent 0007](docs/intent/0007-bonuses.md)) are in; fire the one you hold with Enter, Space, A or a tap. The five hazard zones ([intent 0008](docs/intent/0008-hazard-zones.md)) are in. Not yet:
-> sound, upgrades, Stage mode, Android.
+> menus, five difficulties, tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Rollers and bouncers ([intent 0006](docs/intent/0006-rollers-and-bouncers.md)) are in on every difficulty but Pure. Bonuses (Quake, Time Dilation, Space Fold; [intent 0007](docs/intent/0007-bonuses.md)) are in; fire the one you hold with Enter, Space, A or a tap. The five hazard zones ([intent 0008](docs/intent/0008-hazard-zones.md)) and Stage mode with its 48 races ([intent 0009](docs/intent/0009-stage-mode.md)) are in. Not yet:
+> sound, upgrades, Android.
 
 ## Prerequisites
 - [Podman](https://podman.io/) 4+. Godot 4.4.1 and its export templates come from the
@@ -57,7 +57,7 @@ Debugging options for the exported game, after `--` on the command line:
 | `--fps` | show the frame-rate counter (also on with `--benchmark`) |
 | `--difficulty=KEY` | casual, easy, standard (default), extreme or pure; starts a run directly, skipping the menu |
 | `--no-menu` | start a run directly instead of opening the menu |
-| `--screen=main\|difficulty\|settings` | open the menu on that page (for screenshots) |
+| `--screen=main\|mode\|difficulty\|stages\|settings` | open the menu on that page (for screenshots) |
 | `--no-countdown` | skip the start sequence (debug options that change the run also skip it, and never save a best) |
 | `--zone=blackout\|gravity\|hue\|nebula\|plasma` | start with that hazard zone active (for looking at it) |
 | `--race=S-R` | start stage race S-R (for example 1-1) directly, skipping the menu |
@@ -65,7 +65,7 @@ Debugging options for the exported game, after `--` on the command line:
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |
 
-The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A confirm, Esc or B go back; with a mouse or touch an item activates when released. "play" opens the five difficulties; the gear opens settings (invert steering, button layout nintendo or xbox); the back arrow is reached with up/down, and Select goes back too. A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
+The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A confirm, Esc or B go back; with a mouse or touch an item activates when released. "play" opens the mode page: "single" (the four stages, locked until the earlier ones are done) or "survival" (the five difficulties); the gear opens settings (invert steering, button layout nintendo or xbox); the back arrow is reached with up/down, and Select goes back too. A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
 
 ## Project structure
 ```

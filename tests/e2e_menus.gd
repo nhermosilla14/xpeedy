@@ -41,8 +41,12 @@ func _physics_process(_delta: float) -> bool:
 				if menu.current_page() != MenuController.Page.MAIN or menu.page_item_texts()[0] != "play":
 					_errors.append("the main page is wrong: %s" % [menu.page_item_texts()])
 				menu.activate()
+				if menu.current_page() != MenuController.Page.MODE or menu.page_item_texts() != (["single", "survival"] as Array[String]):
+					_errors.append("play did not open the mode page")
+				menu.move(1)
+				menu.activate()
 				if menu.current_page() != MenuController.Page.DIFFICULTY:
-					_errors.append("play did not open the difficulty page")
+					_errors.append("survival did not open the difficulty page")
 				_phase = Phase.DIFFICULTY
 				_ticks = 0
 		Phase.DIFFICULTY:
@@ -79,12 +83,17 @@ func _physics_process(_delta: float) -> bool:
 				if not menu.visible or menu.current_page() != MenuController.Page.MAIN or _main.get("_run") != null:
 					_errors.append("pause > main menu did not return to the main page")
 				menu.activate()
+				menu.move(1)
+				menu.activate()
 				if menu.selected_index() != 3:
 					_errors.append("the difficulty menu did not preselect the last difficulty")
 				_action("ui_cancel", true)
 			if _ticks == 6:
 				_action("ui_cancel", false)
 			if _ticks == 9:
+				if menu.current_page() != MenuController.Page.MODE:
+					_errors.append("back did not return to the mode page")
+				menu.back()
 				if menu.current_page() != MenuController.Page.MAIN:
 					_errors.append("back did not return to the main page")
 				menu.move(2)
@@ -93,6 +102,8 @@ func _physics_process(_delta: float) -> bool:
 					_errors.append("the gear did not open settings")
 				menu.activate()
 				menu.back()
+				menu.activate()
+				menu.move(1)
 				menu.activate()
 				menu.move(-2)
 				menu.activate()

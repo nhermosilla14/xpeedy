@@ -14,7 +14,8 @@ const TEXT_COLOUR := Color("C4BFC4")
 const SELECTED_COLOUR := Color("D8A64A")
 const BADGE_TRIANGLE := Color(0.1, 0.08, 0.1, 0.85)
 
-## Each item: {"text": String} and optionally {"colour": Color, "triangles": int} for a round badge.
+## Each item: {"text": String} and optionally {"colour": Color, "triangles": int} for a round badge, or
+## {"progress": float 0-1, "count": String, "locked": bool} for a stage: a progress bar and a padlock when locked.
 var items: Array[Dictionary] = []
 var has_back := false
 var has_gear := false
@@ -111,16 +112,39 @@ func _draw() -> void:
 	for i in items.size():
 		var rect := _item_rect(i)
 		var colour := SELECTED_COLOUR if i == _pressed or (_pressed < 0 and i == selected) else TEXT_COLOUR
+		if items[i].get("locked", false):
+			colour = Color(colour, 0.45)
 		var x := _left()
 		if items[i].has("triangles"):
 			_draw_badge(Vector2(x + h * 0.45, rect.position.y + h * 0.5), h * 0.42, items[i]["colour"], items[i]["triangles"])
 			x += h * 1.05
 		draw_string(font, Vector2(x, rect.position.y + h * 0.78), items[i]["text"],
 			HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, colour)
+	for i in items.size():
+		if items[i].has("progress"):
+			_draw_progress(i)
 	if has_back:
 		_draw_back(_back_rect(), SELECTED_COLOUR if is_back_selected() or _pressed == back_index() else TEXT_COLOUR)
 	if has_gear:
 		_draw_gear(_gear_rect(), SELECTED_COLOUR if is_gear_selected() or _pressed == gear_index() else TEXT_COLOUR)
+
+
+## A stage's progress bar, its count and, when locked, a padlock (doc 11).
+func _draw_progress(i: int) -> void:
+	var h := _item_height()
+	var rect := _item_rect(i)
+	var bar := Rect2(size.x * 0.52, rect.position.y + h * 0.32, size.x * 0.24, h * 0.34)
+	var locked: bool = items[i].get("locked", false)
+	var tone := Color(TEXT_COLOUR, 0.45) if locked else TEXT_COLOUR
+	draw_rect(bar, Color(1, 1, 1, 0.1))
+	draw_rect(Rect2(bar.position, Vector2(bar.size.x * float(items[i]["progress"]), bar.size.y)), SELECTED_COLOUR if not locked else tone)
+	draw_rect(bar, tone, false, maxf(1.0, size.y / 320.0))
+	draw_string(UiFont.get_font(), Vector2(bar.end.x + h * 0.25, rect.position.y + h * 0.66), items[i].get("count", ""),
+		HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(h * 0.36), tone)
+	if locked:
+		var c := Vector2(bar.end.x + h * 2.2, rect.position.y + h * 0.5)
+		draw_rect(Rect2(c + Vector2(-h * 0.2, -h * 0.02), Vector2(h * 0.4, h * 0.3)), tone)
+		draw_arc(c + Vector2(0.0, -h * 0.02), h * 0.14, PI, TAU, 12, tone, maxf(2.0, h * 0.06), true)
 
 
 func _draw_badge(centre: Vector2, radius: float, colour: Color, triangles: int) -> void:

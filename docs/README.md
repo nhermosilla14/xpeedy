@@ -18,7 +18,7 @@
 | 0006 | [Rollers and bouncers](intent/0006-rollers-and-bouncers.md) | Done |
 | 0007 | [Bonuses: Quake, Time Dilation and Space Fold](intent/0007-bonuses.md) | Done |
 | 0008 | [Hazard zones](intent/0008-hazard-zones.md) | Done |
-| 0009 | [Stage mode](intent/0009-stage-mode.md) | Accepted |
+| 0009 | [Stage mode](intent/0009-stage-mode.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -58,7 +58,7 @@
 | 0033 | [Race files and the stage catalogue](slices/0033-race-files-and-catalogue.md) | Done |
 | 0034 | [Race-driven generation](slices/0034-race-driven-generation.md) | Done |
 | 0035 | [Finishing a race and stage progress](slices/0035-finish-and-stage-progress.md) | Done |
-| 0036 | [Mode and stage menus, and the race flow](slices/0036-stage-menus-and-race-flow.md) | In progress |
+| 0036 | [Mode and stage menus, and the race flow](slices/0036-stage-menus-and-race-flow.md) | Done |
 
 ## ADRs
 | # | Title | Status |

@@ -10,6 +10,8 @@ var start_in_menu := true
 
 ## Seconds after a crash before the Game Over panel shows (the flash plays first).
 const GAME_OVER_DELAY := 1.0
+## Seconds after finishing a race before its panel shows (the flash plays first).
+const FINISH_DELAY := 1.0
 ## Camera shake of a roller landing nearby (doc 04).
 const STOMP_SECONDS := 0.1
 
@@ -29,6 +31,7 @@ var difficulty := Difficulty.STANDARD
 var _best := PersonalBest.new()
 var _plain := false
 var _over_shown := false
+var _finish_wait := 0.0
 var _in_menu := false
 var _settings := Settings.new()
 ## Stage mode (ADR 0025): the stage (1-4, 0 for Survival) and race (1-12) being played, the catalogue and the
@@ -51,6 +54,7 @@ var _progress := StageProgress.new()
 @onready var _tint: ColorRect = $Hud/Tint
 @onready var _glow: ColorRect = $Hud/Glow
 @onready var _banner: Label = $Hud/Banner
+@onready var _race_label: Label = $Hud/RaceLabel
 @onready var _frame_stats: FrameStats = $FrameStats
 
 
@@ -68,17 +72,23 @@ func _ready() -> void:
 	_fps.visible = options.fps or options.benchmark
 	UiFont.apply(_fps, 10)
 	UiFont.apply(_banner, 14, Color(1.0, 0.9, 0.6))
+	UiFont.apply(_race_label, 12)
 	_status.pause_pressed.connect(_toggle_pause)
 	_status.fire_pressed.connect(_fire)
 	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
 	_menu.settings = _settings
+	_menu.progress = _progress
+	_menu.race_requested.connect(func(s: int) -> void: start_race(s, _progress.next_race(s)))
+	_menu.restart_stage_requested.connect(func(s: int) -> void:
+		_progress.restart(s)
+		start_race(s, 1))
 	InputLayout.apply(_settings.layout)
 	_menu.play_requested.connect(_on_play_requested)
 	_menu.quit_requested.connect(get_tree().quit)
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
 	if start_in_menu and options.starts_in_menu():
-		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS}.get(options.screen, MenuController.Page.MAIN))
+		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS, "mode": MenuController.Page.MODE, "stages": MenuController.Page.STAGES}.get(options.screen, MenuController.Page.MAIN))
 	elif options.race.contains("-"):
 		start_race(options.race.get_slice("-", 0).to_int(), options.race.get_slice("-", 1).to_int())
 	else:
@@ -104,7 +114,7 @@ func enter_menu(page: MenuController.Page) -> void:
 
 func _set_menu_visible(menu: bool) -> void:
 	_in_menu = menu
-	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash, _tint, _glow]:
+	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash, _tint, _glow, _race_label]:
 		node.visible = not menu
 	_menu.visible = menu
 
@@ -150,9 +160,10 @@ func start_run(run_seed: int) -> void:
 	_screen.close()
 	_paused = false
 	_over_shown = false
+	_finish_wait = 0.0
 	_restart_wait = 0.0
 	if _plain:
-		_status.show_best(_best.get_best(PersonalBest.key(difficulty)))
+		_status.show_best(_progress.best(stage) if stage > 0 else _best.get_best(PersonalBest.key(difficulty)))
 	print("[run] seed=%d" % run_seed)
 	_refresh_view(0.0)
 
@@ -160,6 +171,9 @@ func start_run(run_seed: int) -> void:
 func _physics_process(delta: float) -> void:
 	if _in_menu:
 		_menu.poll()
+		return
+	if _run.finished:
+		_handle_finished(delta)
 		return
 	if _track.crashed:
 		if _handle_game_over_input():
@@ -194,11 +208,40 @@ func _navigate_panel() -> bool:
 		_screen.move_selection(-1)
 	elif Input.is_action_just_pressed("ui_accept"):
 		_on_choice(_screen.selected)
-	elif Input.is_action_just_pressed("restart"):
-		start_run(_track.seed_value + 1)
+	elif Input.is_action_just_pressed("restart") and not _run.finished:
+		_retry()
 	else:
 		return false
 	return true
+
+
+## Starts the current run again: the same race of a stage (with its running score), or a new Survival run.
+func _retry() -> void:
+	if stage > 0:
+		start_race(stage, race)
+	else:
+		start_run(_track.seed_value + 1)
+
+
+## A finished race: after the flash, the "run finished" or "stage finished" panel (ADR 0025).
+func _handle_finished(delta: float) -> void:
+	_finish_wait += delta
+	if _finish_wait >= FINISH_DELAY and not _over_shown and options.is_plain_run() and stage > 0:
+		_over_shown = true
+		var lines: Array[String] = ["score: %d" % _run.score]
+		var choices: Array[String] = ["next run", "main menu"]
+		var title := "run finished"
+		if race >= StageProgress.RACES:
+			title = "stage finished"
+			lines.append("personal best: %d" % _progress.best(stage))
+			choices = ["main menu"]
+		_screen.open(title, lines, choices)
+	if _screen.visible:
+		if Input.is_action_just_pressed("ui_cancel"):
+			enter_menu(MenuController.Page.MAIN)
+		else:
+			_navigate_panel()
+	_refresh_view(0.0)
 
 
 ## After a crash: before the panel shows, restart restarts at once; with the panel, it is navigated and
@@ -244,12 +287,17 @@ func _on_choice(index: int) -> void:
 			0:
 				_toggle_pause()
 			1:
-				start_run(_track.seed_value + 1)
+				_retry()
 			_:
 				enter_menu(MenuController.Page.MAIN)
+	elif _run.finished:
+		if index == 0 and race < StageProgress.RACES:
+			start_race(stage, race + 1)
+		else:
+			enter_menu(MenuController.Page.MAIN)
 	elif _track.crashed:
 		if index == 0:
-			start_run(_track.seed_value + 1)
+			_retry()
 		else:
 			enter_menu(MenuController.Page.MAIN)
 
@@ -259,9 +307,14 @@ func _show_game_over() -> void:
 	if not (_plain and _track.crashed) or _over_shown or _track.crash_time < GAME_OVER_DELAY:
 		return
 	_over_shown = true
-	var key := PersonalBest.key(difficulty)
-	_best.submit(key, _run.score)
-	_screen.open("game over", ["score: %d" % _run.score, "personal best: %d" % _best.get_best(key)] as Array[String],
+	var best_line := ""
+	if stage > 0:
+		best_line = "stage best: %d" % _progress.best(stage)
+	else:
+		var key := PersonalBest.key(difficulty)
+		_best.submit(key, _run.score)
+		best_line = "personal best: %d" % _best.get_best(key)
+	_screen.open("game over", ["score: %d" % _run.score, best_line] as Array[String],
 		["new game", "main menu"] as Array[String])
 
 
@@ -388,6 +441,8 @@ func _refresh_view(dt: float) -> void:
 	_status.update(_run)
 	_lights.update(_run)
 	_tint.visible = _run.dilation_left > 0.0
+	_race_label.visible = stage > 0 and _run.phase == SurvivalRun.Phase.STARTING
+	_race_label.text = "stage %02d / run %02d" % [stage, race]
 	_refresh_zone()
 	_explosions.set_time(_clock.time)
 	_camera.follow(_track, dt)

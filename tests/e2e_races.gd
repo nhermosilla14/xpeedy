@@ -18,6 +18,7 @@ func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("countdown_enabled", false)
 	_main.set("start_in_menu", false)
+	_main.set("obstacles_enabled", false)
 	root.add_child(_main)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(PATH))
 	_main.set("_progress", StageProgress.new(PATH))
