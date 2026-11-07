@@ -18,6 +18,7 @@
 | 0006 | [Rollers and bouncers](intent/0006-rollers-and-bouncers.md) | Done |
 | 0007 | [Bonuses: Quake, Time Dilation and Space Fold](intent/0007-bonuses.md) | Done |
 | 0008 | [Hazard zones](intent/0008-hazard-zones.md) | Done |
+| 0009 | [Stage mode](intent/0009-stage-mode.md) | Accepted |
 
 ## Slices
 | # | Title | Status |
@@ -54,6 +55,10 @@
 | 0030 | [Blackout, Dark Nebula and Hue Shift](slices/0030-visual-zones.md) | Done |
 | 0031 | [Gravity Well](slices/0031-gravity-well.md) | Done |
 | 0032 | [Plasma Cloud](slices/0032-plasma-cloud.md) | Done |
+| 0033 | [Race files and the stage catalogue](slices/0033-race-files-and-catalogue.md) | Accepted |
+| 0034 | [Race-driven generation](slices/0034-race-driven-generation.md) | Accepted |
+| 0035 | [Finishing a race and stage progress](slices/0035-finish-and-stage-progress.md) | Accepted |
+| 0036 | [Mode and stage menus, and the race flow](slices/0036-stage-menus-and-race-flow.md) | Accepted |
 
 ## ADRs
 | # | Title | Status |
@@ -81,3 +86,5 @@
 | 0021 | [Rollers and bouncers: drawing them](adr/0021-moving-obstacles-view.md) | Accepted |
 | 0022 | [Bonuses: spot kinds, the held bonus and the effects](adr/0022-bonuses.md) | Accepted |
 | 0023 | [Hazard zones: model and effects](adr/0023-hazard-zones.md) | Accepted |
+| 0024 | [Race files and race-driven generation](adr/0024-race-specs-and-generation.md) | Accepted |
+| 0025 | [Stage progress, the stage menus and the race flow](adr/0025-stage-progress-and-flow.md) | Accepted |
