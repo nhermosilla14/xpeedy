@@ -15,6 +15,7 @@ func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("options", LaunchOptions.parse(PackedStringArray([])))
 	_main.set("obstacles_enabled", false)
+	_main.set("show_warning", false)
 	root.add_child(_main)
 	for path in [ECONOMY, STAGES]:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

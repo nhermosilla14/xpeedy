@@ -63,7 +63,8 @@ func _rect() -> Rect2:
 func _choice_rect(index: int) -> Rect2:
 	var rect := _rect()
 	var s := _scale()
-	var top := rect.position.y + rect.size.y * 0.5 + 6.0 * s
+	# Below the middle, or below the last line when there are many (the warning and the credits).
+	var top := rect.position.y + maxf(rect.size.y * 0.5 + 6.0 * s, (56.0 + 16.0 * lines.size() + 8.0) * s)
 	var h := 30.0 * s
 	return Rect2(rect.position.x, top + index * h, rect.size.x, h)
 

@@ -15,6 +15,7 @@ var _errors: PackedStringArray = []
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("options", LaunchOptions.parse(PackedStringArray(["--seed=9"])))
+	_main.set("show_warning", false)
 	root.add_child(_main)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
 	var economy := Economy.new("user://e2e_economy.cfg")
@@ -100,7 +101,7 @@ func _physics_process(_delta: float) -> bool:
 				menu.back()
 				if menu.current_page() != MenuController.Page.MAIN:
 					_errors.append("back did not return to the main page")
-				menu.move(3)
+				menu.move(4)
 				menu.activate()
 				if menu.current_page() != MenuController.Page.SETTINGS:
 					_errors.append("the gear did not open settings")

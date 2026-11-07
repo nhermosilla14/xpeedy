@@ -36,6 +36,8 @@ var _plain := false
 var _over_shown := false
 var _finish_wait := 0.0
 var _in_menu := false
+## Tests turn the first-launch warning off.
+var show_warning := true
 var _settings := Settings.new()
 ## Stage mode (ADR 0025): the stage (1-4, 0 for Survival) and race (1-12) being played, the catalogue and the
 ## progress saved on the device.
@@ -98,7 +100,8 @@ func _ready() -> void:
 	_menu.quit_requested.connect(get_tree().quit)
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
 	if start_in_menu and options.starts_in_menu():
-		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS, "mode": MenuController.Page.MODE, "stages": MenuController.Page.STAGES, "upgrades": MenuController.Page.UPGRADES}.get(options.screen, MenuController.Page.MAIN))
+		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS, "mode": MenuController.Page.MODE, "stages": MenuController.Page.STAGES, "upgrades": MenuController.Page.UPGRADES, "credits": MenuController.Page.CREDITS}.get(options.screen, MenuController.Page.MAIN),
+			show_warning and options.screen == "")
 	elif options.race.contains("-"):
 		start_race(options.race.get_slice("-", 0).to_int(), options.race.get_slice("-", 1).to_int())
 	else:
@@ -112,13 +115,13 @@ func _new_seed() -> int:
 
 
 ## Shows the menu and drops the run: the world and the HUD are hidden and nothing steps.
-func enter_menu(page: MenuController.Page) -> void:
+func enter_menu(page: MenuController.Page, warning := false) -> void:
 	_in_menu = true
 	_paused = false
 	_run = null
 	_screen.close()
 	_menu.preferred_difficulty = difficulty
-	_menu.open(page)
+	_menu.open(page, warning)
 	_set_menu_visible(true)
 
 

@@ -8,6 +8,8 @@ const SECTION := "steering"
 var invert := false
 ## Gamepad face-button layout, "nintendo" or "xbox" (ADR 0026).
 var layout := InputLayout.NINTENDO
+## The photosensitivity warning was shown and accepted (it appears once, on the first launch).
+var warning_seen := false
 
 var _path: String
 
@@ -19,6 +21,8 @@ func _init(path := "user://settings.cfg") -> void:
 		return
 	var value: Variant = file.get_value(SECTION, "invert", false)
 	invert = value if value is bool else false
+	var seen: Variant = file.get_value("flags", "warning_seen", false)
+	warning_seen = seen if seen is bool else false
 	var layout_value: Variant = file.get_value("input", "layout", InputLayout.NINTENDO)
 	layout = layout_value if layout_value is String and InputLayout.is_valid(layout_value) else InputLayout.NINTENDO
 
@@ -27,4 +31,5 @@ func save() -> void:
 	var file := ConfigFile.new()
 	file.set_value(SECTION, "invert", invert)
 	file.set_value("input", "layout", layout)
+	file.set_value("flags", "warning_seen", warning_seen)
 	file.save(_path)

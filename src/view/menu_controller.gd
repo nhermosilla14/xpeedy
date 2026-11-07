@@ -10,7 +10,22 @@ signal quit_requested
 signal race_requested(stage: int)
 signal restart_stage_requested(stage: int)
 
-enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART, UPGRADES }
+enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART, UPGRADES, CREDITS, WARNING }
+
+const WARNING_LINES: Array[String] = [
+	"this game has flashes and",
+	"visual effects that may be",
+	"triggering for people who",
+	"are sensitive to them.",
+]
+const CREDITS_LINES: Array[String] = [
+	"xpeedy: a clone of speedx 3d",
+	"developed by",
+	"nicolas hermosilla",
+	"github: nhermosilla14",
+	"original idea by the great",
+	"developers at gamelion",
+]
 
 ## The Quit item is hidden where programs do not quit (Android, web).
 var can_quit := not (OS.has_feature("mobile") or OS.has_feature("web"))
@@ -26,29 +41,35 @@ var economy := Economy.new()
 var _stack: Array[Page] = []
 var _backdrop := MenuBackdrop.new()
 var _screen := MenuScreen.new()
+## The text pages (the warning and the credits).
+var _info := ScreenPanel.new()
 var _main_items: Array[String] = []
 var _pending_stage := 0
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for child in [_backdrop, _screen]:
+	for child in [_backdrop, _screen, _info]:
 		child.set_anchors_preset(Control.PRESET_FULL_RECT)
 		add_child(child)
 	_screen.activated.connect(_on_activated)
 	_screen.back_pressed.connect(back)
 	_screen.gear_pressed.connect(_open_settings)
+	_info.chosen.connect(_on_info_chosen)
 
 
 ## Shows the page `page`, with the pages before it on the way back (difficulty and stages are reached from
 ## the mode page, which is reached from main).
-func open(page: Page) -> void:
+## With `warning` the photosensitivity warning is shown first, once, if it was not accepted yet.
+func open(page: Page, warning := false) -> void:
 	_stack.clear()
 	_stack.append(Page.MAIN)
 	if page == Page.DIFFICULTY or page == Page.STAGES:
 		_stack.append(Page.MODE)
 	if page != Page.MAIN:
 		_stack.append(page)
+	if warning and not settings.warning_seen:
+		_stack.append(Page.WARNING)
 	_show_top()
 
 
@@ -76,6 +97,12 @@ func back() -> void:
 
 ## Reads the navigation actions: up, down, accept and back.
 func poll() -> void:
+	if _is_info_page():
+		if Input.is_action_just_pressed("ui_accept"):
+			_on_info_chosen(0)
+		elif Input.is_action_just_pressed("ui_cancel") and current_page() == Page.CREDITS:
+			back()
+		return
 	if Input.is_action_just_pressed("ui_down"):
 		_screen.move(1)
 	elif Input.is_action_just_pressed("ui_up"):
@@ -90,6 +117,17 @@ func move(step: int) -> void:
 	_screen.move(step)
 
 
+func _is_info_page() -> bool:
+	return _stack.back() == Page.WARNING or _stack.back() == Page.CREDITS
+
+
+func _on_info_chosen(_index: int) -> void:
+	if current_page() == Page.WARNING:
+		settings.warning_seen = true
+		settings.save()
+	back()
+
+
 func activate() -> void:
 	_screen.activate()
 
@@ -97,9 +135,18 @@ func activate() -> void:
 func _show_top(selected_item := 0) -> void:
 	var items: Array[Dictionary] = []
 	_screen.footer = ""
+	_info.close()
+	_screen.visible = not _is_info_page()
+	match _stack.back():
+		Page.WARNING:
+			_info.open("warning", WARNING_LINES, ["i understand"] as Array[String])
+			return
+		Page.CREDITS:
+			_info.open("credits", CREDITS_LINES, ["back"] as Array[String])
+			return
 	match _stack.back():
 		Page.MAIN:
-			_main_items = ["play", "upgrades"]
+			_main_items = ["play", "upgrades", "credits"]
 			if can_quit:
 				_main_items.append("quit")
 			for text in _main_items:
@@ -148,6 +195,9 @@ func _on_activated(index: int) -> void:
 		Page.MAIN:
 			if _main_items[index] == "play":
 				_stack.append(Page.MODE)
+				_show_top()
+			elif _main_items[index] == "credits":
+				_stack.append(Page.CREDITS)
 				_show_top()
 			elif _main_items[index] == "upgrades":
 				_stack.append(Page.UPGRADES)

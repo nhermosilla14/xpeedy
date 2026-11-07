@@ -98,5 +98,17 @@ LICENSE               GPL-3.0
 ## Documentation
 See [docs/README.md](docs/README.md).
 
+## Credits
+
+Xpeedy is a clone of SpeedX 3D, developed by Nicolás Hermosilla (nhermosilla14). Many thanks to the great
+developers at GameLion for the original idea. The game was written clean-room from behavioural notes; no
+asset of the original is used. The typeface is Orbitron (SIL Open Font License, `assets/fonts/OFL.txt`). The
+credits are also in the game ("credits" on the main menu).
+
+## Warning
+
+This game contains flashes and visual effects that may be triggering for people who are sensitive to them.
+The game shows this warning on its first launch.
+
 ## License
 GPL-3.0-or-later. See [LICENSE](LICENSE).

@@ -119,3 +119,51 @@ func test_the_back_arrow_is_reachable_with_the_gamepad() -> void:
 	screen.selected = 3
 	check(screen.is_gear_selected() and not screen.is_back_selected(), "gear after back")
 	screen.free()
+
+
+func test_the_warning_shows_once_on_the_first_launch() -> void:
+	_clean()
+	var menu := MenuController.new()
+	menu.settings = Settings.new(PATH)
+	menu._ready()
+	menu.open(MenuController.Page.MAIN, true)
+	check_eq(menu.current_page(), MenuController.Page.WARNING)
+	check_eq(menu._info.title, "warning")
+	var text := " ".join(menu._info.lines)
+	check(text.contains("flashes") and text.contains("visual effects") and text.contains("sensitive"), "the warning text")
+	menu._on_info_chosen(0)
+	check_eq(menu.current_page(), MenuController.Page.MAIN)
+	check(Settings.new(PATH).warning_seen, "saved")
+	menu.open(MenuController.Page.MAIN, true)
+	check_eq(menu.current_page(), MenuController.Page.MAIN, "not shown again")
+	menu.free()
+	_clean()
+
+
+func test_no_warning_unless_asked() -> void:
+	_clean()
+	var menu := MenuController.new()
+	menu.settings = Settings.new(PATH)
+	menu._ready()
+	menu.open(MenuController.Page.MAIN)
+	check_eq(menu.current_page(), MenuController.Page.MAIN)
+	menu.free()
+	_clean()
+
+
+func test_the_credits_page_names_the_author_and_gamelion() -> void:
+	var menu := MenuController.new()
+	menu.settings = Settings.new(PATH)
+	menu._ready()
+	menu.open(MenuController.Page.MAIN)
+	check("credits" in menu.page_item_texts(), "credits item on the main menu")
+	menu.move(2)
+	menu.activate()
+	check_eq(menu.current_page(), MenuController.Page.CREDITS)
+	var text := " ".join(menu._info.lines)
+	check(text.contains("nicolas hermosilla") and text.contains("nhermosilla14"), "author and handle")
+	check(text.contains("gamelion"), "acknowledges GameLion")
+	menu.back()
+	check_eq(menu.current_page(), MenuController.Page.MAIN)
+	menu.free()
+	_clean()

@@ -18,6 +18,7 @@ func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("options", LaunchOptions.parse(PackedStringArray([])))
 	_main.set("obstacles_enabled", false)
+	_main.set("show_warning", false)
 	root.add_child(_main)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
 	var economy := Economy.new("user://e2e_economy.cfg")
