@@ -15,6 +15,7 @@
 | 0003 | [Survival core: obstacles, shields and score](intent/0003-survival-core.md) | Done |
 | 0004 | [Look and interface close to the original](intent/0004-original-look.md) | Done |
 | 0005 | [Menus and app flow](intent/0005-menus-and-app-flow.md) | Done |
+| 0006 | [Rollers and bouncers](intent/0006-rollers-and-bouncers.md) | Accepted |
 
 ## Slices
 | # | Title | Status |
@@ -40,6 +41,10 @@
 | 0019 | [Menu framework, main and difficulty screens](slices/0019-menus-and-app-flow.md) | Done |
 | 0020 | [Run menus and back handling](slices/0020-run-menus.md) | Done |
 | 0021 | [Settings and the menus on the RG351P](slices/0021-settings-and-device.md) | Done |
+| 0022 | [Moving obstacles model: bouncers](slices/0022-bouncers.md) | Accepted |
+| 0023 | [Moving obstacles model: rollers](slices/0023-rollers.md) | Accepted |
+| 0024 | [Drawing rollers and bouncers](slices/0024-moving-obstacles-look.md) | Accepted |
+| 0025 | [Rollers and bouncers on the RG351P](slices/0025-moving-obstacles-on-device.md) | Accepted |
 
 ## ADRs
 | # | Title | Status |
@@ -63,3 +68,5 @@
 | 0017 | [Run flow: start sequence, pause and personal best](adr/0017-run-flow-and-personal-best.md) | Accepted |
 | 0018 | [Menu framework and app flow](adr/0018-menu-framework.md) | Accepted |
 | 0019 | [Survival difficulties, per-difficulty bests and settings](adr/0019-difficulties-and-settings.md) | Accepted |
+| 0020 | [Rollers and bouncers: the model](adr/0020-moving-obstacles-model.md) | Accepted |
+| 0021 | [Rollers and bouncers: drawing them](adr/0021-moving-obstacles-view.md) | Accepted |
