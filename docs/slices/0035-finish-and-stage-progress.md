@@ -23,3 +23,11 @@ Finish detection and event, the finish line and the black fade, the carried scor
   crash, and `--race=S-R`. `tests/e2e_races.gd` covers the finish, flash, stop, saved progress and the crash reset.
 - The capture `build/look/finish.png` shows the fade towards black but not the green line itself; the finish
   line colour is untested on screen.
+
+## Corrections (2026-11-07, from the RG351P)
+- The finish line is now orange stripes like the zone marks (intent 0009 and ADR 0024 said light green; the
+  user asked for orange, and the flash stays light green). The line is not darkened by the fade: it lay inside
+  the black part of the fade, so it was invisible and the end of the race looked like a black void.
+- Choosing "main menu" on the run finished or stage finished panel closed the game: the tick after leaving for
+  the menu refreshed the view of a run that no longer existed. `tests/e2e_stage_flow.gd` now confirms the menu
+  through the accept action.

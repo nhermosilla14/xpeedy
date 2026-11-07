@@ -25,6 +25,13 @@ func _initialize() -> void:
 	_main.get_node("Hud/Menu").set("progress", progress)
 
 
+func _action(name: String, pressed: bool) -> void:
+	var event := InputEventAction.new()
+	event.action = name
+	event.pressed = pressed
+	Input.parse_input_event(event)
+
+
 func _force_racing(run: SurvivalRun, segment: float) -> void:
 	run.phase = SurvivalRun.Phase.RACING
 	run.track.ramp_held = false
@@ -124,6 +131,12 @@ func _physics_process(_delta: float) -> bool:
 			if _ticks == 100:
 				if not screen.visible or screen.title != "stage finished" or screen.choices.size() != 1:
 					_errors.append("no 'stage finished' panel")
+				_action("ui_accept", true)
+			if _ticks == 110:
+				_action("ui_accept", false)
+			if _ticks == 130:
+				if not (_main.get("_in_menu") as bool) or menu.current_page() != MenuController.Page.MAIN:
+					_errors.append("'main menu' on the stage finished panel did not return to the menu")
 				return _finish()
 	if _ticks > 400:
 		_errors.append("timed out in phase %s" % Phase.keys()[_phase])

@@ -81,6 +81,7 @@ void fragment() {
 	// Surface: wide soft bands along the track.
 	float t = fract((v_band_base + v_local.y) / BAND_PERIOD);
 	float band = smoothstep(0.2, 0.45, t) - smoothstep(0.7, 0.95, t);
+	bool is_line = false;
 	vec3 colour = mix(SURFACE_DARK, SURFACE_LIGHT, band);
 	if (zone > 0.5 && zone < 1.5) {
 		// Blackout: a dark negative of the track.
@@ -112,8 +113,9 @@ void fragment() {
 	colour = mix(colour, WARNING, v_trail_highlight * max(edge, 0.35));
 
 	if (v_spot > 10.5) {
-		// Finish line: light green, full width.
-		colour = vec3(0.55, 1.0, 0.6);
+		// Finish line: orange stripes across all lanes, like the zone marks.
+		colour = mod(v_lane, 2.0) < 0.5 ? vec3(1.0, 0.6, 0.1) : vec3(0.95, 0.35, 0.05);
+		is_line = true;
 	} else if (v_spot > 9.5) {
 		// Plasma vortex: a pulsing blue tile.
 		float pulse = 0.5 + 0.5 * sin(zone_time * 8.0 + v_lane);
@@ -131,7 +133,7 @@ void fragment() {
 		float dots = 1.0 - smoothstep(SPOT_RADIUS * 0.8, SPOT_RADIUS, length(fract(p) - 0.5));
 		colour = mix(SPOT_BASE, spot_colour, dots);
 	}
-	if (finish_segment > 0.0) {
+	if (finish_segment > 0.0 && !is_line) {
 		// The last segments fade to black over 10 segments (doc 11).
 		colour *= 1.0 - clamp((v_seg + v_local.y - (finish_segment - 15.0)) / 10.0, 0.0, 1.0);
 	}

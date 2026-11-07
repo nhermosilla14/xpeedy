@@ -241,6 +241,8 @@ func _handle_finished(delta: float) -> void:
 			enter_menu(MenuController.Page.MAIN)
 		else:
 			_navigate_panel()
+	if _in_menu:
+		return
 	_refresh_view(0.0)
 
 
