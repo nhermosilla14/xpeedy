@@ -25,6 +25,7 @@ varying float v_shade;
 // roller or 96 for a bouncer; INSTANCE_CUSTOM.w = 1 + phase for shown obstacles, 0 for hidden ones.
 global uniform float game_time;
 global uniform float zone;
+global uniform float phase_shift;
 global uniform float target_tps;
 
 float lane_after(float from_lane, float dir, float steps, bool is_flat) {
@@ -107,6 +108,10 @@ void vertex() {
 	} else if (zone > 3.5 && zone < 4.5) {
 		// Dark Nebula: obstacles are drawn as negatives.
 		v_edge_colour = vec3(1.0) - v_edge_colour;
+	}
+	if (phase_shift > 0.5) {
+		// Phase Shift: obstacles are drawn faint.
+		v_edge_colour *= 0.4;
 	}
 	v_shade = UV.x;
 	COLOR = vec4(UV.y, UV2.x, UV2.y, 1.0);

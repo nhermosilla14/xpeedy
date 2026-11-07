@@ -39,6 +39,8 @@ global uniform float zone;
 global uniform float zone_time;
 // Segment of the finish line of a stage race (-1 when there is none): the tiles fade to black before it.
 global uniform float finish_segment;
+// 1 while Phase Shift is active: trails are dimmed with no red highlight (doc 08).
+global uniform float phase_shift;
 
 void vertex() {
 	int k = int(VERTEX.x + 0.5);
@@ -69,8 +71,8 @@ void vertex() {
 		v_trail_colour = palette[int(code - 0.5)];
 		// Blackout draws no trails.
 		float shown = zone > 0.5 && zone < 1.5 ? 0.0 : 1.0;
-		v_trail_fade = clamp((25.0 - dist) / 10.0, 0.0, 1.0) * weight * shown;
-		v_trail_highlight = clamp(approach * sqrt(max(0.0, 1.5 - lane_d)), 0.0, 1.0) * weight * shown;
+		v_trail_fade = clamp((25.0 - dist) / 10.0, 0.0, 1.0) * weight * shown * (phase_shift > 0.5 ? 0.5 : 1.0);
+		v_trail_highlight = clamp(approach * sqrt(max(0.0, 1.5 - lane_d)), 0.0, 1.0) * weight * shown * (phase_shift > 0.5 ? 0.0 : 1.0);
 	}
 	v_spot = floor(raw.a * 255.0 / 20.0 + 0.5);
 }

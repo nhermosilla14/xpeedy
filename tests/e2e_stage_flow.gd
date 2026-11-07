@@ -96,6 +96,10 @@ func _physics_process(_delta: float) -> bool:
 				_ticks = 0
 		Phase.CRASH:
 			if _ticks == 150:
+				if not run.track.crashed or not screen.visible or screen.title != "keep going?":
+					_errors.append("no keep going question after the crash (it has the credits from race 1)")
+				_main.call("_on_choice", 1)
+			if _ticks == 160:
 				if not run.track.crashed or not screen.visible or screen.title != "game over":
 					_errors.append("no Game Over panel after the crash")
 				if progress.score(1) != 0 or progress.done(1) != 1:

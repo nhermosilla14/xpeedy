@@ -12,6 +12,9 @@ var start_in_menu := true
 const GAME_OVER_DELAY := 1.0
 ## Seconds after finishing a race before its panel shows (the flash plays first).
 const FINISH_DELAY := 1.0
+## Keep going (doc 13): after an obstacle crash, once per run, for 1 credit when the balance is at least 2.
+const KEEP_GOING_COST := 1
+const KEEP_GOING_MIN_BALANCE := 2
 ## Camera shake of a roller landing nearby (doc 04).
 const STOMP_SECONDS := 0.1
 
@@ -43,10 +46,12 @@ var _progress := StageProgress.new()
 var _economy := Economy.new()
 ## Credits paid by the run that just ended, for the panel.
 var _reward := 0
+var _keep_asked := false
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
 @onready var _explosions: ExplosionView = $Explosions
+@onready var _torpedoes: TorpedoView = $Torpedoes
 @onready var _camera: ShipCamera = $Camera
 @onready var _fps: Label = $Hud/Fps
 @onready var _lights: StartLights = $Hud/Lights
@@ -78,6 +83,7 @@ func _ready() -> void:
 	UiFont.apply(_race_label, 12)
 	_status.pause_pressed.connect(_toggle_pause)
 	_status.fire_pressed.connect(_fire)
+	_status.upgrade_pressed.connect(_use_upgrade)
 	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
 	_menu.settings = _settings
@@ -118,7 +124,7 @@ func enter_menu(page: MenuController.Page) -> void:
 
 func _set_menu_visible(menu: bool) -> void:
 	_in_menu = menu
-	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash, _tint, _glow, _race_label]:
+	for node in [_tunnel, _obstacles, _explosions, _torpedoes, _status, _lights, $Hud/Flash, _tint, _glow, _race_label]:
 		node.visible = not menu
 	_menu.visible = menu
 
@@ -152,6 +158,10 @@ func start_run(run_seed: int) -> void:
 	config.countdown = _plain
 	# Debug and benchmark runs ignore the player's settings so they stay comparable.
 	_steering.invert = _plain and _settings.invert
+	if options.all_upgrades:
+		config.recharger_level = Upgrade.levels(Upgrade.RECHARGER)
+		config.torpedo_level = Upgrade.levels(Upgrade.TORPEDO)
+		config.phase_level = Upgrade.levels(Upgrade.PHASE_SHIFT)
 	config.collisions_enabled = not options.ghost
 	config.crash_on_obstacles = not options.invulnerable
 	config.start_shields = options.shields
@@ -168,6 +178,7 @@ func start_run(run_seed: int) -> void:
 	_screen.close()
 	_paused = false
 	_over_shown = false
+	_keep_asked = false
 	_reward = 0
 	_finish_wait = 0.0
 	_restart_wait = 0.0
@@ -197,6 +208,9 @@ func _physics_process(delta: float) -> void:
 	_clock.scale = _run.time_scale()
 	if Input.is_action_just_pressed("fire"):
 		_fire()
+	for action in ["recharge", "torpedo", "phase"]:
+		if Input.is_action_just_pressed(action):
+			_use_upgrade(action)
 	var dt := _clock.advance(delta)
 	if options.benchmark and _track.crashed:
 		_restart_wait += dt
@@ -286,6 +300,19 @@ func _show_banner(zone: int, seconds: int) -> void:
 	_banner.text = "zone change\n%s\n%d" % [Zone.NAMES[zone], seconds]
 
 
+## An active upgrade (a key, a gamepad button or a tap on its button); ignored while paused, crashed or in a menu.
+func _use_upgrade(kind: String) -> void:
+	if _in_menu or _paused or _track.crashed or _run.finished:
+		return
+	match kind:
+		"recharge":
+			_run.use_recharger()
+		"torpedo":
+			_run.fire_torpedo()
+		"phase":
+			_run.use_phase_shift()
+
+
 func _toggle_pause() -> void:
 	if _track.crashed:
 		return
@@ -314,7 +341,12 @@ func _on_choice(index: int) -> void:
 			_:
 				enter_menu(MenuController.Page.MAIN)
 	elif _track.crashed:
-		if index == 0:
+		if _screen.title == "keep going?":
+			_screen.close()
+			_over_shown = false
+			if index == 0 and _economy.spend(KEEP_GOING_COST):
+				_run.continue_run()
+		elif index == 0:
 			_retry()
 		else:
 			enter_menu(MenuController.Page.MAIN)
@@ -325,6 +357,11 @@ func _show_game_over() -> void:
 	if not (_plain and _track.crashed) or _over_shown or _track.crash_time < GAME_OVER_DELAY:
 		return
 	_over_shown = true
+	if not _keep_asked and _run.can_continue() and _economy.credits() >= KEEP_GOING_MIN_BALANCE:
+		_keep_asked = true
+		_screen.open("keep going?", ["credits: %d" % _economy.credits()] as Array[String],
+			["continue for %d cr" % KEEP_GOING_COST, "no"] as Array[String])
+		return
 	var best_line := ""
 	if stage > 0:
 		best_line = "stage best: %d" % _progress.best(stage)
@@ -379,6 +416,19 @@ func _show_events() -> void:
 				_flash.flash(Color.WHITE, 0.5, 0.2)
 			RunEvent.Kind.ZONE_ENDED:
 				_flash.flash(Color.WHITE, 0.5, 0.2)
+			RunEvent.Kind.RECHARGED:
+				_flash.flash(Color(1.0, 0.7, 0.2), 0.75, 0.3)
+			RunEvent.Kind.TORPEDO_FIRED:
+				_flash.flash(Color(0.6, 0.95, 1.0), 0.5, 0.5)
+			RunEvent.Kind.TORPEDO_HIT:
+				_flash.flash(Color(1.0, 0.5, 0.5), 0.75, 0.3)
+				_explosions.spawn(_obstacle_centre(event.obstacle), event.obstacle.colour, _clock.time)
+			RunEvent.Kind.PHASE_STARTED, RunEvent.Kind.PHASE_ENDED:
+				_flash.flash(Color.WHITE, 0.5, 0.5)
+			RunEvent.Kind.PHASE_WARNING:
+				_flash.flash(Color.WHITE, 0.5, 0.2)
+			RunEvent.Kind.CONTINUED:
+				_flash.flash(Color(1.0, 0.8, 0.5), 0.75, 0.8)
 			RunEvent.Kind.PLASMA_TOUCHED:
 				_flash.flash(Color(0.6, 0.6, 1.0), 0.6, 1.0)
 			RunEvent.Kind.DILATION_ENDED:
@@ -446,6 +496,8 @@ func _refresh_zone() -> void:
 	var kind: Zone.Kind = _run.zone if active else Zone.Kind.NONE
 	RenderingServer.global_shader_parameter_set("zone", float(kind))
 	RenderingServer.global_shader_parameter_set("zone_time", _run.zone_time)
+	RenderingServer.global_shader_parameter_set("phase_shift", 1.0 if _run.phase_left > 0.0 else 0.0)
+	_torpedoes.update(_track, _run.torpedoes)
 	RenderingServer.global_shader_parameter_set("finish_segment", float(_run.config.run_length) if _run.config.run_length > 0 else -1.0)
 	$Environment.environment.fog_density = ShipCamera.fog_density(kind, _run.zone_time)
 	_camera.apply_zone(kind, _run.gravity_value())

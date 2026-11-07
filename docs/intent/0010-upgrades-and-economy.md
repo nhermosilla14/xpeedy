@@ -1,6 +1,6 @@
 # 0010. Upgrades and economy
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0028, 0029

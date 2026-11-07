@@ -1,6 +1,6 @@
 # 0041. Keep going
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0010
@@ -15,3 +15,8 @@ The "keep going?" panel after an obstacle crash, the credit cost and the Quake.
 
 ## Out of scope
 - New features.
+
+## Results
+- The "keep going?" panel after an obstacle crash with at least 2 credits; yes spends 1 and resumes after a
+  Quake, no shows Game Over; wall crashes, second crashes and low balances skip it. Model tests are in
+  `tests/unit/test_active_upgrades.gd`, the scene flow in `tests/e2e_upgrades.gd` (and `e2e_stage_flow.gd`).

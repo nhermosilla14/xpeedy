@@ -19,7 +19,7 @@
 | 0007 | [Bonuses: Quake, Time Dilation and Space Fold](intent/0007-bonuses.md) | Done |
 | 0008 | [Hazard zones](intent/0008-hazard-zones.md) | Done |
 | 0009 | [Stage mode](intent/0009-stage-mode.md) | Done |
-| 0010 | [Upgrades and economy](intent/0010-upgrades-and-economy.md) | Accepted |
+| 0010 | [Upgrades and economy](intent/0010-upgrades-and-economy.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -63,8 +63,8 @@
 | 0037 | [Credits, the catalogue and the passive upgrades](slices/0037-economy-and-passive-upgrades.md) | Done |
 | 0038 | [Upgrades shop and credit rewards](slices/0038-upgrades-shop-and-rewards.md) | Done |
 | 0039 | [Active upgrades: the model](slices/0039-active-upgrades-model.md) | Done |
-| 0040 | [Active upgrades: buttons, input and look](slices/0040-active-upgrades-ui.md) | In progress |
-| 0041 | [Keep going](slices/0041-keep-going.md) | In progress |
+| 0040 | [Active upgrades: buttons, input and look](slices/0040-active-upgrades-ui.md) | Done |
+| 0041 | [Keep going](slices/0041-keep-going.md) | Done |
 
 ## ADRs
 | # | Title | Status |

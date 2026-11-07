@@ -20,6 +20,8 @@ var start_segment := 0.0
 var clean := false
 ## Show the frame-rate counter.
 var fps := false
+## Debug: start with every active upgrade at its maximum level.
+var all_upgrades := false
 ## Debug: start this stage race, "S-R" (for example 1-1), instead of a Survival run.
 var race := ""
 ## Debug: start with this hazard zone active (blackout, gravity, hue, nebula or plasma).
@@ -84,6 +86,8 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 				o.zone = value
 			"--race":
 				o.race = value
+			"--all-upgrades":
+				o.all_upgrades = true
 			"--fps":
 				o.fps = true
 			"--clean":
@@ -99,7 +103,7 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 
 ## Is this a plain run: no debugging help that would make its score meaningless?
 func is_plain_run() -> bool:
-	return not (benchmark or invulnerable or ghost or no_countdown or clean or zone != "" or race != "") and shields == 0 \
+	return not (benchmark or invulnerable or ghost or no_countdown or clean or zone != "" or race != "" or all_upgrades) and shields == 0 \
 		and start_segment <= 0.0 and start_shape == "" and autopilot == ""
 
 

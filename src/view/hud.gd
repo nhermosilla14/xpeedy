@@ -19,6 +19,8 @@ const BEST_FADE := 0.5
 
 signal pause_pressed
 signal fire_pressed
+## One of the upgrade buttons on the left edge was pressed: "recharge", "torpedo" or "phase".
+signal upgrade_pressed(kind: String)
 const SHIELD_COLOUR := Color(1.0, 0.7, 0.2)
 ## A drop of at least this many segments in one update is a loss (decay moves 0.05 per second).
 const LOSS_MIN := 0.5
@@ -32,6 +34,12 @@ var shown_slots := 0
 var loss_left := 0.0
 ## The held bonus (`SurvivalRun.Bonus`) the ring shows, and the time driving its pulse.
 var shown_held := 0
+## The upgrade buttons shown (ADR 0029): which are usable, the torpedoes left and the reload dial (0-1).
+var shown_recharge := false
+var shown_torpedo := false
+var shown_phase := false
+var torpedo_count := 0
+var torpedo_dial := 1.0
 var _pulse := 0.0
 ## The "best score" label: text shown (empty when none) and the seconds it stays before fading.
 var best_text := ""
@@ -56,6 +64,18 @@ func _ready() -> void:
 
 
 func update(run: SurvivalRun) -> void:
+	var recharge := run.can_recharge()
+	var torpedo := run.config.torpedo_level > 0 and run.torpedoes_left > 0 and not run.track.crashed and not run.finished
+	var phase := run.can_phase()
+	var dial := run.torpedo_reload_fraction() if run.torpedoes_left > 0 else 1.0
+	if recharge != shown_recharge or torpedo != shown_torpedo or phase != shown_phase \
+			or run.torpedoes_left != torpedo_count or absf(dial - torpedo_dial) > 0.01:
+		shown_recharge = recharge
+		shown_torpedo = torpedo
+		shown_phase = phase
+		torpedo_count = run.torpedoes_left
+		torpedo_dial = dial
+		queue_redraw()
 	if run.held != shown_held:
 		shown_held = run.held
 		queue_redraw()
@@ -130,12 +150,48 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if _pause_rect().grow(8.0 * _scale()).has_point(event.position):
 			pause_pressed.emit()
-		else:
-			fire_pressed.emit()
+			return
+		var buttons := _upgrade_buttons()
+		for kind in buttons:
+			if buttons[kind].has_point(event.position):
+				upgrade_pressed.emit(kind)
+				return
+		fire_pressed.emit()
 
 
 ## Bonus colours (doc 06): Quake red, Time Dilation blue, Space Fold green.
 const BONUS_COLOURS := [Color.WHITE, Color(0.9, 0.1, 0.3), Color(0.3, 0.5, 1.0), Color(0.5, 0.8, 0.1)]
+
+
+## The upgrade buttons on the left edge, stacked from the top below the held-bonus ring, only the usable ones.
+func _upgrade_buttons() -> Dictionary:
+	var s := _scale()
+	var result := {}
+	var y := (MARGIN + 34.0) * s
+	for kind in ["recharge", "torpedo", "phase"]:
+		var shown := shown_recharge if kind == "recharge" else (shown_torpedo if kind == "torpedo" else shown_phase)
+		if shown:
+			result[kind] = Rect2(Vector2(MARGIN * s, y), Vector2(26.0, 26.0) * s)
+			y += 30.0 * s
+	return result
+
+
+func _draw_upgrade_buttons(s: float) -> void:
+	var buttons := _upgrade_buttons()
+	var font := UiFont.get_font()
+	for kind in buttons:
+		var rect: Rect2 = buttons[kind]
+		draw_rect(rect, Color(0.114, 0.102, 0.243, 0.85))
+		draw_rect(rect, PANEL_LINE, false, maxf(1.0, s))
+		var label: String = {"recharge": "+", "torpedo": "t", "phase": "p"}[kind]
+		draw_string(font, rect.position + Vector2(0.0, rect.size.y * 0.72), label, HORIZONTAL_ALIGNMENT_CENTER,
+			rect.size.x, int(rect.size.y * 0.7), Color("F1F1F4"))
+		if kind == "torpedo":
+			draw_string(font, rect.position + Vector2(rect.size.x * 0.62, rect.size.y * 0.98), str(torpedo_count),
+				HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(rect.size.y * 0.38), SHIELD_COLOUR)
+			if torpedo_dial < 1.0:
+				draw_arc(rect.get_center(), rect.size.x * 0.46, -PI / 2.0, -PI / 2.0 + TAU * torpedo_dial, 24,
+					Color(0.6, 0.9, 1.0), maxf(2.0, 2.0 * s), true)
 
 
 func _draw_held_ring(s: float) -> void:
@@ -161,6 +217,7 @@ func _draw() -> void:
 	var panel := _panel_size()
 	if shown_held != 0:
 		_draw_held_ring(s)
+	_draw_upgrade_buttons(s)
 	_draw_panel(Rect2(Vector2(0.0, size.y - panel.y), panel))
 	_draw_panel(Rect2(Vector2(size.x - panel.x, size.y - panel.y), panel))
 	_draw_pause_button()
