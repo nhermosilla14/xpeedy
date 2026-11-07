@@ -89,3 +89,4 @@
 | 0024 | [Race files and race-driven generation](adr/0024-race-specs-and-generation.md) | Accepted |
 | 0025 | [Stage progress, the stage menus and the race flow](adr/0025-stage-progress-and-flow.md) | Accepted |
 | 0026 | [Button layout setting and handheld navigation](adr/0026-input-layout-and-handheld-navigation.md) | Accepted |
+| 0027 | [The analog sticks are left to the game on handhelds](adr/0027-analog-sticks-left-to-the-game.md) | Accepted |
