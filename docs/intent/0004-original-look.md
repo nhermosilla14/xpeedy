@@ -1,9 +1,9 @@
 # 0004. Look and interface close to the original
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-07
 - Owner: Nicolás Hermosilla P., agent
-- Related ADRs: 0014 (visual reference), to be filled in during design
+- Related ADRs: 0014, 0015, 0016, 0017
 
 ## Goal
 Xpeedy looks and feels like the original SpeedX 3D, as closely as we can get from the observations in
