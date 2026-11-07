@@ -27,7 +27,7 @@
 | 0008 | [Shield spots, shields and the HUD](slices/0008-shields-spots-hud.md) | Done |
 | 0009 | [Smashing obstacles](slices/0009-smashing-obstacles.md) | Done |
 | 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Done |
-| 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | Accepted |
+| 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | In progress |
 
 ## ADRs
 | # | Title | Status |

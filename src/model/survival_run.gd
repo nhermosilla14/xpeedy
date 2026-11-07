@@ -33,6 +33,8 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 		shields.add()
 	trails.advance(track.window_start())
 	_generate()
+	if config.start_segment > TrackModel.START_SEGMENT:
+		_jump_to(config.start_segment)
 
 
 ## Advances the run by `dt` seconds of game time with the processed steer value.
@@ -56,6 +58,17 @@ func step(dt: float, steer: float) -> void:
 		_score_distance()
 	obstacles.forget_before(track.window_start() - 2)
 	spots.forget_before(track.window_start() - Spot.LENGTH - 2)
+
+
+## Puts the ship deep into the run at full speed (benchmark and debugging), generating everything up to
+## there. The score starts from zero at the new place.
+func _jump_to(segment: float) -> void:
+	track.segment = segment
+	track.elapsed = TrackModel.RAMP_SECONDS
+	step(0.0, 0.0)
+	# The step above scored the whole distance; start counting from here instead.
+	score = 0
+	distance_points = int(floor(track.segment - TrackModel.START_SEGMENT))
 
 
 ## Returns the events since the last call and clears them.
@@ -96,6 +109,8 @@ func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
 			if not (o.alive and _touches(o, lane_min, lane_max, wrap, opposite)):
 				continue
 			if shields.count < o.shield_cost():
+				if not config.crash_on_obstacles:
+					continue
 				track.crash("obstacle")
 				_events.append(RunEvent.crash("obstacle", o))
 				return

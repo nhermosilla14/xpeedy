@@ -52,12 +52,19 @@ mount_runtime "$godot_runtime" "$godot_dir"
 
 cd $GAMEDIR
 
+# Debug and benchmark options: the contents of args.txt (for example "--benchmark") are passed to the game.
+GAME_ARGS=""
+if [ -f "$GAMEDIR/args.txt" ]; then
+  GAME_ARGS="-- $(tr -d '\r' < "$GAMEDIR/args.txt")"
+fi
+echo "Game arguments: ${GAME_ARGS:-none}"
+
 $GPTOKEYB "$godot_executable" -c "$GAMEDIR/$gptk_filename" &
 
 $ESUDO env $weston_dir/westonwrap.sh headless noop kiosk crusty_x11egl \
 LD_PRELOAD= XDG_DATA_HOME=$CONFDIR $godot_dir/$godot_executable \
 --resolution ${DISPLAY_WIDTH}x${DISPLAY_HEIGHT} -f \
---rendering-driver opengl3_es --audio-driver ALSA --main-pack $GAMEDIR/gamedata/$pck_filename
+--rendering-driver opengl3_es --audio-driver ALSA --main-pack $GAMEDIR/gamedata/$pck_filename $GAME_ARGS
 
 $ESUDO $weston_dir/westonwrap.sh cleanup
 if [[ "$PM_CAN_MOUNT" != "N" ]]; then

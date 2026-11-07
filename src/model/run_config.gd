@@ -14,6 +14,10 @@ var generate_obstacles := true
 var generate_spots := true
 ## Debugging: shields the run starts with (`--shields=N` on the command line).
 var start_shields := 0
+## Debugging: with this off, obstacles the shields can't pay for are ignored instead of crashing.
+var crash_on_obstacles := true
+## Debugging and benchmark: the run starts at this segment instead of at the beginning.
+var start_segment := 0.0
 ## Debugging: with collisions off the ship passes through obstacles (`--ghost` on the command line).
 var collisions_enabled := true
 

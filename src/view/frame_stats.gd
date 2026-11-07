@@ -5,6 +5,9 @@ extends Node
 
 const REPORT_SECONDS := 10.0
 
+## Optional `func() -> String` with extra state to log next to the frame rate.
+var extra: Callable
+
 var _frame_times: PackedFloat32Array = []
 var _since_report := 0.0
 var _total_time := 0.0
@@ -22,7 +25,10 @@ func _process(delta: float) -> void:
 
 ## "t=… avg=… fps low1%=… fps" for the frames collected since the last report.
 func summary() -> String:
-	return "[bench] t=%.0fs %s" % [_total_time, describe(_frame_times)]
+	var text := "[bench] t=%.0fs %s" % [_total_time, describe(_frame_times)]
+	if extra.is_valid():
+		text += " | " + str(extra.call())
+	return text
 
 
 static func describe(frame_times: PackedFloat32Array) -> String:

@@ -34,7 +34,8 @@ Install it on the handheld in one of two ways:
 
 The port needs the `godot_4.4.1` and `weston_pkg_0.2` runtimes; PortMaster downloads them on first
 launch if Wi-Fi is available, otherwise copy the `.squashfs` files into `PortMaster/libs/`.
-Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/xpeedy/log.txt` every 10 s.
+Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/xpeedy/log.txt` every 10 s. On a handheld,
+put options in `ports/xpeedy/args.txt` (for example `--benchmark`) to pass them to the game.
 
 ## Usage
 | Action | Keyboard | Gamepad |
@@ -51,6 +52,10 @@ Debugging options for the exported game, after `--` on the command line:
 | `--shields=4` | start the run with 4 shields |
 | `--autopilot=plough` | a pilot flies into what it can smash, else towards shield spots |
 | `--timescale=0.2` | slow motion |
+| `--seed=N` | fixed run seed |
+| `--start-segment=2300` | start deep in the run, at full speed |
+| `--invulnerable` | obstacles the shields can't pay for are ignored instead of crashing |
+| `--benchmark` | fixed seed, deep start, 4 shields, autopilot, invulnerable, restarts itself: a comparable frame-rate run |
 
 On handhelds, A restarts after a crash and Select + Start quits. The frame rate is shown in the top-left corner.
 
