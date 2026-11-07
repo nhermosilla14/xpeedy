@@ -1,6 +1,6 @@
 # 0016. Interface style: typeface, HUD panels and screen panels
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-07
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0004

@@ -1,6 +1,6 @@
 # 0015. Typeface and HUD
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0004

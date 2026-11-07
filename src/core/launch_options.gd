@@ -18,6 +18,8 @@ var run_seed := -1
 var start_segment := 0.0
 ## No obstacles and no shield spots (for looking at the tunnel).
 var clean := false
+## Show the frame-rate counter.
+var fps := false
 ## "in", "flat" or "out": start inside the first part of that shape (for looking at it).
 var start_shape := ""
 ## Save the viewport to this PNG after `screenshot_seconds` and quit (for side-by-side reviews).
@@ -56,6 +58,8 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 				o.run_seed = value.to_int()
 			"--start-segment":
 				o.start_segment = value.to_float()
+			"--fps":
+				o.fps = true
 			"--clean":
 				o.clean = true
 			"--start-shape":

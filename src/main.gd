@@ -37,6 +37,9 @@ func _ready() -> void:
 	if options == null:
 		options = LaunchOptions.parse(OS.get_cmdline_user_args())
 	Engine.time_scale = options.timescale
+	_fps.visible = options.fps or options.benchmark
+	UiFont.apply(_fps, 10)
+	UiFont.apply(_message, 24)
 	_frame_stats.extra = _state_text
 	var run_seed := options.run_seed
 	if run_seed < 0:

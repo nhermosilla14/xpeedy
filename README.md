@@ -54,6 +54,7 @@ Debugging options for the exported game, after `--` on the command line:
 | `--start-segment=2300` | start deep in the run, at full speed |
 | `--invulnerable` | obstacles the shields can't pay for are ignored instead of crashing |
 | `--benchmark` | fixed seed, deep start, 4 shields, autopilot, invulnerable, restarts itself: a comparable frame-rate run |
+| `--fps` | show the frame-rate counter (also on with `--benchmark`) |
 | `--clean` | no obstacles or shield spots (for looking at the tunnel) |
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |

@@ -19,6 +19,7 @@ cp "$REPO/packaging/portmaster/Xpeedy.sh" "$STAGE/"
 chmod +x "$STAGE/Xpeedy.sh"
 cp "$REPO/packaging/portmaster/xpeedy/xpeedy.gptk" "$STAGE/xpeedy/"
 cp "$REPO/LICENSE" "$STAGE/xpeedy/licenses/LICENSE.xpeedy.txt"
+cp "$REPO/assets/fonts/OFL.txt" "$STAGE/xpeedy/licenses/OFL.orbitron.txt"
 cp "$REPO/packaging/portmaster/port.json" "$REPO/packaging/portmaster/gameinfo.xml" \
 	"$REPO/packaging/portmaster/README.md" "$STAGE/xpeedy/"
 
