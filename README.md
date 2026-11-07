@@ -5,7 +5,7 @@ tunnel at high speed and steer around obstacles. It targets desktop, Android and
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 > Status: the Survival core is playable on desktop and on the RG351P at a locked 60 fps ([intent 0003](docs/intent/0003-survival-core.md)):
-> tunnel, obstacles, trails, shields, smashing, score. Not yet: rollers and bouncers, bonuses, hazard zones,
+> tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Not yet: rollers and bouncers, bonuses, hazard zones,
 > menus, sound, upgrades, Stage mode, Android.
 
 ## Prerequisites
