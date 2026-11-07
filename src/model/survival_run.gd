@@ -18,6 +18,16 @@ var score := 0
 ## The part of `score` that came from distance (+1 per segment); the rest are smash points.
 var distance_points := 0
 
+## The start sequence (ADR 0017): STARTING lasts COUNTDOWN_SECONDS, then RACING. Light i starts at
+## LIGHT_START + i seconds and fades over LIGHT_FADE.
+enum Phase { STARTING, RACING }
+const COUNTDOWN_SECONDS := 3.8
+const LIGHT_START := 1.3
+const LIGHT_FADE := 0.5
+var phase := Phase.RACING
+## Game time since the run began while STARTING.
+var countdown_time := 0.0
+
 var _events: Array[RunEvent] = []
 
 
@@ -31,6 +41,9 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 	shields = ShieldStack.new(config.max_shields, config.shield_decay_seconds)
 	for i in config.start_shields:
 		shields.add()
+	if config.countdown and config.start_segment <= TrackModel.START_SEGMENT:
+		phase = Phase.STARTING
+		track.ramp_held = true
 	trails.advance(track.window_start())
 	_generate()
 	if config.start_segment > TrackModel.START_SEGMENT:
@@ -55,9 +68,29 @@ func step(dt: float, steer: float) -> void:
 	if not track.crashed:
 		_resolve_spots(seg_before, lane_before)
 		shields.tick(dt)
-		_score_distance()
+		if phase == Phase.STARTING:
+			_tick_countdown(dt)
+		else:
+			_score_distance()
 	obstacles.forget_before(track.window_start() - 2)
 	spots.forget_before(track.window_start() - Spot.LENGTH - 2)
+
+
+func _tick_countdown(dt: float) -> void:
+	countdown_time += dt
+	if countdown_time >= COUNTDOWN_SECONDS:
+		phase = Phase.RACING
+		track.ramp_held = false
+		distance_points = int(floor(track.segment - TrackModel.START_SEGMENT))
+		_events.append(RunEvent.race_started())
+
+
+## State of start light `i` (0-2): -1 before it lights, then 0 to 1 over its fade (1 = faded out).
+func light_progress(i: int) -> float:
+	if phase == Phase.RACING:
+		return 1.0
+	var age := countdown_time - (LIGHT_START + i)
+	return -1.0 if age < 0.0 else clampf(age / LIGHT_FADE, 0.0, 1.0)
 
 
 ## Puts the ship deep into the run at full speed (benchmark and debugging), generating everything up to

@@ -24,6 +24,8 @@ var segment := START_SEGMENT
 var p := 1.0 - START_LANE_POSITION / 8.0
 var tps := START_TPS
 var elapsed := 0.0
+## While set, the speed ramp does not start: the ship keeps the starting speed (start sequence).
+var ramp_held := false
 var steer := 0.0
 var crashed := false
 ## "wall" or "obstacle" once crashed.
@@ -55,7 +57,8 @@ func step(dt: float, steer_value: float) -> void:
 	if crashed:
 		crash_time += dt
 		return
-	elapsed += dt
+	if not ramp_held:
+		elapsed += dt
 	steer = steer_value
 	tps = speed_at(elapsed)
 	segment += dt * 1000.0 / tps

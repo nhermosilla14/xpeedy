@@ -3,6 +3,11 @@ extends Node3D
 
 ## Tests and the benchmark can turn obstacles off before calling `start_run`.
 var obstacles_enabled := true
+## Tests turn the start sequence, the saved best and the panels off.
+var countdown_enabled := true
+
+## Seconds after a crash before the Game Over panel shows (the flash plays first).
+const GAME_OVER_DELAY := 1.0
 
 var _run: SurvivalRun
 var _track: TrackModel
@@ -14,13 +19,18 @@ var _trail_texture := TrailTexture.new()
 var options: LaunchOptions
 var _restart_wait := 0.0
 var _shot_time := 0.0
+var _paused := false
+var _best := PersonalBest.new()
+var _plain := false
+var _over_shown := false
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
 @onready var _explosions: ExplosionView = $Explosions
 @onready var _camera: ShipCamera = $Camera
 @onready var _fps: Label = $Hud/Fps
-@onready var _message: Label = $Hud/Message
+@onready var _lights: StartLights = $Hud/Lights
+@onready var _screen: ScreenPanel = $Hud/Screen
 @onready var _status: Hud = $Hud/Status
 @onready var _flash: ScreenFlash = $Hud/Flash
 @onready var _frame_stats: FrameStats = $FrameStats
@@ -39,7 +49,8 @@ func _ready() -> void:
 	Engine.time_scale = options.timescale
 	_fps.visible = options.fps or options.benchmark
 	UiFont.apply(_fps, 10)
-	UiFont.apply(_message, 24)
+	_status.pause_pressed.connect(_toggle_pause)
+	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
 	var run_seed := options.run_seed
 	if run_seed < 0:
@@ -51,6 +62,8 @@ func start_run(run_seed: int) -> void:
 	var config := RunConfig.standard()
 	config.generate_obstacles = obstacles_enabled and not options.clean
 	config.generate_spots = not options.clean
+	_plain = countdown_enabled and options.is_plain_run()
+	config.countdown = _plain
 	config.collisions_enabled = not options.ghost
 	config.crash_on_obstacles = not options.invulnerable
 	config.start_shields = options.shields
@@ -61,8 +74,12 @@ func start_run(run_seed: int) -> void:
 	_binding.reset()
 	_explosions.clear()
 	_camera.reset()
-	_message.visible = false
+	_screen.close()
+	_paused = false
+	_over_shown = false
 	_restart_wait = 0.0
+	if _plain:
+		_status.show_best(_best.get_best(PersonalBest.SURVIVAL_STANDARD))
 	print("[run] seed=%d" % run_seed)
 	_refresh_view(0.0)
 
@@ -70,6 +87,13 @@ func start_run(run_seed: int) -> void:
 func _physics_process(delta: float) -> void:
 	if _track.crashed and Input.is_action_just_pressed("restart"):
 		start_run(_track.seed_value + 1)
+		return
+	if not _track.crashed and Input.is_action_just_pressed("pause"):
+		_toggle_pause()
+	elif _paused and Input.is_action_just_pressed("restart"):
+		start_run(_track.seed_value + 1)
+		return
+	if _paused:
 		return
 	var raw := Autopilot.plough(_run) if options.autopilot == "plough" else Input.get_axis("steer_left", "steer_right")
 	var dt := _clock.advance(delta)
@@ -80,8 +104,39 @@ func _physics_process(delta: float) -> void:
 			return
 	_run.step(dt, _steering.process(raw))
 	_show_events()
-	_message.visible = _track.crashed
+	_show_game_over()
 	_refresh_view(dt)
+
+
+func _toggle_pause() -> void:
+	if _track.crashed:
+		return
+	_paused = not _paused
+	if _paused:
+		_screen.open("pause", [] as Array[String], ["resume game", "restart"] as Array[String])
+	else:
+		_screen.close()
+
+
+func _on_choice(index: int) -> void:
+	if _paused:
+		if index == 0:
+			_toggle_pause()
+		else:
+			start_run(_track.seed_value + 1)
+	elif _track.crashed:
+		start_run(_track.seed_value + 1)
+
+
+## Once the crash flash is over, shows the Game Over panel and records the personal best.
+func _show_game_over() -> void:
+	if not (_plain and _track.crashed) or _over_shown or _track.crash_time < GAME_OVER_DELAY:
+		return
+	_over_shown = true
+	var key := PersonalBest.SURVIVAL_STANDARD
+	_best.submit(key, _run.score)
+	_screen.open("game over", ["score: %d" % _run.score, "personal best: %d" % _best.get_best(key)] as Array[String],
+		["try again"] as Array[String])
 
 
 ## Feedback for what happened this tick (ADR 0010).
@@ -150,5 +205,6 @@ func _refresh_view(dt: float) -> void:
 	_obstacles.refresh(_run.obstacles)
 	_trail_texture.refresh(_run.trails)
 	_status.update(_run)
+	_lights.update(_run)
 	_explosions.set_time(_clock.time)
 	_camera.follow(_track, dt)

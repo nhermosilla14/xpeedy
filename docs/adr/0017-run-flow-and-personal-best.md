@@ -1,6 +1,6 @@
 # 0017. Run flow: start sequence, pause and personal best
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-07
 - Deciders: Nicolás Hermosilla P., agent
 - Intent: 0004

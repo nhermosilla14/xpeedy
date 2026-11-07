@@ -20,6 +20,7 @@ var _shields_before := 0
 
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
+	_main.set("countdown_enabled", false)
 	root.add_child(_main)
 
 

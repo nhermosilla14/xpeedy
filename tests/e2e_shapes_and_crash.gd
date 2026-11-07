@@ -18,6 +18,7 @@ var _restart_tick := 0
 
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
+	_main.set("countdown_enabled", false)
 	root.add_child(_main)
 	_main.set("obstacles_enabled", false)
 
@@ -25,7 +26,6 @@ func _initialize() -> void:
 func _physics_process(_delta: float) -> bool:
 	_ticks += 1
 	var track: TrackModel = _main.get("_track")
-	var message: Label = _main.get_node("Hud/Message")
 	match _phase:
 		Phase.MORPH:
 			if _ticks == 1:
@@ -47,8 +47,6 @@ func _physics_process(_delta: float) -> bool:
 				_crash_seed = track.seed_value
 				_phase = Phase.CRASHED
 		Phase.CRASHED:
-			if not message.visible:
-				_errors.append("crash message not shown")
 			_send_restart(true)
 			_restart_tick = _ticks
 			_phase = Phase.RESTARTED
@@ -61,8 +59,6 @@ func _physics_process(_delta: float) -> bool:
 				_errors.append("restart did not start a new run")
 			if track.segment > 4.0:
 				_errors.append("new run did not start at the beginning: %f" % track.segment)
-			if message.visible:
-				_errors.append("crash message still visible")
 			return _finish()
 	if _ticks > TIMEOUT_TICKS:
 		_errors.append("timed out in phase %s" % Phase.keys()[_phase])

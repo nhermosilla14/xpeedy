@@ -20,6 +20,8 @@ var start_segment := 0.0
 var clean := false
 ## Show the frame-rate counter.
 var fps := false
+## Skip the start sequence (tests and debugging).
+var no_countdown := false
 ## "in", "flat" or "out": start inside the first part of that shape (for looking at it).
 var start_shape := ""
 ## Save the viewport to this PNG after `screenshot_seconds` and quit (for side-by-side reviews).
@@ -58,6 +60,8 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 				o.run_seed = value.to_int()
 			"--start-segment":
 				o.start_segment = value.to_float()
+			"--no-countdown":
+				o.no_countdown = true
 			"--fps":
 				o.fps = true
 			"--clean":
@@ -69,3 +73,9 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 				if value.contains(","):
 					o.screenshot_seconds = value.get_slice(",", 1).to_float()
 	return o
+
+
+## Is this a plain run: no debugging help that would make its score meaningless?
+func is_plain_run() -> bool:
+	return not (benchmark or invulnerable or ghost or no_countdown or clean) and shields == 0 \
+		and start_segment <= 0.0 and start_shape == "" and autopilot == ""

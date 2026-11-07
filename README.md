@@ -55,11 +55,12 @@ Debugging options for the exported game, after `--` on the command line:
 | `--invulnerable` | obstacles the shields can't pay for are ignored instead of crashing |
 | `--benchmark` | fixed seed, deep start, 4 shields, autopilot, invulnerable, restarts itself: a comparable frame-rate run |
 | `--fps` | show the frame-rate counter (also on with `--benchmark`) |
+| `--no-countdown` | skip the start sequence (debug options that change the run also skip it, and never save a best) |
 | `--clean` | no obstacles or shield spots (for looking at the tunnel) |
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |
 
-On handhelds, A restarts after a crash and Select + Start quits. The frame rate is shown in the top-left corner.
+A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
 
 ## Project structure
 ```

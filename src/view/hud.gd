@@ -16,6 +16,8 @@ const PANEL_TOP := Color("C9C4D5")
 const PANEL_LINE := Color(0.05, 0.04, 0.12, 0.9)
 const BEST_SECONDS := 3.0
 const BEST_FADE := 0.5
+
+signal pause_pressed
 const SHIELD_COLOUR := Color(1.0, 0.7, 0.2)
 ## A drop of at least this many segments in one update is a loss (decay moves 0.05 per second).
 const LOSS_MIN := 0.5
@@ -38,7 +40,7 @@ var _loss_to := 0.0
 
 
 func _ready() -> void:
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	for label in [_score_label, _best_label]:
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(label)
@@ -109,9 +111,20 @@ func _draw_panel(rect: Rect2) -> void:
 	draw_rect(Rect2(rect.position, Vector2(rect.size.x, line * 1.5)), PANEL_TOP)
 
 
+func _pause_rect() -> Rect2:
+	var s := _scale()
+	return Rect2(Vector2(size.x - (MARGIN + 22.0) * s, MARGIN * s), Vector2(22.0, 22.0) * s)
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
+			and _pause_rect().grow(8.0 * _scale()).has_point(event.position):
+		pause_pressed.emit()
+
+
 func _draw_pause_button() -> void:
 	var s := _scale()
-	var rect := Rect2(Vector2(size.x - (MARGIN + 22.0) * s, MARGIN * s), Vector2(22.0, 22.0) * s)
+	var rect := _pause_rect()
 	draw_rect(rect, Color(0.114, 0.102, 0.243, 0.85))
 	draw_rect(rect, PANEL_LINE, false, maxf(1.0, s))
 	for k in 2:

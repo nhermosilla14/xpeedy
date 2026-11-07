@@ -32,8 +32,8 @@
 | 0012 | [Tunnel look: violet surface, bands and rails](slices/0012-tunnel-look.md) | Done |
 | 0013 | [Trails and shield spots look](slices/0013-trails-and-spots-look.md) | Done |
 | 0014 | [Obstacles and fragments look](slices/0014-obstacles-look.md) | Done |
-| 0015 | [Typeface and HUD](slices/0015-font-and-hud.md) | In progress |
-| 0016 | [Start sequence, pause and Game Over](slices/0016-start-pause-game-over.md) | Accepted |
+| 0015 | [Typeface and HUD](slices/0015-font-and-hud.md) | Done |
+| 0016 | [Start sequence, pause and Game Over](slices/0016-start-pause-game-over.md) | In progress |
 | 0017 | [The original look on the RG351P](slices/0017-original-look-on-device.md) | Accepted |
 
 ## ADRs
@@ -55,4 +55,4 @@
 | 0014 | [Visual reference](adr/0014-visual-reference.md) | Accepted |
 | 0015 | [The original's world look, drawn procedurally](adr/0015-procedural-world-look.md) | Accepted |
 | 0016 | [Interface style: typeface, HUD and screen panels](adr/0016-interface-style.md) | Accepted |
-| 0017 | [Run flow: start sequence, pause and personal best](adr/0017-run-flow-and-personal-best.md) | Proposed |
+| 0017 | [Run flow: start sequence, pause and personal best](adr/0017-run-flow-and-personal-best.md) | Accepted |

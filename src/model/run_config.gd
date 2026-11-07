@@ -20,6 +20,8 @@ var crash_on_obstacles := true
 var start_segment := 0.0
 ## Debugging: with collisions off the ship passes through obstacles (`--ghost` on the command line).
 var collisions_enabled := true
+## Start with the lights sequence (ADR 0017): 3.8 s at the starting speed, no score, before racing.
+var countdown := false
 
 
 static func standard() -> RunConfig:
