@@ -82,7 +82,7 @@ func activate() -> void:
 	_screen.activate()
 
 
-func _show_top() -> void:
+func _show_top(selected_item := 0) -> void:
 	var items: Array[Dictionary] = []
 	match _stack.back():
 		Page.MAIN:
@@ -98,7 +98,8 @@ func _show_top() -> void:
 			_screen.show_items(items, true, false, Difficulty.keys().find(preferred_difficulty))
 		Page.SETTINGS:
 			items.append({"text": "invert: %s" % ("on" if settings.invert else "off")})
-			_screen.show_items(items, true, false)
+			items.append({"text": "buttons: %s" % settings.layout})
+			_screen.show_items(items, true, false, selected_item)
 
 
 func _open_settings() -> void:
@@ -117,6 +118,10 @@ func _on_activated(index: int) -> void:
 		Page.DIFFICULTY:
 			play_requested.emit(Difficulty.keys()[index])
 		Page.SETTINGS:
-			settings.invert = not settings.invert
+			if index == 0:
+				settings.invert = not settings.invert
+			else:
+				settings.layout = InputLayout.XBOX if settings.layout == InputLayout.NINTENDO else InputLayout.NINTENDO
+				InputLayout.apply(settings.layout)
 			settings.save()
-			_show_top()
+			_show_top(index)

@@ -64,7 +64,7 @@ Debugging options for the exported game, after `--` on the command line:
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |
 
-The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A confirm, Esc or B go back; with a mouse or touch an item activates when released. "play" opens the five difficulties; the gear opens settings (invert steering). A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
+The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A confirm, Esc or B go back; with a mouse or touch an item activates when released. "play" opens the five difficulties; the gear opens settings (invert steering, button layout nintendo or xbox); the back arrow is reached with up/down, and Select goes back too. A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
 
 ## Project structure
 ```

@@ -2,8 +2,8 @@ class_name MenuScreen
 extends Control
 ## One menu page (ADR 0018): a left-aligned stack of very large items in the interface typeface, with an
 ## optional back arrow (bottom-left) and gear (bottom-right). The selected or pressed item is amber. With
-## a pointer an item highlights while pressed and activates on release (doc 14). The gear is the last
-## element of the navigation order so a gamepad can reach it.
+## a pointer an item highlights while pressed and activates on release (doc 14). The back arrow and the gear
+## are the last elements of the navigation order (items, back, gear) so a gamepad can reach them.
 
 signal activated(index: int)
 signal gear_pressed
@@ -18,7 +18,7 @@ const BADGE_TRIANGLE := Color(0.1, 0.08, 0.1, 0.85)
 var items: Array[Dictionary] = []
 var has_back := false
 var has_gear := false
-## Index into the navigation order: the items, then the gear if there is one.
+## Index into the navigation order: the items, then the back arrow and the gear if there are any.
 var selected := 0
 
 var _pressed := -1
@@ -40,11 +40,25 @@ func show_items(new_items: Array[Dictionary], back: bool, gear: bool, first := 0
 
 
 func element_count() -> int:
-	return items.size() + (1 if has_gear else 0)
+	return items.size() + (1 if has_back else 0) + (1 if has_gear else 0)
+
+
+## Navigation index of the back arrow, or -1.
+func back_index() -> int:
+	return items.size() if has_back else -1
+
+
+## Navigation index of the gear, or -1.
+func gear_index() -> int:
+	return items.size() + (1 if has_back else 0) if has_gear else -1
 
 
 func is_gear_selected() -> bool:
-	return has_gear and selected == items.size()
+	return has_gear and selected == gear_index()
+
+
+func is_back_selected() -> bool:
+	return has_back and selected == back_index()
 
 
 ## Moves the selection by `step` elements, wrapping.
@@ -61,6 +75,8 @@ func activate() -> void:
 		return
 	if is_gear_selected():
 		gear_pressed.emit()
+	elif is_back_selected():
+		back_pressed.emit()
 	else:
 		activated.emit(selected)
 
@@ -102,9 +118,9 @@ func _draw() -> void:
 		draw_string(font, Vector2(x, rect.position.y + h * 0.78), items[i]["text"],
 			HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, colour)
 	if has_back:
-		_draw_back(_back_rect())
+		_draw_back(_back_rect(), SELECTED_COLOUR if is_back_selected() or _pressed == back_index() else TEXT_COLOUR)
 	if has_gear:
-		_draw_gear(_gear_rect(), SELECTED_COLOUR if is_gear_selected() or _pressed == items.size() else TEXT_COLOUR)
+		_draw_gear(_gear_rect(), SELECTED_COLOUR if is_gear_selected() or _pressed == gear_index() else TEXT_COLOUR)
 
 
 func _draw_badge(centre: Vector2, radius: float, colour: Color, triangles: int) -> void:
@@ -121,13 +137,13 @@ func _draw_badge(centre: Vector2, radius: float, colour: Color, triangles: int) 
 				Vector2(cx + tri * 0.5, cy + tri * 0.45), Vector2(cx - tri * 0.5, cy + tri * 0.45)]), BADGE_TRIANGLE)
 
 
-func _draw_back(rect: Rect2) -> void:
+func _draw_back(rect: Rect2, colour: Color) -> void:
 	var c := rect.get_center()
 	var w := rect.size.x * 0.42
 	var t := maxf(3.0, rect.size.y * 0.16)
 	draw_polyline(PackedVector2Array([c + Vector2(-w * 0.2, -w), c + Vector2(-w, 0.0), c + Vector2(-w * 0.2, w)]),
-		TEXT_COLOUR, t, true)
-	draw_line(c + Vector2(-w, 0.0), c + Vector2(w, 0.0), TEXT_COLOUR, t, true)
+		colour, t, true)
+	draw_line(c + Vector2(-w, 0.0), c + Vector2(w, 0.0), colour, t, true)
 
 
 func _draw_gear(rect: Rect2, colour: Color) -> void:
@@ -150,8 +166,9 @@ func _gui_input(event: InputEvent) -> void:
 		if _item_rect(i).has_point(event.position):
 			hit = i
 	if has_gear and _gear_rect().has_point(event.position):
-		hit = items.size()
-	var back_hit := has_back and _back_rect().has_point(event.position)
+		hit = gear_index()
+	if has_back and _back_rect().has_point(event.position):
+		hit = back_index()
 	if event.pressed:
 		_pressed = hit
 		if hit >= 0:
@@ -161,8 +178,6 @@ func _gui_input(event: InputEvent) -> void:
 	var released := _pressed
 	_pressed = -1
 	queue_redraw()
-	if back_hit:
-		back_pressed.emit()
-	elif released >= 0 and released == hit:
+	if released >= 0 and released == hit:
 		selected = hit
 		activate()

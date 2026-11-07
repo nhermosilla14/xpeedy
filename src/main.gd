@@ -67,6 +67,7 @@ func _ready() -> void:
 	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
 	_menu.settings = _settings
+	InputLayout.apply(_settings.layout)
 	_menu.play_requested.connect(_on_play_requested)
 	_menu.quit_requested.connect(get_tree().quit)
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD

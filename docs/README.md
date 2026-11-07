@@ -56,7 +56,7 @@
 | 0031 | [Gravity Well](slices/0031-gravity-well.md) | Done |
 | 0032 | [Plasma Cloud](slices/0032-plasma-cloud.md) | Done |
 | 0033 | [Race files and the stage catalogue](slices/0033-race-files-and-catalogue.md) | Done |
-| 0034 | [Race-driven generation](slices/0034-race-driven-generation.md) | In progress |
+| 0034 | [Race-driven generation](slices/0034-race-driven-generation.md) | Done |
 | 0035 | [Finishing a race and stage progress](slices/0035-finish-and-stage-progress.md) | Accepted |
 | 0036 | [Mode and stage menus, and the race flow](slices/0036-stage-menus-and-race-flow.md) | Accepted |
 
@@ -88,3 +88,4 @@
 | 0023 | [Hazard zones: model and effects](adr/0023-hazard-zones.md) | Accepted |
 | 0024 | [Race files and race-driven generation](adr/0024-race-specs-and-generation.md) | Accepted |
 | 0025 | [Stage progress, the stage menus and the race flow](adr/0025-stage-progress-and-flow.md) | Accepted |
+| 0026 | [Button layout setting and handheld navigation](adr/0026-input-layout-and-handheld-navigation.md) | Accepted |

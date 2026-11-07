@@ -1,6 +1,6 @@
 # 0034. Race-driven generation
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0009
@@ -15,3 +15,8 @@ Explicit track parts, stage rules for obstacles, spots and zones, `RaceConfig`, 
 
 ## Out of scope
 - Finishing and menus.
+
+## Results
+- `PartSequence` takes an explicit list; `ObstacleField`, `SpotField` and `ZoneField` take the race as optional
+  rules; `RaceConfig.from_spec`; `tests/unit/test_race_generation.gd` (16 tests, including that every one of the
+  48 races builds and generates). "a-b" ranges have an exclusive upper bound, so "2-3" is exactly 2 spots.
