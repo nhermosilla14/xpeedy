@@ -22,7 +22,10 @@ frame would cost CPU time on the handhelds, and the model's motion is a closed f
     quarter turn, whatever the step angle, so it lands square), and each vertex that ends beyond the edge is
     placed on the next lane's frame. At rest it sits on its lane.
 - **Instance data is written only when obstacles change** (as now); only the two uniforms change per frame,
-  set from `main.gd` with the run's game time.
+  set from `main.gd` with the run's game time. They are **global shader uniforms** (`game_time`,
+  `target_tps` in `project.godot`, set with `RenderingServer.global_shader_parameter_set`): setting a
+  material parameter every frame re-uploads all of the material's uniforms, which cost about 40 % of the
+  frame rate in the first attempt.
 - **Look**: the shader's body and edge code for cubes is reused unchanged (prism-space edges).
 - **Stomp**: `ShipCamera.shake(seconds)`, using the morph shake's amplitude.
 - **Explosion** of a smashed moving obstacle starts at its position at that moment.

@@ -295,8 +295,9 @@ func _capture(path: String) -> void:
 func _refresh_view(dt: float) -> void:
 	_binding.refresh(_track)
 	_obstacles.refresh(_run.obstacles)
-	_obstacles.material.set_shader_parameter("game_time", _run.game_time)
-	_obstacles.material.set_shader_parameter("target_tps", _run.config.target_tps)
+	# Global uniforms: setting a material parameter every frame re-uploads all its uniforms (slow on the handhelds).
+	RenderingServer.global_shader_parameter_set("game_time", _run.game_time)
+	RenderingServer.global_shader_parameter_set("target_tps", _run.config.target_tps)
 	_trail_texture.refresh(_run.trails)
 	_status.update(_run)
 	_lights.update(_run)

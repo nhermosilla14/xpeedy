@@ -23,8 +23,8 @@ varying float v_shade;
 // Rollers and bouncers move with the run's game time (ADR 0020, 0021). The formulas repeat MovingMath
 // (src/model/moving_math.gd). INSTANCE_CUSTOM.z = colour + 8 * shape + 24 * (turns towards +lane) + 48 for a
 // roller or 96 for a bouncer; INSTANCE_CUSTOM.w = 1 + phase for shown obstacles, 0 for hidden ones.
-uniform float game_time = 0.0;
-uniform float target_tps = 80.0;
+global uniform float game_time;
+global uniform float target_tps;
 
 float lane_after(float from_lane, float dir, float steps, bool is_flat) {
 	if (is_flat) {

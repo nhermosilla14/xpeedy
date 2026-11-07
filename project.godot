@@ -51,6 +51,17 @@ pause={
 ]
 }
 
+[shader_globals]
+
+game_time={
+"type": "float",
+"value": 0.0
+}
+target_tps={
+"type": "float",
+"value": 80.0
+}
+
 [physics]
 
 common/physics_ticks_per_second=60

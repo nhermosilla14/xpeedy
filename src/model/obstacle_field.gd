@@ -104,10 +104,10 @@ func all() -> Array[Obstacle]:
 ## Drops obstacles on segments before `seg`.
 func forget_before(seg: int) -> void:
 	var dropped := false
-	rollers = rollers.filter(func(o: Obstacle) -> bool: return o.seg >= seg)
 	for key in _by_segment.keys():
 		if key < seg:
 			_by_segment.erase(key)
 			dropped = true
 	if dropped:
+		rollers = rollers.filter(func(o: Obstacle) -> bool: return o.seg >= seg)
 		version += 1
