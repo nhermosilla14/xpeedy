@@ -18,6 +18,8 @@ var choices: Array[String] = []
 
 var _labels: Array[Label] = []
 var _pressed := -1
+## The choice the keyboard or gamepad has selected (shown in amber).
+var selected := 0
 
 
 func _ready() -> void:
@@ -32,7 +34,16 @@ func open(new_title: String, new_lines: Array[String], new_choices: Array[String
 	lines = new_lines
 	choices = new_choices
 	_pressed = -1
+	selected = 0
 	visible = true
+	_layout()
+
+
+## Moves the keyboard or gamepad selection by `step` choices (wraps).
+func move_selection(step: int) -> void:
+	if choices.is_empty():
+		return
+	selected = posmod(selected + step, choices.size())
 	_layout()
 
 
@@ -70,7 +81,7 @@ func _layout() -> void:
 		_add(lines[i], Rect2(rect.position.x, rect.position.y + (56.0 + 16.0 * i) * s, rect.size.x, 16.0 * s),
 			11, Color("F1F1F4"))
 	for i in choices.size():
-		_add(choices[i], _choice_rect(i), 20, PRESSED_COLOUR if i == _pressed else CHOICE_COLOUR)
+		_add(choices[i], _choice_rect(i), 20, PRESSED_COLOUR if i == _pressed or (_pressed < 0 and i == selected) else CHOICE_COLOUR)
 	queue_redraw()
 
 

@@ -54,6 +54,11 @@ func _physics_process(_delta: float) -> bool:
 				_main.call("_toggle_pause")
 				if not screen.visible or screen.choices.size() != 2:
 					_errors.append("the pause panel did not open")
+				_main.call("_physics_process", 0.0)
+				screen.move_selection(1)
+				if screen.selected != 1:
+					_errors.append("the selection did not move")
+				screen.move_selection(-1)
 				_frozen_segment = track.segment
 				_phase = Phase.PAUSED
 				_ticks = 0

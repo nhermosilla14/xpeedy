@@ -90,10 +90,14 @@ func _physics_process(delta: float) -> void:
 		return
 	if not _track.crashed and Input.is_action_just_pressed("pause"):
 		_toggle_pause()
-	elif _paused and Input.is_action_just_pressed("restart"):
-		start_run(_track.seed_value + 1)
 		return
 	if _paused:
+		if Input.is_action_just_pressed("ui_down"):
+			_screen.move_selection(1)
+		elif Input.is_action_just_pressed("ui_up"):
+			_screen.move_selection(-1)
+		elif Input.is_action_just_pressed("restart"):
+			_on_choice(_screen.selected)
 		return
 	var raw := Autopilot.plough(_run) if options.autopilot == "plough" else Input.get_axis("steer_left", "steer_right")
 	var dt := _clock.advance(delta)

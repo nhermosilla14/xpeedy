@@ -33,8 +33,8 @@
 | 0013 | [Trails and shield spots look](slices/0013-trails-and-spots-look.md) | Done |
 | 0014 | [Obstacles and fragments look](slices/0014-obstacles-look.md) | Done |
 | 0015 | [Typeface and HUD](slices/0015-font-and-hud.md) | Done |
-| 0016 | [Start sequence, pause and Game Over](slices/0016-start-pause-game-over.md) | In progress |
-| 0017 | [The original look on the RG351P](slices/0017-original-look-on-device.md) | Accepted |
+| 0016 | [Start sequence, pause and Game Over](slices/0016-start-pause-game-over.md) | Done |
+| 0017 | [The original look on the RG351P](slices/0017-original-look-on-device.md) | In progress |
 
 ## ADRs
 | # | Title | Status |
