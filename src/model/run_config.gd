@@ -6,6 +6,8 @@ extends RefCounted
 var target_tps := 80.0
 var max_shields := 4
 var shield_decay_seconds := 20.0
+## Spike formations in the patterns (doc 10; every difficulty but Pure has them).
+var spikes_enabled := true
 ## Tests and the benchmark can turn obstacle generation off.
 var generate_obstacles := true
 ## Tests can turn shield spot generation off.

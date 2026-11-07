@@ -71,13 +71,12 @@ func test_first_pattern_is_placed_at_segment_55() -> void:
 func test_placement_points_follow_the_spacing() -> void:
 	var field := ObstacleField.new(2, PartSequence.new(2))
 	field.generate_to(3000)
-	var segs: Array[int] = []
-	for o in field.all():
-		segs.append(o.seg)
-	check_eq(segs[0], 55)
-	check(segs.size() > 200, "many patterns: %d" % segs.size())
-	for i in segs.size() - 1:
-		check_eq(segs[i + 1] - segs[i], ObstacleField.spacing_at(segs[i]), "gap after %d" % segs[i])
+	var points := field.placed_points
+	check_eq(points[0], 55)
+	check(points.size() > 200, "many patterns: %d" % points.size())
+	for i in points.size() - 1:
+		check_eq(points[i + 1] - points[i], ObstacleField.spacing_at(points[i]), "gap after %d" % points[i])
+	check(field.at_segment(55).size() == 1, "the first pattern is a single obstacle")
 
 
 func _signature(field: ObstacleField) -> Array:
@@ -99,23 +98,31 @@ func test_same_seed_same_obstacles_whatever_the_request_order() -> void:
 	check(_signature(a) != _signature(c), "different seeds differ")
 
 
-func test_level_zero_pattern_uses_every_kind_lane_and_colour() -> void:
+func test_a_long_run_uses_every_kind_lane_and_colour() -> void:
 	var field := ObstacleField.new(3, PartSequence.new(3))
-	field.generate_to(4000)
+	field.generate_to(6000)
 	var kinds := {}
 	var lanes := {}
 	var colours := {}
-	var cubes := 0
 	for o in field.all():
 		kinds[o.kind] = true
 		lanes[o.lane] = true
 		colours[o.colour] = true
-		cubes += 1 if o.kind == Kind.CUBE else 0
-	check_eq(kinds.size(), 2, "cube and beam")
+	check_eq(kinds.size(), 3, "cube, beam and spike")
 	check_eq(lanes.size(), 16, "all lanes")
 	check_eq(colours.size(), 5, "all colours")
-	var share := float(cubes) / field.all().size()
-	check_near(share, 0.5, 0.12, "cube share")
+
+
+func test_level_zero_is_a_single_cube_or_beam_half_and_half() -> void:
+	var rng := XRandom.new(5)
+	var context := PatternLibrary.Context.new()
+	var cubes := 0
+	for i in 2000:
+		var pattern := PatternLibrary.generate_detailed(0, rng, context)
+		check_eq(pattern.obstacles.size(), 1, "one obstacle")
+		check_eq(pattern.obstacles[0].seg, 0, "at the placement point")
+		cubes += 1 if pattern.name == "single_cube" else 0
+	check_near(float(cubes) / 2000.0, 0.5, 0.05, "cube share")
 
 
 func test_obstacle_shape_is_the_shape_of_its_part() -> void:

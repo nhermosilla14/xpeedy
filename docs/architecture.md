@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: slices 0001–0009 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
+> Status: slices 0001–0010 implemented: curving tunnel with in/flat/out shapes and morphs, steering,
 > wall crashes and restart, speed ramp, PortMaster package.
 
 ## Engine and runtime
@@ -76,9 +76,20 @@
   over the swept segment and lane range, forget obstacles behind. Obstacles are `(segment, lane, kind,
   colour)` on one tile and are generated only as the horizon advances, from the stream
   `seed ^ 0x0B57AC1E`. Patterns are placed at 55, then every `max(8, 12 − ⌊d/300⌋)` segments; only the
-  level-0 pattern (one cube or beam: kind, lane, colour draws) exists so far. A tube beam (shape IN)
+  pattern chosen by `PatternLibrary` (below). A tube beam (shape IN)
   also hits lane + 8 while `flatness ≤ 0.2`; seam wrap applies on tube parts when not morphing.
   `RunConfig.collisions_enabled` is off with `-- --ghost` for visual debugging.
+- **Patterns** (ADR 0013): `PatternLibrary` turns a level into a pattern. Level 0 is a single cube or
+  beam; levels 1–5 draw an index uniformly from 0…level, levels 6 and above from 1…min(level, 15)
+  (single cubes stop). Each index has spike, wall and regular formations (the doc 04 table): a 1/3
+  spike-variant draw if spikes are enabled, then a 1/3 wall-variant draw on FLAT and OUT parts (never
+  IN), then one of the regular formations. Formations are lists of `(segment offset, lane offset, kind,
+  colour slot)`; `_place` draws the colours and the start lane (fitting formations stay inside lanes
+  0–15 on FLAT parts, ring formations and everything on tube parts wrap modulo 16). Draw order:
+  index, spike chance, wall chance, regular choice, formation draws (wall kind, diagonal direction,
+  spread mixed flag and repeat), colour, extra colours, per-cell colours, start lane.
+  `ObstacleField` places a pattern at 55 and then every `max(8, 12 − ⌊d/300⌋)` segments with level
+  `⌊d/150⌋`, and records the placement points in `placed_points`.
 - **Smashing** (ADR 0008): when the swept hit box touches an obstacle, in segment order, it is smashed
   if the shields cover its cost (cube and spike 1, beam 2) and a crash otherwise (a beam with one
   shield keeps that shield). A smash spends the shields (restarting the decay timer), adds 100 or 300

@@ -19,11 +19,16 @@ var _by_segment := {}  # int -> Array[Obstacle]
 var _rng: XRandom
 var _parts: PartSequence
 var _next_point := FIRST_PATTERN
+var _spikes_enabled: bool
+
+## Placement point of every pattern generated so far, in order.
+var placed_points := PackedInt32Array()
 
 
-func _init(run_seed: int, parts: PartSequence) -> void:
+func _init(run_seed: int, parts: PartSequence, spikes_enabled: bool = true) -> void:
 	_rng = XRandom.new(run_seed ^ SEED_SALT)
 	_parts = parts
+	_spikes_enabled = spikes_enabled
 
 
 ## Segments between pattern placements at distance `d` (doc 10).
@@ -40,10 +45,14 @@ static func level_at(d: int) -> int:
 func generate_to(horizon_segment: int) -> void:
 	while _next_point <= horizon_segment:
 		var point := _next_point
-		for o in PatternLibrary.generate(level_at(point), _rng):
+		var context := PatternLibrary.Context.new()
+		context.shape = _parts.shape_at(point)
+		context.spikes_enabled = _spikes_enabled
+		for o in PatternLibrary.generate(level_at(point), _rng, context):
 			o.seg += point
 			o.shape = _parts.shape_at(o.seg)
 			add(o)
+		placed_points.append(point)
 		_next_point = point + spacing_at(point)
 
 

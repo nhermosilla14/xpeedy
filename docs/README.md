@@ -26,7 +26,7 @@
 | 0007 | [Warning trails](slices/0007-warning-trails.md) | Done |
 | 0008 | [Shield spots, shields and the HUD](slices/0008-shields-spots-hud.md) | Done |
 | 0009 | [Smashing obstacles](slices/0009-smashing-obstacles.md) | Done |
-| 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Accepted |
+| 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Done |
 | 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | Accepted |
 
 ## ADRs
@@ -44,3 +44,4 @@
 | 0010 | [HUD, flashes and explosions](adr/superseded/0010-hud-flashes-explosions.md) | Superseded by 0012 |
 | 0011 | [Obstacles, trails and spots on the GPU, RGBA8 trail texture](adr/0011-gpu-obstacles-trails-spots-rgba8.md) | Accepted |
 | 0012 | [HUD with a common shield bar, flashes and explosions](adr/0012-hud-common-shield-bar.md) | Accepted |
+| 0013 | [Obstacle pattern generation rules](adr/0013-obstacle-pattern-rules.md) | Accepted |

@@ -24,7 +24,7 @@ var _events: Array[RunEvent] = []
 func _init(run_config: RunConfig, run_seed: int) -> void:
 	config = run_config
 	track = TrackModel.new(config.target_tps, run_seed)
-	obstacles = ObstacleField.new(run_seed, track.parts)
+	obstacles = ObstacleField.new(run_seed, track.parts, config.spikes_enabled)
 	obstacles.obstacle_added.connect(trails.add_obstacle)
 	spots = SpotField.new(run_seed)
 	spots.spot_added.connect(trails.add_spot)

@@ -1,12 +1,14 @@
 extends SceneTree
 ## Profiling (not part of tools/test.sh): CPU time per tick of the model step, obstacle generation and
-## the views, grouped by shape and morph state, over 40 s of driving straight (collisions are skipped
-## so the ship survives). Run with:
+## the views, grouped by shape and morph state, over 40 s of driving straight from segment 2300, where
+## the pattern level is 15 and the track is at full density (collisions are skipped so the ship
+## survives). Run with:
 ##   tools/godot.sh --headless --script res://tests/profile_tunnel.gd
 ## Always quits: a hung script would otherwise keep a container running.
 
 const Shape := PartSequence.Shape
 const TICKS := 60 * 40
+const START_SEGMENT := 2300.0
 
 var _main: Node
 var _done := false
@@ -27,6 +29,10 @@ func _physics_process(_delta: float) -> bool:
 	var tunnel: TunnelView = _main.get_node("Tunnel")
 	var obstacles: ObstacleView = _main.get_node("Obstacles")
 	var camera: ShipCamera = _main.get_node("Camera")
+	run.track.segment = START_SEGMENT
+	run.track.elapsed = 5.0
+	run.track.step(0.0, 0.0)
+	run.obstacles.generate_to(run.track.window_start() + TrackModel.VISIBLE_SEGMENTS)
 	var stats := {}
 	for i in TICKS:
 		var t0 := Time.get_ticks_usec()
