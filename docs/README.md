@@ -19,6 +19,7 @@
 | 0007 | [Bonuses: Quake, Time Dilation and Space Fold](intent/0007-bonuses.md) | Done |
 | 0008 | [Hazard zones](intent/0008-hazard-zones.md) | Done |
 | 0009 | [Stage mode](intent/0009-stage-mode.md) | Done |
+| 0010 | [Upgrades and economy](intent/0010-upgrades-and-economy.md) | Accepted |
 
 ## Slices
 | # | Title | Status |
@@ -59,6 +60,11 @@
 | 0034 | [Race-driven generation](slices/0034-race-driven-generation.md) | Done |
 | 0035 | [Finishing a race and stage progress](slices/0035-finish-and-stage-progress.md) | Done |
 | 0036 | [Mode and stage menus, and the race flow](slices/0036-stage-menus-and-race-flow.md) | Done |
+| 0037 | [Credits, the catalogue and the passive upgrades](slices/0037-economy-and-passive-upgrades.md) | Accepted |
+| 0038 | [Upgrades shop and credit rewards](slices/0038-upgrades-shop-and-rewards.md) | Accepted |
+| 0039 | [Active upgrades: the model](slices/0039-active-upgrades-model.md) | Accepted |
+| 0040 | [Active upgrades: buttons, input and look](slices/0040-active-upgrades-ui.md) | Accepted |
+| 0041 | [Keep going](slices/0041-keep-going.md) | Accepted |
 
 ## ADRs
 | # | Title | Status |
@@ -90,3 +96,5 @@
 | 0025 | [Stage progress, the stage menus and the race flow](adr/0025-stage-progress-and-flow.md) | Accepted |
 | 0026 | [Button layout setting and handheld navigation](adr/0026-input-layout-and-handheld-navigation.md) | Accepted |
 | 0027 | [The analog sticks are left to the game on handhelds](adr/0027-analog-sticks-left-to-the-game.md) | Accepted |
+| 0028 | [Credits, the upgrade catalogue and the passive upgrades](adr/0028-economy-and-passive-upgrades.md) | Accepted |
+| 0029 | [Active upgrades, the HUD buttons and keep going](adr/0029-active-upgrades-and-keep-going.md) | Accepted |
