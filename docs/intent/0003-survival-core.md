@@ -1,6 +1,6 @@
 # 0003. Survival core: obstacles, shields and score
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-06
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0008, 0009 (superseded), 0010 (superseded), 0011, 0012, 0013

@@ -1,6 +1,6 @@
 # 0011. Survival core on the RG351P
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-06
 - Owner: agent, Nicolás Hermosilla P. (on-device run)
 - Intents: 0003
@@ -55,4 +55,6 @@ spots, explosions and the HUD on screen, fix what does not, and close intent 000
 - The run is deterministic across platforms: the device's `segment`, `level`, `obstacles` and `score`
   values match the x86 desktop run window for window (for example segment 2425, 31 obstacles, score 725
   at 10 s), so the portable PRNG (ADR 0004/0005) works on aarch64 too.
-- Pending: the user's own play session on the device and their confirmation.
+- User play session on the device (2026-11-07): "It's quite good! It is fun." Noted gaps, for new intents:
+  moving obstacles (rollers, bouncers), bonuses, hazard zones (Gravity Well, Hue Shift, Blackout, Plasma
+  Cloud, Dark Nebula), and a look that is "very different from the original".

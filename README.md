@@ -4,11 +4,9 @@ A free, open-source clone of the discontinued tunnel racer SpeedX 3D: fly throug
 tunnel at high speed and steer around obstacles. It targets desktop, Android and PortMaster
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
-> Status: the tunnel prototype is done ([intent 0001](docs/intent/0001-tunnel-prototype.md)) and runs at
-> a locked 60 fps on the RG351P ([intent 0002](docs/intent/0002-smooth-frame-pacing.md)). Next: gameplay
-> (obstacles, shields, scoring).
-> A curving tunnel that switches between tube, flat and outside shapes is playable, on desktop and
-> PortMaster handhelds. Drive off a flat edge and you crash.
+> Status: the Survival core is playable on desktop and on the RG351P at a locked 60 fps ([intent 0003](docs/intent/0003-survival-core.md)):
+> tunnel, obstacles, trails, shields, smashing, score. Not yet: rollers and bouncers, bonuses, hazard zones,
+> menus, sound, upgrades, Stage mode, Android.
 
 ## Prerequisites
 - [Podman](https://podman.io/) 4+. Godot 4.4.1 and its export templates come from the

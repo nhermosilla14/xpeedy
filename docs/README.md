@@ -12,7 +12,7 @@
 |---|---|---|
 | 0001 | [Tunnel prototype](intent/0001-tunnel-prototype.md) | Done |
 | 0002 | [Smooth frame pacing on the RG351P](intent/0002-smooth-frame-pacing.md) | Done |
-| 0003 | [Survival core: obstacles, shields and score](intent/0003-survival-core.md) | Accepted |
+| 0003 | [Survival core: obstacles, shields and score](intent/0003-survival-core.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -27,7 +27,7 @@
 | 0008 | [Shield spots, shields and the HUD](slices/0008-shields-spots-hud.md) | Done |
 | 0009 | [Smashing obstacles](slices/0009-smashing-obstacles.md) | Done |
 | 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Done |
-| 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | In progress |
+| 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | Done |
 
 ## ADRs
 | # | Title | Status |
