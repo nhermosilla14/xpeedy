@@ -5,7 +5,7 @@ extends RefCounted
 ##   R = palette colour index + 1, or 0 when the tile has no trail
 ##   G = the obstacle's segment minus the tile's segment (0-25)
 ##   B = 255 for the opposite-lane trail of a tube beam, else 0
-##   A = 0, or (spot kind + 1) x 60 when the tile is part of a pick-up spot (ADR 0022)
+##   A = 0, or code x 25: 1-4 pick-up spot kinds, 5-9 zone marks, 10 a plasma vortex (ADR 0022, 0023)
 ## Row `seg & 63` belongs to segment `seg`; a row is cleared when a different segment claims it, so
 ## nothing is rewritten when the window scrolls.
 
@@ -13,6 +13,9 @@ const ROWS := 64
 const LANES := TrackModel.LANES
 const TRAIL_LENGTH := 25
 const BYTES_PER_TILE := 4
+const ALPHA_STEP := 25
+const MARK_CODE := 4  # zone kind + 4 gives codes 5-9
+const VORTEX_CODE := 10
 
 ## The tiles, row-major: ((seg & 63) * 16 + lane) * 4.
 var data := PackedByteArray()
@@ -75,7 +78,30 @@ func _repaint_behind(o: Obstacle, field: ObstacleField) -> void:
 
 ## Marks the three tiles of a shield spot.
 func add_spot(spot: Spot) -> void:
-	_set_spot_flag(spot, (spot.kind + 1) * 60)
+	_set_spot_flag(spot, (spot.kind + 1) * ALPHA_STEP)
+
+
+## Paints a zone mark over all 16 lanes of its segment.
+func add_mark(mark: ZoneField.Mark) -> void:
+	_claim_and_flag(mark.seg, range(LANES), (mark.zone + MARK_CODE) * ALPHA_STEP)
+
+
+## Paints a plasma vortex on its tile, and removes it again.
+func add_vortex(seg: int, lane: int) -> void:
+	_claim_and_flag(seg, [lane], VORTEX_CODE * ALPHA_STEP)
+
+
+func remove_vortex(seg: int, lane: int) -> void:
+	_claim_and_flag(seg, [lane], 0)
+
+
+func _claim_and_flag(seg: int, lanes: Array, value: int) -> void:
+	if seg < _first or seg >= _first + ROWS:
+		return
+	_claim(seg)
+	for lane in lanes:
+		data[_index(seg, lane) + 3] = value
+	version += 1
 
 
 ## Clears the spot marks of a collected spot.
@@ -96,7 +122,7 @@ func texel(seg: int, lane: int) -> Color:
 
 
 func _spot_value(i: int) -> float:
-	return float(data[i + 3] / 60)
+	return float(data[i + 3] / ALPHA_STEP)
 
 
 ## The obstacle segment a tile's trail leads to, or -1 when it has none.

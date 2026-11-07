@@ -1,6 +1,6 @@
 # 0029. Zone marks, lifecycle and Space Fold
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0008
@@ -23,3 +23,11 @@ events, the banner and flashes, difficulty zone lists, Space Fold ending an acti
 
 ## Out of scope
 - The effects of each zone (slices 0030-0032).
+
+## Results
+- Slices 0029-0032 were built together: `tests/unit/test_zones.gd` (22 tests: marks, lifecycle, Time
+  Dilation, Space Fold, Gravity Well, vortices, fog and camera) and `tests/e2e_zones.gd` (mark, banner, Hue
+  Shift, Space Fold, plasma touch). The trail alpha code step became 25 because zone marks need codes up to 10.
+- `--zone=blackout|gravity|hue|nebula|plasma` starts a run with a zone active; captures of each are in
+  `build/look/z-*.png` and the sheet `zones.png` (not in git). The plasma glow is faint and the vortex is a
+  small pulsing tile; both are candidates for the user's review.

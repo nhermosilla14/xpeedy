@@ -222,7 +222,7 @@ func test_a_spot_marks_three_tiles_on_its_lane() -> void:
 	map.add_spot(Spot.make(70, 4))
 	for seg in range(70, 73):
 		check_eq(map.texel(seg, 4).a, 1.0, "spot tile at %d" % seg)
-		check_eq(map.data[((seg & 63) * 16 + 4) * 4 + 3], 60, "alpha byte at %d" % seg)
+		check_eq(map.data[((seg & 63) * 16 + 4) * 4 + 3], 25, "alpha byte at %d" % seg)
 	check_eq(map.texel(69, 4).a, 0.0, "before the spot")
 	check_eq(map.texel(73, 4).a, 0.0, "after the spot")
 	check_eq(map.texel(71, 5).a, 0.0, "other lanes")
@@ -259,6 +259,6 @@ func test_bonus_spots_store_their_kind_in_the_alpha_byte() -> void:
 		var spot := Spot.make(70, 3, kind)
 		map.add_spot(spot)
 		check_eq(map.texel(70, 3).a, float(kind + 1), "texel for kind %d" % kind)
-		check_eq(map.data[((70 & 63) * 16 + 3) * 4 + 3], (kind + 1) * 60)
+		check_eq(map.data[((70 & 63) * 16 + 3) * 4 + 3], (kind + 1) * 25)
 		map.remove_spot(spot)
 		check_eq(map.texel(70, 3).a, 0.0, "removed")

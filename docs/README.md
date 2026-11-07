@@ -17,7 +17,7 @@
 | 0005 | [Menus and app flow](intent/0005-menus-and-app-flow.md) | Done |
 | 0006 | [Rollers and bouncers](intent/0006-rollers-and-bouncers.md) | Done |
 | 0007 | [Bonuses: Quake, Time Dilation and Space Fold](intent/0007-bonuses.md) | Done |
-| 0008 | [Hazard zones](intent/0008-hazard-zones.md) | Accepted |
+| 0008 | [Hazard zones](intent/0008-hazard-zones.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -50,10 +50,10 @@
 | 0026 | [Bonus spots and the held bonus](slices/0026-bonus-spots.md) | Done |
 | 0027 | [Firing, Quake and Space Fold](slices/0027-firing-quake-fold.md) | Done |
 | 0028 | [Time Dilation](slices/0028-time-dilation.md) | Done |
-| 0029 | [Zone marks, lifecycle and Space Fold](slices/0029-zone-lifecycle.md) | In progress |
-| 0030 | [Blackout, Dark Nebula and Hue Shift](slices/0030-visual-zones.md) | Accepted |
-| 0031 | [Gravity Well](slices/0031-gravity-well.md) | Accepted |
-| 0032 | [Plasma Cloud](slices/0032-plasma-cloud.md) | Accepted |
+| 0029 | [Zone marks, lifecycle and Space Fold](slices/0029-zone-lifecycle.md) | Done |
+| 0030 | [Blackout, Dark Nebula and Hue Shift](slices/0030-visual-zones.md) | Done |
+| 0031 | [Gravity Well](slices/0031-gravity-well.md) | Done |
+| 0032 | [Plasma Cloud](slices/0032-plasma-cloud.md) | Done |
 
 ## ADRs
 | # | Title | Status |

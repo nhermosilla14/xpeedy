@@ -1,6 +1,6 @@
 # 0030. Blackout, Dark Nebula and Hue Shift
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0008

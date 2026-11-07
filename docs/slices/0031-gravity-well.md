@@ -1,6 +1,6 @@
 # 0031. Gravity Well
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0008

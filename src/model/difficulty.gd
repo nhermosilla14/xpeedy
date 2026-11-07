@@ -11,11 +11,11 @@ const PURE := "pure"
 
 ## In menu order: key, target ms per segment, spikes, badge colour. The badge shows 1-5 triangles.
 const TABLE := [
-	{"key": CASUAL, "tps": 133.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("2CD9C8")},
-	{"key": EASY, "tps": 100.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("33CC55")},
-	{"key": STANDARD, "tps": 80.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("EBA52B")},
-	{"key": EXTREME, "tps": 67.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("E04A30")},
-	{"key": PURE, "tps": 50.0, "spikes": false, "moving": false, "bonuses": false, "colour": Color("3A44E0")},
+	{"key": CASUAL, "tps": 133.0, "spikes": true, "moving": true, "bonuses": true, "zones": true, "colour": Color("2CD9C8")},
+	{"key": EASY, "tps": 100.0, "spikes": true, "moving": true, "bonuses": true, "zones": true, "colour": Color("33CC55")},
+	{"key": STANDARD, "tps": 80.0, "spikes": true, "moving": true, "bonuses": true, "zones": true, "colour": Color("EBA52B")},
+	{"key": EXTREME, "tps": 67.0, "spikes": true, "moving": true, "bonuses": true, "zones": true, "colour": Color("E04A30")},
+	{"key": PURE, "tps": 50.0, "spikes": false, "moving": false, "bonuses": false, "zones": false, "colour": Color("3A44E0")},
 ]
 
 
@@ -50,4 +50,11 @@ static func config(key: String) -> RunConfig:
 	result.quake_enabled = row["bonuses"]
 	result.dilation_enabled = row["bonuses"]
 	result.fold_enabled = row["bonuses"]
+	# Pure has Blackout only (doc 10); the others have all five zones.
+	var zone_list: Array[int] = []
+	if row["zones"]:
+		zone_list = Zone.all_kinds()
+	else:
+		zone_list.append(Zone.Kind.BLACKOUT)
+	result.zones = zone_list
 	return result

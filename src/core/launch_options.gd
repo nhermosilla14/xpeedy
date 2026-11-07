@@ -20,6 +20,8 @@ var start_segment := 0.0
 var clean := false
 ## Show the frame-rate counter.
 var fps := false
+## Debug: start with this hazard zone active (blackout, gravity, hue, nebula or plasma).
+var zone := ""
 ## Survival difficulty key (see `Difficulty`).
 var difficulty := "standard"
 var difficulty_given := false
@@ -76,6 +78,8 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 				o.no_menu = true
 			"--screen":
 				o.screen = value
+			"--zone":
+				o.zone = value
 			"--fps":
 				o.fps = true
 			"--clean":
@@ -91,7 +95,7 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 
 ## Is this a plain run: no debugging help that would make its score meaningless?
 func is_plain_run() -> bool:
-	return not (benchmark or invulnerable or ghost or no_countdown or clean) and shields == 0 \
+	return not (benchmark or invulnerable or ghost or no_countdown or clean or zone != "") and shields == 0 \
 		and start_segment <= 0.0 and start_shape == "" and autopilot == ""
 
 

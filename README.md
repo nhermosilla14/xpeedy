@@ -5,7 +5,7 @@ tunnel at high speed and steer around obstacles. It targets desktop, Android and
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 > Status: the Survival core is playable on desktop and on the RG351P at a locked 60 fps ([intent 0003](docs/intent/0003-survival-core.md)):
-> menus, five difficulties, tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Rollers and bouncers ([intent 0006](docs/intent/0006-rollers-and-bouncers.md)) are in on every difficulty but Pure. Bonuses (Quake, Time Dilation, Space Fold; [intent 0007](docs/intent/0007-bonuses.md)) are in; fire the one you hold with Enter, Space, A or a tap. Not yet: hazard zones,
+> menus, five difficulties, tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Rollers and bouncers ([intent 0006](docs/intent/0006-rollers-and-bouncers.md)) are in on every difficulty but Pure. Bonuses (Quake, Time Dilation, Space Fold; [intent 0007](docs/intent/0007-bonuses.md)) are in; fire the one you hold with Enter, Space, A or a tap. The five hazard zones ([intent 0008](docs/intent/0008-hazard-zones.md)) are in. Not yet: hazard zones,
 > sound, upgrades, Stage mode, Android.
 
 ## Prerequisites
@@ -59,6 +59,7 @@ Debugging options for the exported game, after `--` on the command line:
 | `--no-menu` | start a run directly instead of opening the menu |
 | `--screen=main\|difficulty\|settings` | open the menu on that page (for screenshots) |
 | `--no-countdown` | skip the start sequence (debug options that change the run also skip it, and never save a best) |
+| `--zone=blackout\|gravity\|hue\|nebula\|plasma` | start with that hazard zone active (for looking at it) |
 | `--clean` | no obstacles or shield spots (for looking at the tunnel) |
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |

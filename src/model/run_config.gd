@@ -19,6 +19,8 @@ var generate_spots := true
 var quake_enabled := false
 var dilation_enabled := false
 var fold_enabled := false
+## Hazard zones enabled (`Zone.Kind` values, ADR 0023). Empty here so plain configs have no zones.
+var zones: Array[int] = []
 ## Debugging: shields the run starts with (`--shields=N` on the command line).
 var start_shields := 0
 ## Debugging: with this off, obstacles the shields can't pay for are ignored instead of crashing.

@@ -3,7 +3,7 @@ extends RefCounted
 ## Something that happened during a tick that views may want to show (ADR 0008, 0012). Events never
 ## feed back into the model.
 
-enum Kind { CRASH, OBSTACLE_SMASHED, SHIELD_PICKUP, RACE_STARTED, STOMP, BONUS_PICKUP, BONUS_FIRED, QUAKE, DILATION_ENDED }
+enum Kind { CRASH, OBSTACLE_SMASHED, SHIELD_PICKUP, RACE_STARTED, STOMP, BONUS_PICKUP, BONUS_FIRED, QUAKE, DILATION_ENDED, ZONE_WARNING, ZONE_SECOND, ZONE_STARTED, ZONE_ENDED, PLASMA_TOUCHED }
 
 var kind := Kind.CRASH
 ## "obstacle" or "wall" for a crash.
@@ -11,6 +11,9 @@ var reason := ""
 var obstacle: Obstacle
 ## The bonus (`SurvivalRun.Bonus`) picked up or fired.
 var bonus := 0
+## The zone (`Zone.Kind`) of a zone event, and the countdown second of ZONE_SECOND.
+var zone := 0
+var seconds := 0
 ## The obstacles a Quake destroyed that get an explosion (the nearest, at most 8).
 var destroyed: Array[Obstacle] = []
 var spot: Spot
@@ -78,4 +81,18 @@ static func quake(nearest: Array[Obstacle]) -> RunEvent:
 static func dilation_ended() -> RunEvent:
 	var e := RunEvent.new()
 	e.kind = Kind.DILATION_ENDED
+	return e
+
+
+static func zone_event(event_kind: Kind, zone_kind: int, countdown_seconds := 0) -> RunEvent:
+	var e := RunEvent.new()
+	e.kind = event_kind
+	e.zone = zone_kind
+	e.seconds = countdown_seconds
+	return e
+
+
+static func plasma_touched() -> RunEvent:
+	var e := RunEvent.new()
+	e.kind = Kind.PLASMA_TOUCHED
 	return e

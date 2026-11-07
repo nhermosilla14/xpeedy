@@ -43,6 +43,8 @@ var _settings := Settings.new()
 @onready var _status: Hud = $Hud/Status
 @onready var _flash: ScreenFlash = $Hud/Flash
 @onready var _tint: ColorRect = $Hud/Tint
+@onready var _glow: ColorRect = $Hud/Glow
+@onready var _banner: Label = $Hud/Banner
 @onready var _frame_stats: FrameStats = $FrameStats
 
 
@@ -59,6 +61,7 @@ func _ready() -> void:
 	Engine.time_scale = options.timescale
 	_fps.visible = options.fps or options.benchmark
 	UiFont.apply(_fps, 10)
+	UiFont.apply(_banner, 14, Color(1.0, 0.9, 0.6))
 	_status.pause_pressed.connect(_toggle_pause)
 	_status.fire_pressed.connect(_fire)
 	_screen.chosen.connect(_on_choice)
@@ -92,7 +95,7 @@ func enter_menu(page: MenuController.Page) -> void:
 
 func _set_menu_visible(menu: bool) -> void:
 	_in_menu = menu
-	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash, _tint]:
+	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash, _tint, _glow]:
 		node.visible = not menu
 	_menu.visible = menu
 
@@ -116,6 +119,9 @@ func start_run(run_seed: int) -> void:
 	config.start_shields = options.shields
 	config.start_segment = _start_segment(run_seed)
 	_run = SurvivalRun.new(config, run_seed)
+	var debug_zone: int = {"blackout": 1, "gravity": 2, "hue": 3, "nebula": 4, "plasma": 5}.get(options.zone, 0)
+	if debug_zone > 0:
+		_run.start_zone_now(debug_zone)
 	_track = _run.track
 	_clock = RunClock.new()
 	_binding.reset()
@@ -197,6 +203,11 @@ func _fire() -> void:
 	_run.fire()
 
 
+## The warning banner of a zone countdown (doc 07): "zone change", the zone's name and the seconds left.
+func _show_banner(zone: int, seconds: int) -> void:
+	_banner.text = "zone change\n%s\n%d" % [Zone.NAMES[zone], seconds]
+
+
 func _toggle_pause() -> void:
 	if _track.crashed:
 		return
@@ -256,6 +267,18 @@ func _show_events() -> void:
 				_flash.flash(Color(1.0, 0.8, 0.5), 0.75, 0.8)
 				for o in event.destroyed:
 					_explosions.spawn(_obstacle_centre(o), o.colour, _clock.time)
+			RunEvent.Kind.ZONE_WARNING:
+				_flash.flash(Color.WHITE, 0.5, 0.2)
+				_show_banner(event.zone, event.seconds)
+			RunEvent.Kind.ZONE_SECOND:
+				_flash.flash(Color.WHITE, 0.5, 0.2)
+				_show_banner(event.zone, event.seconds)
+			RunEvent.Kind.ZONE_STARTED:
+				_flash.flash(Color.WHITE, 0.5, 0.2)
+			RunEvent.Kind.ZONE_ENDED:
+				_flash.flash(Color.WHITE, 0.5, 0.2)
+			RunEvent.Kind.PLASMA_TOUCHED:
+				_flash.flash(Color(0.6, 0.6, 1.0), 0.6, 1.0)
 			RunEvent.Kind.DILATION_ENDED:
 				_flash.flash(Color(0.3, 0.3, 1.0), 0.6, 0.3)
 
@@ -315,6 +338,19 @@ func _capture(path: String) -> void:
 	get_tree().quit()
 
 
+## Zone state to the shaders, the fog, the camera and the overlays (ADR 0023).
+func _refresh_zone() -> void:
+	var active := _run.zone_state == SurvivalRun.ZoneState.ACTIVE
+	var kind: Zone.Kind = _run.zone if active else Zone.Kind.NONE
+	RenderingServer.global_shader_parameter_set("zone", float(kind))
+	RenderingServer.global_shader_parameter_set("zone_time", _run.zone_time)
+	$Environment.environment.fog_density = ShipCamera.fog_density(kind, _run.zone_time)
+	_camera.apply_zone(kind, _run.gravity_value())
+	_banner.visible = _run.zone_state == SurvivalRun.ZoneState.COUNTDOWN
+	_glow.visible = kind == Zone.Kind.PLASMA_CLOUD
+	_glow.color.a = 0.15 + 0.1 * sin(_run.zone_time * 4.0)
+
+
 func _refresh_view(dt: float) -> void:
 	_binding.refresh(_track)
 	_obstacles.refresh(_run.obstacles)
@@ -325,5 +361,6 @@ func _refresh_view(dt: float) -> void:
 	_status.update(_run)
 	_lights.update(_run)
 	_tint.visible = _run.dilation_left > 0.0
+	_refresh_zone()
 	_explosions.set_time(_clock.time)
 	_camera.follow(_track, dt)

@@ -24,6 +24,7 @@ varying float v_shade;
 // (src/model/moving_math.gd). INSTANCE_CUSTOM.z = colour + 8 * shape + 24 * (turns towards +lane) + 48 for a
 // roller or 96 for a bouncer; INSTANCE_CUSTOM.w = 1 + phase for shown obstacles, 0 for hidden ones.
 global uniform float game_time;
+global uniform float zone;
 global uniform float target_tps;
 
 float lane_after(float from_lane, float dir, float steps, bool is_flat) {
@@ -100,6 +101,13 @@ void vertex() {
 	// Hidden obstacles collapse to a point and draw nothing.
 	VERTEX = shown ? base + up_dir * h * lane_width : vec3(0.0);
 	v_edge_colour = palette[clamp(int(colour + 0.5), 0, 4)];
+	if (zone > 2.5 && zone < 3.5) {
+		// Hue Shift: obstacles are faint grey.
+		v_edge_colour = vec3(0.8);
+	} else if (zone > 3.5 && zone < 4.5) {
+		// Dark Nebula: obstacles are drawn as negatives.
+		v_edge_colour = vec3(1.0) - v_edge_colour;
+	}
 	v_shade = UV.x;
 	COLOR = vec4(UV.y, UV2.x, UV2.y, 1.0);
 }
