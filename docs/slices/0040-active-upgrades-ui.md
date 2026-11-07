@@ -1,6 +1,6 @@
 # 0040. Active upgrades: buttons, input and look
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0010

@@ -3,7 +3,8 @@ extends RefCounted
 ## Something that happened during a tick that views may want to show (ADR 0008, 0012). Events never
 ## feed back into the model.
 
-enum Kind { CRASH, OBSTACLE_SMASHED, SHIELD_PICKUP, RACE_STARTED, STOMP, BONUS_PICKUP, BONUS_FIRED, QUAKE, DILATION_ENDED, ZONE_WARNING, ZONE_SECOND, ZONE_STARTED, ZONE_ENDED, PLASMA_TOUCHED, RACE_FINISHED }
+enum Kind { CRASH, OBSTACLE_SMASHED, SHIELD_PICKUP, RACE_STARTED, STOMP, BONUS_PICKUP, BONUS_FIRED, QUAKE, DILATION_ENDED, ZONE_WARNING, ZONE_SECOND, ZONE_STARTED, ZONE_ENDED, PLASMA_TOUCHED, RACE_FINISHED, RECHARGED, TORPEDO_FIRED, TORPEDO_HIT, PHASE_STARTED,
+	PHASE_WARNING, PHASE_ENDED, CONTINUED }
 
 var kind := Kind.CRASH
 ## "obstacle" or "wall" for a crash.
@@ -102,4 +103,17 @@ static func plasma_touched() -> RunEvent:
 static func race_finished() -> RunEvent:
 	var e := RunEvent.new()
 	e.kind = Kind.RACE_FINISHED
+	return e
+
+
+static func simple(event_kind: Kind) -> RunEvent:
+	var e := RunEvent.new()
+	e.kind = event_kind
+	return e
+
+
+static func torpedo_hit(o: Obstacle) -> RunEvent:
+	var e := RunEvent.new()
+	e.kind = Kind.TORPEDO_HIT
+	e.obstacle = o
 	return e

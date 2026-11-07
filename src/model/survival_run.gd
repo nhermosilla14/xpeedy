@@ -38,6 +38,15 @@ var zone_time := 0.0
 ## Plasma vortices alive.
 var vortices: Array[Vector2i] = []  # (segment, lane)
 var dilation_left := 0.0
+## Active upgrades (ADR 0029): the Recharger and Phase Shift once per run, the torpedoes left, the ship segment
+## at which the next torpedo is reloaded, the torpedoes in flight and the game seconds of Phase Shift left.
+var recharger_used := false
+var torpedoes_left := 0
+var torpedo_ready_at := 0.0
+var torpedoes: Array[Torpedo] = []
+var phase_used := false
+var phase_left := 0.0
+var continue_used := false
 
 ## The start sequence (ADR 0017): STARTING lasts COUNTDOWN_SECONDS, then RACING. Light i starts at
 ## LIGHT_START + i seconds and fades over LIGHT_FADE.
@@ -46,6 +55,12 @@ enum Bonus { NONE, QUAKE, TIME_DILATION, SPACE_FOLD }
 const DILATION_SECONDS := 7.0
 const DILATION_SCALE := 0.75
 const QUAKE_EXPLOSIONS := 8
+const TORPEDO_SPEED := 2.0
+const TORPEDO_RANGE := 25.0
+const TORPEDO_HIT_MARGIN := 0.4
+const TORPEDO_RELOAD_SEGMENTS := 100.0
+const TORPEDO_RELOAD_FACTOR := 1.25
+const PHASE_SECONDS_PER_LEVEL := 5.0
 const COUNTDOWN_SECONDS := 3.8
 const LIGHT_START := 1.3
 const LIGHT_FADE := 0.5
@@ -61,6 +76,7 @@ var _gravity_phase2 := 0.0
 var _vortex_next := 0
 var _countdown_second := 0
 var _finish_painted := false
+var _phase_warnings := 0
 
 
 func _init(run_config: RunConfig, run_seed: int) -> void:
@@ -76,6 +92,7 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 	_vortex_rng = XRandom.new(run_seed ^ 0xC10D)
 	shields = ShieldStack.new(config.max_shields, config.shield_decay_seconds)
 	score = config.start_score
+	torpedoes_left = config.torpedo_level
 	for i in config.start_shields:
 		shields.add()
 	if config.countdown and config.start_segment <= TrackModel.START_SEGMENT:
@@ -107,6 +124,8 @@ func step(dt: float, steer: float) -> void:
 	trails.advance(track.window_start())
 	_generate()
 	_update_rollers(dt)
+	_tick_torpedoes(track.segment - seg_before)
+	_tick_phase(dt)
 	_resolve_zone_marks(seg_before)
 	_tick_zone(dt)
 	if config.collisions_enabled:
@@ -287,7 +306,7 @@ func _place_vortices() -> void:
 
 ## Touching a vortex costs a shield if there is one and throws the held bonus away; it never crashes.
 func _resolve_vortices(seg_before: float, lane_before: float) -> void:
-	if vortices.is_empty():
+	if vortices.is_empty() or phase_left > 0.0:
 		return
 	var swept := _swept_lanes(lane_before)
 	var wrap := track.obstacles_wrap_seam()
@@ -308,6 +327,126 @@ func _check_finish() -> void:
 	if config.run_length > 0 and track.segment >= config.run_length and not finished:
 		finished = true
 		_events.append(RunEvent.race_finished())
+
+
+## Shield Recharger: once per run it adds its level in shield units and restarts the decay timer (doc 08).
+func use_recharger() -> void:
+	if config.recharger_level <= 0 or recharger_used or track.crashed or finished:
+		return
+	recharger_used = true
+	for i in config.recharger_level:
+		shields.add()
+	_events.append(RunEvent.simple(RunEvent.Kind.RECHARGED))
+
+
+func can_recharge() -> bool:
+	return config.recharger_level > 0 and not recharger_used and not track.crashed and not finished
+
+
+## Tachyon Torpedo: needs a torpedo left and the previous reload done (doc 08).
+func can_fire_torpedo() -> bool:
+	return torpedoes_left > 0 and track.segment >= torpedo_ready_at and not track.crashed and not finished
+
+
+func fire_torpedo() -> void:
+	if not can_fire_torpedo():
+		return
+	var t := Torpedo.new()
+	t.seg = track.segment
+	t.lane = track.lane_position()
+	torpedoes.append(t)
+	torpedoes_left -= 1
+	if torpedoes_left > 0:
+		torpedo_ready_at = track.segment + torpedo_reload_segments()
+	_events.append(RunEvent.simple(RunEvent.Kind.TORPEDO_FIRED))
+
+
+## Segments of travel a reload takes: 100 / 1.25^level.
+func torpedo_reload_segments() -> float:
+	return TORPEDO_RELOAD_SEGMENTS / pow(TORPEDO_RELOAD_FACTOR, config.torpedo_level)
+
+
+## How much of the current reload is done, 0 to 1 (1 when ready), for the button's dial.
+func torpedo_reload_fraction() -> float:
+	return clampf(1.0 - (torpedo_ready_at - track.segment) / torpedo_reload_segments(), 0.0, 1.0)
+
+
+## Phase Shift: once per run, obstacles and plasma are ignored for 5 or 10 game seconds (doc 08).
+func can_phase() -> bool:
+	return config.phase_level > 0 and not phase_used and not track.crashed and not finished
+
+
+func use_phase_shift() -> void:
+	if not can_phase():
+		return
+	phase_used = true
+	phase_left = PHASE_SECONDS_PER_LEVEL * config.phase_level
+	_phase_warnings = 0
+	_events.append(RunEvent.simple(RunEvent.Kind.PHASE_STARTED))
+
+
+func _tick_phase(dt: float) -> void:
+	if phase_left <= 0.0:
+		return
+	phase_left -= dt
+	if phase_left <= 0.0:
+		phase_left = 0.0
+		_events.append(RunEvent.simple(RunEvent.Kind.PHASE_ENDED))
+	elif phase_left <= 1.0 and _phase_warnings < 2:
+		_phase_warnings = 2
+		_events.append(RunEvent.simple(RunEvent.Kind.PHASE_WARNING))
+	elif phase_left <= 2.0 and _phase_warnings < 1:
+		_phase_warnings = 1
+		_events.append(RunEvent.simple(RunEvent.Kind.PHASE_WARNING))
+
+
+## Moves the torpedoes (twice the ship's travel this tick) and destroys what they sweep (doc 08).
+func _tick_torpedoes(ship_travel: float) -> void:
+	for t in torpedoes.duplicate():
+		var from_seg: float = t.seg
+		t.seg += TORPEDO_SPEED * ship_travel
+		for s in range(floori(from_seg - TORPEDO_HIT_MARGIN) - 1, ceili(t.seg + TORPEDO_HIT_MARGIN) + 1):
+			for o in obstacles.at_segment(s):
+				if not o.alive or from_seg - TORPEDO_HIT_MARGIN > o.seg + 1.0 or t.seg + TORPEDO_HIT_MARGIN < o.seg:
+					continue
+				if _torpedo_touches(t, o):
+					obstacles.destroy(o)
+					trails.remove_obstacle(o, obstacles)
+					_events.append(RunEvent.torpedo_hit(o))
+		if t.seg - track.segment >= TORPEDO_RANGE:
+			torpedoes.erase(t)
+
+
+func _torpedo_touches(t: Torpedo, o: Obstacle) -> bool:
+	# A bouncer is hit on its own lane whatever its height; the others where they are.
+	var lanes: Array[int] = []
+	if o.kind == Obstacle.Kind.BOUNCER:
+		lanes.append(o.lane)
+	else:
+		lanes = o.danger_lanes(game_time, config.target_tps)
+	for lane in lanes:
+		for shift in [0.0, float(TrackModel.LANES), -float(TrackModel.LANES)]:
+			if t.lane + shift >= lane - TORPEDO_HIT_MARGIN and t.lane + shift <= lane + 1.0 + TORPEDO_HIT_MARGIN:
+				return true
+	return false
+
+
+## Keep going (doc 13): once per run after an obstacle crash the ship resumes on the spot and a Quake clears
+## the way. Returns whether it was allowed.
+func can_continue() -> bool:
+	return track.crashed and track.crash_reason == "obstacle" and not continue_used and not finished
+
+
+func continue_run() -> bool:
+	if not can_continue():
+		return false
+	continue_used = true
+	track.crashed = false
+	track.crash_reason = ""
+	track.crash_time = 0.0
+	_quake()
+	_events.append(RunEvent.simple(RunEvent.Kind.CONTINUED))
+	return true
 
 
 func _tick_countdown(dt: float) -> void:
@@ -368,6 +507,8 @@ func _score_distance() -> void:
 ## The ship's hit box is swept over everything it covered this tick, so a long tick can't skip an obstacle.
 ## Each obstacle it touches is smashed if the shields cover its cost, in segment order, else it is a crash.
 func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
+	if phase_left > 0.0:
+		return
 	var seg_after := track.segment
 	var swept := _swept_lanes(lane_before)
 	var lane_min := swept.x
