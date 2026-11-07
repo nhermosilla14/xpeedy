@@ -134,9 +134,9 @@ func _draw_gear(rect: Rect2, colour: Color) -> void:
 	var c := rect.get_center()
 	var r := rect.size.x * 0.34
 	var points := PackedVector2Array()
-	for k in 16:
-		var a := TAU * k / 16.0
-		var rr := r * (1.3 if (k / 2) % 2 == 0 else 1.0)
+	for k in 32:
+		var a := TAU * k / 32.0
+		var rr := r * (1.3 if (k / 2) % 2 == 0 else 1.05)
 		points.append(c + Vector2(cos(a), sin(a)) * rr)
 	draw_colored_polygon(points, colour)
 	draw_circle(c, r * 0.45, Color("190713"))

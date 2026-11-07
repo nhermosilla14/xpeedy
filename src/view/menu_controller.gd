@@ -6,12 +6,14 @@ extends Control
 signal play_requested(difficulty: String)
 signal quit_requested
 
-enum Page { MAIN, DIFFICULTY }
+enum Page { MAIN, DIFFICULTY, SETTINGS }
 
 ## The Quit item is hidden where programs do not quit (Android, web).
 var can_quit := not (OS.has_feature("mobile") or OS.has_feature("web"))
 ## The difficulty that starts selected in the difficulty menu.
 var preferred_difficulty := Difficulty.STANDARD
+## The settings the Settings page edits; the owner sets it.
+var settings := Settings.new()
 
 var _stack: Array[Page] = []
 var _backdrop := MenuBackdrop.new()
@@ -26,6 +28,7 @@ func _ready() -> void:
 		add_child(child)
 	_screen.activated.connect(_on_activated)
 	_screen.back_pressed.connect(back)
+	_screen.gear_pressed.connect(_open_settings)
 
 
 ## Shows the page `page`, with the pages before it on the way back (difficulty is reached from main).
@@ -88,11 +91,19 @@ func _show_top() -> void:
 				_main_items.append("quit")
 			for text in _main_items:
 				items.append({"text": text})
-			_screen.show_items(items, false, false)
+			_screen.show_items(items, false, true)
 		Page.DIFFICULTY:
 			for key in Difficulty.keys():
 				items.append({"text": key, "colour": Difficulty.colour(key), "triangles": Difficulty.triangles(key)})
 			_screen.show_items(items, true, false, Difficulty.keys().find(preferred_difficulty))
+		Page.SETTINGS:
+			items.append({"text": "invert: %s" % ("on" if settings.invert else "off")})
+			_screen.show_items(items, true, false)
+
+
+func _open_settings() -> void:
+	_stack.append(Page.SETTINGS)
+	_show_top()
 
 
 func _on_activated(index: int) -> void:
@@ -105,3 +116,7 @@ func _on_activated(index: int) -> void:
 				quit_requested.emit()
 		Page.DIFFICULTY:
 			play_requested.emit(Difficulty.keys()[index])
+		Page.SETTINGS:
+			settings.invert = not settings.invert
+			settings.save()
+			_show_top()

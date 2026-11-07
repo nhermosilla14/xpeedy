@@ -16,6 +16,9 @@ func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("options", LaunchOptions.parse(PackedStringArray(["--seed=9"])))
 	root.add_child(_main)
+	var settings := Settings.new("user://e2e_settings.cfg")
+	_main.set("_settings", settings)
+	_main.get_node("Hud/Menu").set("settings", settings)
 
 
 func _action(name: String, pressed: bool) -> void:
@@ -84,6 +87,12 @@ func _physics_process(_delta: float) -> bool:
 			if _ticks == 9:
 				if menu.current_page() != MenuController.Page.MAIN:
 					_errors.append("back did not return to the main page")
+				menu.move(2)
+				menu.activate()
+				if menu.current_page() != MenuController.Page.SETTINGS:
+					_errors.append("the gear did not open settings")
+				menu.activate()
+				menu.back()
 				menu.activate()
 				menu.move(-2)
 				menu.activate()
@@ -93,6 +102,8 @@ func _physics_process(_delta: float) -> bool:
 			if _ticks == 2:
 				if run == null or run.config.target_tps != 100.0 or run.config.spikes_enabled != true:
 					_errors.append("the second run is not easy: %s" % [run.config.target_tps if run else -1])
+				if not (_main.get("_steering") as Steering).invert:
+					_errors.append("invert was not applied to the run")
 				run.track.crash("wall")
 				_phase = Phase.CRASH
 				_ticks = 0
@@ -115,6 +126,7 @@ func _physics_process(_delta: float) -> bool:
 
 
 func _finish() -> bool:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_settings.cfg"))
 	if _errors.is_empty():
 		print("  ok    e2e menus (main, difficulty, run, pause, game over, back)")
 		quit(0)

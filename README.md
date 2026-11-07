@@ -5,8 +5,8 @@ tunnel at high speed and steer around obstacles. It targets desktop, Android and
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 > Status: the Survival core is playable on desktop and on the RG351P at a locked 60 fps ([intent 0003](docs/intent/0003-survival-core.md)):
-> tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Not yet: rollers and bouncers, bonuses, hazard zones,
-> menus, sound, upgrades, Stage mode, Android.
+> menus, five difficulties, tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Not yet: rollers and bouncers, bonuses, hazard zones,
+> sound, upgrades, Stage mode, Android.
 
 ## Prerequisites
 - [Podman](https://podman.io/) 4+. Godot 4.4.1 and its export templates come from the
@@ -55,12 +55,15 @@ Debugging options for the exported game, after `--` on the command line:
 | `--invulnerable` | obstacles the shields can't pay for are ignored instead of crashing |
 | `--benchmark` | fixed seed, deep start, 4 shields, autopilot, invulnerable, restarts itself: a comparable frame-rate run |
 | `--fps` | show the frame-rate counter (also on with `--benchmark`) |
+| `--difficulty=KEY` | casual, easy, standard (default), extreme or pure; starts a run directly, skipping the menu |
+| `--no-menu` | start a run directly instead of opening the menu |
+| `--screen=main\|difficulty\|settings` | open the menu on that page (for screenshots) |
 | `--no-countdown` | skip the start sequence (debug options that change the run also skip it, and never save a best) |
 | `--clean` | no obstacles or shield spots (for looking at the tunnel) |
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |
 
-A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
+The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A confirm, Esc or B go back; with a mouse or touch an item activates when released. "play" opens the five difficulties; the gear opens settings (invert steering). A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
 
 ## Project structure
 ```

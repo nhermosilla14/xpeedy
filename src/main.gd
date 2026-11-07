@@ -28,6 +28,7 @@ var _best := PersonalBest.new()
 var _plain := false
 var _over_shown := false
 var _in_menu := false
+var _settings := Settings.new()
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
@@ -58,11 +59,12 @@ func _ready() -> void:
 	_status.pause_pressed.connect(_toggle_pause)
 	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
+	_menu.settings = _settings
 	_menu.play_requested.connect(_on_play_requested)
 	_menu.quit_requested.connect(get_tree().quit)
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
 	if start_in_menu and options.starts_in_menu():
-		enter_menu(MenuController.Page.DIFFICULTY if options.screen == "difficulty" else MenuController.Page.MAIN)
+		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS}.get(options.screen, MenuController.Page.MAIN))
 	else:
 		start_run(_new_seed())
 
@@ -103,6 +105,8 @@ func start_run(run_seed: int) -> void:
 	config.generate_spots = not options.clean
 	_plain = countdown_enabled and options.is_plain_run()
 	config.countdown = _plain
+	# Debug and benchmark runs ignore the player's settings so they stay comparable.
+	_steering.invert = _plain and _settings.invert
 	config.collisions_enabled = not options.ghost
 	config.crash_on_obstacles = not options.invulnerable
 	config.start_shields = options.shields

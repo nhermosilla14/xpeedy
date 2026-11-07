@@ -24,3 +24,10 @@ documentation updated; the device check.
 
 ## Out of scope
 - Other settings (sound, music, vibration, sensitivity, calibration).
+
+## Results so far (2026-11-07)
+- Settings, the gear, the settings page and applying invert at run start are done and tested
+  (`tests/unit/test_settings.gd`, `tests/e2e_menus.gd`). Debug and benchmark runs ignore the settings.
+- Desktop `--benchmark` at 480×320: about 117–120 fps. Package built: `build/portmaster/xpeedy.zip`.
+- Pending: the RG351P run (benchmark and a play session through the menus with the d-pad, A and B) and the
+  user's final review; then this slice and intent 0005 are closed.
