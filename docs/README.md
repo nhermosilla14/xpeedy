@@ -14,6 +14,7 @@
 | 0002 | [Smooth frame pacing on the RG351P](intent/0002-smooth-frame-pacing.md) | Done |
 | 0003 | [Survival core: obstacles, shields and score](intent/0003-survival-core.md) | Done |
 | 0004 | [Look and interface close to the original](intent/0004-original-look.md) | Done |
+| 0005 | [Menus and app flow](intent/0005-menus-and-app-flow.md) | Accepted |
 
 ## Slices
 | # | Title | Status |
@@ -35,6 +36,10 @@
 | 0015 | [Typeface and HUD](slices/0015-font-and-hud.md) | Done |
 | 0016 | [Start sequence, pause and Game Over](slices/0016-start-pause-game-over.md) | Done |
 | 0017 | [The original look on the RG351P](slices/0017-original-look-on-device.md) | Done |
+| 0018 | [Survival difficulties and per-difficulty bests](slices/0018-difficulties.md) | Accepted |
+| 0019 | [Menu framework, main and difficulty screens](slices/0019-menus-and-app-flow.md) | Accepted |
+| 0020 | [Run menus and back handling](slices/0020-run-menus.md) | Accepted |
+| 0021 | [Settings and the menus on the RG351P](slices/0021-settings-and-device.md) | Accepted |
 
 ## ADRs
 | # | Title | Status |
@@ -56,3 +61,5 @@
 | 0015 | [The original's world look, drawn procedurally](adr/0015-procedural-world-look.md) | Accepted |
 | 0016 | [Interface style: typeface, HUD and screen panels](adr/0016-interface-style.md) | Accepted |
 | 0017 | [Run flow: start sequence, pause and personal best](adr/0017-run-flow-and-personal-best.md) | Accepted |
+| 0018 | [Menu framework and app flow](adr/0018-menu-framework.md) | Accepted |
+| 0019 | [Survival difficulties, per-difficulty bests and settings](adr/0019-difficulties-and-settings.md) | Accepted |
