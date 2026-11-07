@@ -1,6 +1,6 @@
 # 0013. Trails and shield spots look
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0004
