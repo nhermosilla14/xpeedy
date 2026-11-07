@@ -1,0 +1,5 @@
+# Stage 1, race 1. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: none in the original.
+speed: 130
+track: in:500
+obstacles: cubes, 20-30, 4

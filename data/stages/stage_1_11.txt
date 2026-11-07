@@ -1,0 +1,7 @@
+# Stage 1, race 11. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: none in the original.
+speed: 110
+track: random:2000
+obstacles: all, 10-30, 6
+bonuses: shields, 80-200, 2-4
+zones: random, all, 200-250

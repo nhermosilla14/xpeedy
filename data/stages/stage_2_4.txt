@@ -1,0 +1,7 @@
+# Stage 2, race 4. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: the original has 2.
+speed: 90
+track: in:300, flat:300, out:200, flat:200, in:200, flat:400, in:300
+obstacles: cubes, beams, spikes, 12-25, 6
+bonuses: all, 20-50, 1-2
+zones: random, all, 200-300

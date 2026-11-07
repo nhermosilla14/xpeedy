@@ -1,0 +1,7 @@
+# Stage 1, race 6. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: none in the original.
+speed: 110
+track: flat:1000
+obstacles: cubes, beams, spikes, rollers, 15-20, 6
+bonuses: shields, 50-80, 1-2
+zones: plasma@200, plasma@600

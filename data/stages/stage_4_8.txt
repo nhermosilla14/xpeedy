@@ -1,0 +1,7 @@
+# Stage 4, race 8. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: the original has 5.
+speed: 50
+track: flat:2500
+obstacles: cubes, beams, rollers, 20-25, 12
+bonuses: all, 20-60, 1-3
+zones: random, nebula, gravity, plasma, 250-400

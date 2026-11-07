@@ -1,0 +1,7 @@
+# Stage 1, race 7. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: none in the original.
+speed: 110
+track: in:300, flat:100, out:300, flat:100, in:300
+obstacles: cubes, beams, spikes, rollers, 15-20, 6
+bonuses: shields, 50-80, 1-3
+zones: hueshift@250, nebula@500, nebula@750

@@ -1,0 +1,6 @@
+# Stage 1, race 5. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: the original has 2.
+speed: 110
+track: in:1000
+obstacles: cubes, beams, spikes, 15-25, 5
+zones: random, blackout, gravity, hueshift, 150-250

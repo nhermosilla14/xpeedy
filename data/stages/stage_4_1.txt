@@ -1,0 +1,6 @@
+# Stage 4, race 1. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: none in the original.
+speed: 52
+track: random:1000
+obstacles: all, 20-30, 8
+bonuses: all, 40-50, 1-3

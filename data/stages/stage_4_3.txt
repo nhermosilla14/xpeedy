@@ -1,0 +1,7 @@
+# Stage 4, race 3. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: none in the original.
+speed: 55
+track: in:500, flat:60, out:500, flat:100, in:500, flat:200, in:200
+obstacles: cubes, beams, spikes, rollers, 18-24, 15
+bonuses: shields, 40-100, 1-4
+zones: gravity@500, gravity@1000, gravity@1500

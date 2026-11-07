@@ -1,0 +1,7 @@
+# Stage 2, race 5. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: the original has 3.
+speed: 90
+track: out:1550
+obstacles: all, 15-25, 8
+bonuses: shields, 30-60, 1-3
+zones: random, blackout, plasma, 150-250

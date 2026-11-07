@@ -1,0 +1,6 @@
+# Stage 3, race 5. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: the original has 6.
+speed: 70
+track: in:2000
+obstacles: cubes, beams, spikes, 18-24, 10
+zones: random, all, 250-300

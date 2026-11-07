@@ -1,0 +1,7 @@
+# Stage 3, race 2. Written from the race catalogue of docs/reference/speedx3d/11-stage-mode.md.
+# Hand-made patterns (define, constructs) are not included: none in the original.
+speed: 65
+track: out:400, flat:400, in:200, flat:200, in:200
+obstacles: cubes, beams, 12-30, 8
+bonuses: all, 40-60, 2-3
+zones: random, gravity, nebula, hueshift, blackout, 200-250
