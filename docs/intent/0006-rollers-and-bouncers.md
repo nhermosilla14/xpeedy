@@ -1,6 +1,6 @@
 # 0006. Rollers and bouncers
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0020, 0021

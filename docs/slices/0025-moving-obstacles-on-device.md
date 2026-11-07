@@ -1,6 +1,6 @@
 # 0025. Rollers and bouncers on the RG351P
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (on-device run and final review)
 - Intents: 0006
@@ -18,3 +18,9 @@ the user's review.
 
 ## Out of scope
 - New features.
+
+## Result (2026-11-07)
+- The user asked to skip RG351P benchmarking for the following slices ("until further notice"), so this slice
+  and intent 0006 are closed without a device run. The desktop benchmark runs, but it was disturbed by
+  unrelated busy processes, so it proves nothing about the handheld. The next device run, whenever the user
+  makes one, covers rollers and bouncers too.
