@@ -13,6 +13,15 @@ const float RAIL_CORE = 0.07;                        // solid half-width
 const float RAIL_FADE = 0.2;                         // half-width where it has faded out
 const float RAIL_STRENGTH = 0.9;
 
-// Trail highlight and shield spot colours (until the trail and spot restyle).
+// Trails: darkened fill over the surface, bright lines on the lane borders (lane widths).
+const float TRAIL_DARKEN = 0.3;
+const float TRAIL_FILL = 0.85;
+const float TRAIL_EDGE = 0.07;
+
+// Shield spots: a hex mesh of amber dots on near-black.
+const vec3 SPOT_BASE = vec3(0.02, 0.01, 0.01);
+const float SPOT_CELLS = 6.0;
+const float SPOT_RADIUS = 0.34;
+
 const vec3 WARNING = vec3(0.94, 0.12, 0.05);
 const vec3 SHIELD_SPOT = vec3(1.0, 0.7, 0.2);

@@ -30,7 +30,7 @@
 | 0010 | [Pattern catalogue and difficulty progression](slices/0010-pattern-catalogue.md) | Done |
 | 0011 | [Survival core on the RG351P](slices/0011-survival-core-on-device.md) | Done |
 | 0012 | [Tunnel look: violet surface, bands and rails](slices/0012-tunnel-look.md) | Done |
-| 0013 | [Trails and shield spots look](slices/0013-trails-and-spots-look.md) | Accepted |
+| 0013 | [Trails and shield spots look](slices/0013-trails-and-spots-look.md) | In progress |
 | 0014 | [Obstacles and fragments look](slices/0014-obstacles-look.md) | Accepted |
 | 0015 | [Typeface and HUD](slices/0015-font-and-hud.md) | Accepted |
 | 0016 | [Start sequence, pause and Game Over](slices/0016-start-pause-game-over.md) | Accepted |

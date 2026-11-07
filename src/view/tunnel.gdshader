@@ -70,15 +70,23 @@ void fragment() {
 	float band = smoothstep(0.2, 0.45, t) - smoothstep(0.7, 0.95, t);
 	vec3 colour = mix(SURFACE_DARK, SURFACE_LIGHT, band);
 
+	// Trails: dark tinted fill, the rails still show through.
+	colour = mix(colour, v_trail_colour * TRAIL_DARKEN, v_trail_fade * TRAIL_FILL);
+
 	// Rails along every lane boundary.
 	float rail = (1.0 - smoothstep(RAIL_CORE, RAIL_FADE, lane_d)) * RAIL_STRENGTH;
 	colour = mix(colour, RAIL_COLOUR, rail);
 
-	// Trails and spots keep their previous look until their own restyle.
-	colour = mix(colour, v_trail_colour, v_trail_fade);
-	colour = mix(colour, WARNING, v_trail_highlight);
+	// Trail edge lines in the full colour, and the red-orange highlight.
+	float edge = (1.0 - smoothstep(TRAIL_EDGE * 0.5, TRAIL_EDGE, lane_d)) * v_trail_fade;
+	colour = mix(colour, v_trail_colour, edge);
+	colour = mix(colour, WARNING, v_trail_highlight * max(edge, 0.35));
+
 	if (v_spot > 0.5) {
-		colour = SHIELD_SPOT;
+		vec2 p = v_local * SPOT_CELLS;
+		p.x += 0.5 * mod(floor(p.y), 2.0);
+		float dots = 1.0 - smoothstep(SPOT_RADIUS * 0.8, SPOT_RADIUS, length(fract(p) - 0.5));
+		colour = mix(SPOT_BASE, SHIELD_SPOT, dots);
 	}
 	ALBEDO = colour;
 }
