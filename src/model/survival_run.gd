@@ -60,16 +60,17 @@ var _countdown_second := 0
 
 func _init(run_config: RunConfig, run_seed: int) -> void:
 	config = run_config
-	track = TrackModel.new(config.target_tps, run_seed)
-	obstacles = ObstacleField.new(run_seed, track.parts, config.spikes_enabled, config.rollers_enabled, config.bouncers_enabled)
+	track = TrackModel.new(config.target_tps, run_seed, config.parts)
+	obstacles = ObstacleField.new(run_seed, track.parts, config.spikes_enabled, config.rollers_enabled, config.bouncers_enabled, config.race)
 	obstacles.obstacle_added.connect(trails.add_obstacle)
-	spots = SpotField.new(run_seed, config.quake_enabled, config.dilation_enabled, config.fold_enabled)
+	spots = SpotField.new(run_seed, config.quake_enabled, config.dilation_enabled, config.fold_enabled, config.race)
 	spots.spot_added.connect(trails.add_spot)
-	zones = ZoneField.new(run_seed, config.zones, config.target_tps)
+	zones = ZoneField.new(run_seed, config.zones, config.target_tps, config.race)
 	zones.mark_added.connect(trails.add_mark)
 	_zone_rng = XRandom.new(run_seed ^ 0x6A57)
 	_vortex_rng = XRandom.new(run_seed ^ 0xC10D)
 	shields = ShieldStack.new(config.max_shields, config.shield_decay_seconds)
+	score = config.start_score
 	for i in config.start_shields:
 		shields.add()
 	if config.countdown and config.start_segment <= TrackModel.START_SEGMENT:

@@ -12,6 +12,11 @@ signal spot_added(spot: Spot)
 const SEED_SALT := 0x5B07
 const FIRST_GROUP := 100
 const SKIP_CHANCE := 0.125
+## The first group of a race is at spacing + 50 (doc 11); a spot rolls for a bonus half of the time, and the
+## roll gives Quake, Time Dilation or Space Fold 10 % each.
+const RACE_FIRST_OFFSET := 50
+const RACE_BONUS_CHANCE := 0.5
+const RACE_BONUS_STEP := 0.1
 const GROUP_LEVEL_SEGMENTS := 450
 const MAX_GROUP := 3
 const QUAKE_CHANCE := 0.1
@@ -29,16 +34,24 @@ var _next_point := FIRST_GROUP
 var _quake: bool
 var _dilation: bool
 var _fold: bool
+## Stage race rules (ADR 0024), or null for Survival.
+var _race: RaceSpec
 
 
-func _init(run_seed: int, quake := false, dilation := false, fold := false) -> void:
+func _init(run_seed: int, quake := false, dilation := false, fold := false, race: RaceSpec = null) -> void:
 	_rng = XRandom.new(run_seed ^ SEED_SALT)
 	_quake = quake
 	_dilation = dilation
 	_fold = fold
+	_race = race
+	if race != null:
+		_next_point = _rng.range_int(race.spot_spacing.x, race.spot_spacing.y) + RACE_FIRST_OFFSET
 
 
 func generate_to(horizon_segment: int) -> void:
+	if _race != null:
+		_generate_race_to(horizon_segment)
+		return
 	while _next_point <= horizon_segment:
 		var point := _next_point
 		var spacing := ObstacleField.spacing_at(point)
@@ -48,6 +61,33 @@ func generate_to(horizon_segment: int) -> void:
 			for i in size:
 				add(Spot.make(point, (start + i * TrackModel.LANES / size) % TrackModel.LANES, _draw_kind(point)))
 		_next_point = point + 3 * spacing + _rng.range_int(0, spacing)
+
+
+## Race rules: groups of a size range, spacing range, 1 in 8 skipped; spots are shields only when enabled.
+func _generate_race_to(horizon_segment: int) -> void:
+	while _next_point <= horizon_segment:
+		var point := _next_point
+		if not _rng.chance(SKIP_CHANCE):
+			var size := _rng.range_int(_race.group_size.x, _race.group_size.y)
+			var start := _rng.range_int(0, TrackModel.LANES)
+			for i in size:
+				var kind := _race_kind()
+				if kind >= 0:
+					add(Spot.make(point, (start + i * TrackModel.LANES / maxi(size, 1)) % TrackModel.LANES, kind))
+		_next_point = point + _rng.range_int(_race.spot_spacing.x, _race.spot_spacing.y)
+
+
+## The kind of a race spot, or -1 when it is left empty.
+func _race_kind() -> int:
+	if _race.bonuses and _rng.chance(RACE_BONUS_CHANCE):
+		var roll := _rng.next_float()
+		if roll < RACE_BONUS_STEP:
+			return Spot.Kind.QUAKE
+		if roll < 2.0 * RACE_BONUS_STEP:
+			return Spot.Kind.TIME_DILATION
+		if roll < 3.0 * RACE_BONUS_STEP:
+			return Spot.Kind.SPACE_FOLD
+	return Spot.Kind.SHIELD if _race.shields else -1
 
 
 ## The kind of one spot placed at `point` (doc 10).

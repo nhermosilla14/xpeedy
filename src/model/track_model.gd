@@ -38,10 +38,10 @@ var path: PathModel
 var geometry: TunnelGeometry
 
 
-func _init(target_tps_ms: float = 80.0, run_seed: int = 0) -> void:
+func _init(target_tps_ms: float = 80.0, run_seed: int = 0, fixed_parts: Array[Vector2i] = []) -> void:
 	target_tps = target_tps_ms
 	seed_value = run_seed
-	parts = PartSequence.new(run_seed)
+	parts = PartSequence.new(run_seed, fixed_parts)
 	path = PathModel.new(run_seed, SEGMENT_LENGTH)
 	path.bend_limit = parts.max_bend_at
 	geometry = TunnelGeometry.new(path)

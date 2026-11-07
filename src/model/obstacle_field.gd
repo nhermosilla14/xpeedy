@@ -11,6 +11,8 @@ signal obstacle_added(o: Obstacle)
 const SEED_SALT := 0x0B57AC1E
 const FIRST_PATTERN := 55
 const LEVEL_SEGMENTS := 150
+## The first pattern of a race is at spacing + 25 (doc 11).
+const RACE_FIRST_OFFSET := 25
 ## A moving pattern must end before the next shape change: its longest formation is 6 segments.
 const MOVING_LOOKAHEAD := 8
 
@@ -26,17 +28,22 @@ var _next_point := FIRST_PATTERN
 var _spikes_enabled: bool
 var _rollers_enabled: bool
 var _bouncers_enabled: bool
+## Stage race rules (ADR 0024), or null for Survival.
+var _race: RaceSpec
 
 ## Placement point of every pattern generated so far, in order.
 var placed_points := PackedInt32Array()
 
 
-func _init(run_seed: int, parts: PartSequence, spikes_enabled: bool = true, rollers_enabled := false, bouncers_enabled := false) -> void:
+func _init(run_seed: int, parts: PartSequence, spikes_enabled: bool = true, rollers_enabled := false, bouncers_enabled := false, race: RaceSpec = null) -> void:
 	_rng = XRandom.new(run_seed ^ SEED_SALT)
 	_parts = parts
 	_spikes_enabled = spikes_enabled
 	_rollers_enabled = rollers_enabled
 	_bouncers_enabled = bouncers_enabled
+	_race = race
+	if race != null:
+		_next_point = _race_spacing() + RACE_FIRST_OFFSET
 
 
 ## Segments between pattern placements at distance `d` (doc 10).
@@ -60,12 +67,19 @@ func generate_to(horizon_segment: int) -> void:
 		context.bouncers_enabled = _bouncers_enabled
 		context.moving_ok = (_rollers_enabled or _bouncers_enabled) \
 				and _parts.index_at(point + MOVING_LOOKAHEAD) == _parts.index_at(point)
-		for o in PatternLibrary.generate(level_at(point), _rng, context):
+		var level := _race.level if _race != null else level_at(point)
+		for o in PatternLibrary.generate(level, _rng, context):
+			if _race != null and not _race.beams and o.kind == Obstacle.Kind.BEAM:
+				o.kind = Obstacle.Kind.CUBE
 			o.seg += point
 			o.shape = _parts.shape_at(o.seg)
 			add(o)
 		placed_points.append(point)
-		_next_point = point + spacing_at(point)
+		_next_point = point + (_race_spacing() if _race != null else spacing_at(point))
+
+
+func _race_spacing() -> int:
+	return _rng.range_int(_race.obstacle_spacing.x, _race.obstacle_spacing.y)
 
 
 func add(o: Obstacle) -> void:

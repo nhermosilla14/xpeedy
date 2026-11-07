@@ -21,10 +21,25 @@ var _shapes: PackedInt32Array = [Shape.IN]
 var _starts: PackedInt32Array = [0]
 var _lengths: PackedInt32Array = [FIRST_PART_LENGTH]
 var _last_tube := Shape.IN
+## An explicit sequence (stage races): the last shape continues in parts of PART_UNIT segments.
+var _fixed := false
 
 
-func _init(run_seed: int) -> void:
+## `fixed` is an optional explicit sequence of Vector2i(shape, length); without it the parts are random.
+func _init(run_seed: int, fixed: Array[Vector2i] = []) -> void:
 	_rng = XRandom.new(run_seed ^ SEED_SALT)
+	if fixed.is_empty():
+		return
+	_fixed = true
+	_shapes = PackedInt32Array()
+	_starts = PackedInt32Array()
+	_lengths = PackedInt32Array()
+	var at := 0
+	for part in fixed:
+		_shapes.append(part.x)
+		_starts.append(at)
+		_lengths.append(part.y)
+		at += part.y
 
 
 ## Index of the part containing `seg`.
@@ -75,6 +90,11 @@ func _ensure_index(index: int) -> void:
 
 func _append_next() -> void:
 	var last := _shapes.size() - 1
+	if _fixed:
+		_shapes.append(_shapes[last])
+		_starts.append(_starts[last] + _lengths[last])
+		_lengths.append(PART_UNIT)
+		return
 	var next := Shape.FLAT
 	match _shapes[last]:
 		Shape.IN:

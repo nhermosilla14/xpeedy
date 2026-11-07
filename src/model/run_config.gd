@@ -21,6 +21,12 @@ var dilation_enabled := false
 var fold_enabled := false
 ## Hazard zones enabled (`Zone.Kind` values, ADR 0023). Empty here so plain configs have no zones.
 var zones: Array[int] = []
+## Stage races (ADR 0024): the race, its explicit track parts, the run length (0 = endless) and the score the
+## race starts with.
+var race: RaceSpec
+var parts: Array[Vector2i] = []
+var run_length := 0
+var start_score := 0
 ## Debugging: shields the run starts with (`--shields=N` on the command line).
 var start_shields := 0
 ## Debugging: with this off, obstacles the shields can't pay for are ignored instead of crashing.
