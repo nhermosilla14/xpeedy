@@ -5,7 +5,7 @@ extends RefCounted
 ##   R = palette colour index + 1, or 0 when the tile has no trail
 ##   G = the obstacle's segment minus the tile's segment (0-25)
 ##   B = 255 for the opposite-lane trail of a tube beam, else 0
-##   A = 255 when the tile is part of a shield spot (slice 0008), else 0
+##   A = 0, or (spot kind + 1) x 60 when the tile is part of a pick-up spot (ADR 0022)
 ## Row `seg & 63` belongs to segment `seg`; a row is cleared when a different segment claims it, so
 ## nothing is rewritten when the window scrolls.
 
@@ -75,7 +75,7 @@ func _repaint_behind(o: Obstacle, field: ObstacleField) -> void:
 
 ## Marks the three tiles of a shield spot.
 func add_spot(spot: Spot) -> void:
-	_set_spot_flag(spot, 255)
+	_set_spot_flag(spot, (spot.kind + 1) * 60)
 
 
 ## Clears the spot marks of a collected spot.
@@ -83,16 +83,20 @@ func remove_spot(spot: Spot) -> void:
 	_set_spot_flag(spot, 0)
 
 
-## A tile as (colour index, obstacle segment, opposite lane 0/1, spot 0/1). The colour is -1 and the
+## A tile as (colour index, obstacle segment, opposite lane 0/1, spot kind + 1 or 0). The colour is -1 and the
 ## segment 0 when the tile has no trail.
 func texel(seg: int, lane: int) -> Color:
 	if not _owns(seg):
 		return Color(-1.0, 0.0, 0.0, 0.0)
 	var i := _index(seg, lane)
 	if data[i] == 0:
-		return Color(-1.0, 0.0, 0.0, 1.0 if data[i + 3] != 0 else 0.0)
+		return Color(-1.0, 0.0, 0.0, _spot_value(i))
 	return Color(float(data[i] - 1), float(seg + data[i + 1]), 1.0 if data[i + 2] != 0 else 0.0,
-		1.0 if data[i + 3] != 0 else 0.0)
+		_spot_value(i))
+
+
+func _spot_value(i: int) -> float:
+	return float(data[i + 3] / 60)
 
 
 ## The obstacle segment a tile's trail leads to, or -1 when it has none.

@@ -1,6 +1,6 @@
 # 0026. Bonus spots and the held bonus
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0007
@@ -24,3 +24,9 @@ holding one bonus, the pickup flash, the HUD ring, difficulty flags.
 
 ## Out of scope
 - Firing and the effects (slices 0027, 0028).
+
+## Results
+- Slices 0026-0028 were built together: the model (`tests/unit/test_bonuses.gd`, 16 tests), the scene
+  (`tests/e2e_bonuses.gd`: pick-up, ring, fire, Quake, Time Dilation) and the shader colours.
+- The coloured spots were not confirmed on screen: the captures `build/look/spot-*.png` did not frame a
+  bonus spot, so the colours are only checked through the texture tests and a clean shader compile.

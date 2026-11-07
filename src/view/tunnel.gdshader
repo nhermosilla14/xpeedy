@@ -59,7 +59,7 @@ void vertex() {
 		v_trail_fade = clamp((25.0 - dist) / 10.0, 0.0, 1.0) * weight;
 		v_trail_highlight = clamp(approach * sqrt(max(0.0, 1.5 - lane_d)), 0.0, 1.0) * weight;
 	}
-	v_spot = raw.a > 0.5 ? 1.0 : 0.0;
+	v_spot = floor(raw.a * 255.0 / 60.0 + 0.5);
 }
 
 void fragment() {
@@ -83,10 +83,11 @@ void fragment() {
 	colour = mix(colour, WARNING, v_trail_highlight * max(edge, 0.35));
 
 	if (v_spot > 0.5) {
+		vec3 spot_colour = v_spot < 1.5 ? SHIELD_SPOT : (v_spot < 2.5 ? QUAKE_SPOT : (v_spot < 3.5 ? DILATION_SPOT : FOLD_SPOT));
 		vec2 p = v_local * SPOT_CELLS;
 		p.x += 0.5 * mod(floor(p.y), 2.0);
 		float dots = 1.0 - smoothstep(SPOT_RADIUS * 0.8, SPOT_RADIUS, length(fract(p) - 0.5));
-		colour = mix(SPOT_BASE, SHIELD_SPOT, dots);
+		colour = mix(SPOT_BASE, spot_colour, dots);
 	}
 	ALBEDO = colour;
 }

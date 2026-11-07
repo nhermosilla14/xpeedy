@@ -42,6 +42,7 @@ var _settings := Settings.new()
 @onready var _menu: MenuController = $Hud/Menu
 @onready var _status: Hud = $Hud/Status
 @onready var _flash: ScreenFlash = $Hud/Flash
+@onready var _tint: ColorRect = $Hud/Tint
 @onready var _frame_stats: FrameStats = $FrameStats
 
 
@@ -59,6 +60,7 @@ func _ready() -> void:
 	_fps.visible = options.fps or options.benchmark
 	UiFont.apply(_fps, 10)
 	_status.pause_pressed.connect(_toggle_pause)
+	_status.fire_pressed.connect(_fire)
 	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
 	_menu.settings = _settings
@@ -90,7 +92,7 @@ func enter_menu(page: MenuController.Page) -> void:
 
 func _set_menu_visible(menu: bool) -> void:
 	_in_menu = menu
-	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash]:
+	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash, _tint]:
 		node.visible = not menu
 	_menu.visible = menu
 
@@ -143,6 +145,9 @@ func _physics_process(delta: float) -> void:
 		_navigate_panel()
 		return
 	var raw := Autopilot.plough(_run) if options.autopilot == "plough" else Input.get_axis("steer_left", "steer_right")
+	_clock.scale = _run.time_scale()
+	if Input.is_action_just_pressed("fire"):
+		_fire()
 	var dt := _clock.advance(delta)
 	if options.benchmark and _track.crashed:
 		_restart_wait += dt
@@ -183,6 +188,13 @@ func _handle_game_over_input() -> bool:
 		return true
 	_navigate_panel()
 	return true
+
+
+## Fires the held bonus (a key, the gamepad's A, or a tap); ignored while paused, crashed or in a menu.
+func _fire() -> void:
+	if _in_menu or _paused or _track.crashed:
+		return
+	_run.fire()
 
 
 func _toggle_pause() -> void:
@@ -235,6 +247,17 @@ func _show_events() -> void:
 				_flash.flash(Color.WHITE, 1.0, 1.0)
 			RunEvent.Kind.STOMP:
 				_camera.shake(STOMP_SECONDS)
+			RunEvent.Kind.BONUS_PICKUP:
+				_flash.flash(Hud.BONUS_COLOURS[event.bonus], 0.75, 0.3)
+			RunEvent.Kind.BONUS_FIRED:
+				if event.bonus == SurvivalRun.Bonus.TIME_DILATION:
+					_flash.flash(Color(0.3, 0.3, 1.0), 0.6, 1.0)
+			RunEvent.Kind.QUAKE:
+				_flash.flash(Color(1.0, 0.8, 0.5), 0.75, 0.8)
+				for o in event.destroyed:
+					_explosions.spawn(_obstacle_centre(o), o.colour, _clock.time)
+			RunEvent.Kind.DILATION_ENDED:
+				_flash.flash(Color(0.3, 0.3, 1.0), 0.6, 0.3)
 
 
 ## World position of the middle of an obstacle where it is now, where its explosion starts.
@@ -301,5 +324,6 @@ func _refresh_view(dt: float) -> void:
 	_trail_texture.refresh(_run.trails)
 	_status.update(_run)
 	_lights.update(_run)
+	_tint.visible = _run.dilation_left > 0.0
 	_explosions.set_time(_clock.time)
 	_camera.follow(_track, dt)

@@ -21,10 +21,17 @@ var score := 0
 var distance_points := 0
 ## Game time of the run in seconds (the sum of the steps): rollers and bouncers move with it (ADR 0020).
 var game_time := 0.0
+## The bonus in hand (ADR 0022) and the game seconds Time Dilation has left.
+var held := Bonus.NONE
+var dilation_left := 0.0
 
 ## The start sequence (ADR 0017): STARTING lasts COUNTDOWN_SECONDS, then RACING. Light i starts at
 ## LIGHT_START + i seconds and fades over LIGHT_FADE.
 enum Phase { STARTING, RACING }
+enum Bonus { NONE, QUAKE, TIME_DILATION, SPACE_FOLD }
+const DILATION_SECONDS := 7.0
+const DILATION_SCALE := 0.75
+const QUAKE_EXPLOSIONS := 8
 const COUNTDOWN_SECONDS := 3.8
 const LIGHT_START := 1.3
 const LIGHT_FADE := 0.5
@@ -40,7 +47,7 @@ func _init(run_config: RunConfig, run_seed: int) -> void:
 	track = TrackModel.new(config.target_tps, run_seed)
 	obstacles = ObstacleField.new(run_seed, track.parts, config.spikes_enabled, config.rollers_enabled, config.bouncers_enabled)
 	obstacles.obstacle_added.connect(trails.add_obstacle)
-	spots = SpotField.new(run_seed)
+	spots = SpotField.new(run_seed, config.quake_enabled, config.dilation_enabled, config.fold_enabled)
 	spots.spot_added.connect(trails.add_spot)
 	shields = ShieldStack.new(config.max_shields, config.shield_decay_seconds)
 	for i in config.start_shields:
@@ -61,7 +68,10 @@ func step(dt: float, steer: float) -> void:
 		return
 	var seg_before := track.segment
 	var lane_before := track.lane_position()
-	game_time += dt
+	# Rollers and bouncers freeze during Time Dilation (doc 06).
+	if dilation_left <= 0.0:
+		game_time += dt
+	_tick_dilation(dt)
 	track.step(dt, steer)
 	if track.crashed:
 		_events.append(RunEvent.crash(track.crash_reason))
@@ -97,6 +107,59 @@ func _update_rollers(dt: float) -> void:
 				> MovingMath.roller_steps(game_time - dt, o.phase, config.target_tps, o.shape):
 			stomped = true
 			_events.append(RunEvent.stomp())
+
+
+## The bonus a spot gives, kept only when the hand is empty (doc 06).
+func _collect_bonus(kind: Spot.Kind) -> void:
+	if held != Bonus.NONE:
+		return
+	held = {Spot.Kind.QUAKE: Bonus.QUAKE, Spot.Kind.TIME_DILATION: Bonus.TIME_DILATION,
+		Spot.Kind.SPACE_FOLD: Bonus.SPACE_FOLD}[kind]
+	_events.append(RunEvent.bonus_pickup(held))
+
+
+## Fires the held bonus (doc 06); nothing happens with an empty hand.
+func fire() -> void:
+	if held == Bonus.NONE or track.crashed:
+		return
+	var fired := held
+	held = Bonus.NONE
+	_events.append(RunEvent.bonus_fired(fired))
+	match fired:
+		Bonus.QUAKE:
+			_quake()
+		Bonus.TIME_DILATION:
+			dilation_left = DILATION_SECONDS
+		Bonus.SPACE_FOLD:
+			pass  # ends the active hazard zone; there are no zones yet
+
+
+## The clock scale the view should apply: 0.75 during Time Dilation.
+func time_scale() -> float:
+	return DILATION_SCALE if dilation_left > 0.0 else 1.0
+
+
+func _tick_dilation(dt: float) -> void:
+	if dilation_left <= 0.0:
+		return
+	dilation_left -= dt
+	if dilation_left <= 0.0:
+		dilation_left = 0.0
+		_events.append(RunEvent.dilation_ended())
+
+
+## Destroys every obstacle in the horizon without points or shield cost (doc 06).
+func _quake() -> void:
+	var window_end := track.window_start() + TrackModel.VISIBLE_SEGMENTS
+	var hit: Array[Obstacle] = []
+	for o in obstacles.all():
+		if o.alive and o.seg >= track.window_start() and o.seg < window_end:
+			hit.append(o)
+	hit.sort_custom(func(a: Obstacle, b: Obstacle) -> bool: return a.seg < b.seg)
+	for o in hit:
+		obstacles.destroy(o)
+		trails.remove_obstacle(o, obstacles)
+	_events.append(RunEvent.quake(hit.slice(0, QUAKE_EXPLOSIONS)))
 
 
 func _tick_countdown(dt: float) -> void:
@@ -190,6 +253,9 @@ func _resolve_spots(seg_before: float, lane_before: float) -> void:
 			if not spot.collected and _lane_hit(spot.lane, swept.x, swept.y, wrap):
 				spot.collected = true
 				trails.remove_spot(spot)
+				if spot.kind != Spot.Kind.SHIELD:
+					_collect_bonus(spot.kind)
+					continue
 				shields.add()
 				_events.append(RunEvent.shield_pickup(spot))
 

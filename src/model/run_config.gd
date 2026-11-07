@@ -15,6 +15,10 @@ var bouncers_enabled := false
 var generate_obstacles := true
 ## Tests can turn shield spot generation off.
 var generate_spots := true
+## Bonuses (ADR 0022). Off here so plain configs keep the older tracks; difficulties turn them on.
+var quake_enabled := false
+var dilation_enabled := false
+var fold_enabled := false
 ## Debugging: shields the run starts with (`--shields=N` on the command line).
 var start_shields := 0
 ## Debugging: with this off, obstacles the shields can't pay for are ignored instead of crashing.

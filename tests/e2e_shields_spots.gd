@@ -96,7 +96,7 @@ func _check_painted(run: SurvivalRun) -> void:
 	var texture: TrailTexture = _main.get("_trail_texture")
 	var bytes := texture.image.get_data()
 	var index := ((_spot.seg & 63) * 16 + _spot.lane) * 4 + 3
-	if bytes[index] != 255:
+	if bytes[index] != 60:
 		_errors.append("the spot is not in the uploaded texture")
 
 

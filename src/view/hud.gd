@@ -18,6 +18,7 @@ const BEST_SECONDS := 3.0
 const BEST_FADE := 0.5
 
 signal pause_pressed
+signal fire_pressed
 const SHIELD_COLOUR := Color(1.0, 0.7, 0.2)
 ## A drop of at least this many segments in one update is a loss (decay moves 0.05 per second).
 const LOSS_MIN := 0.5
@@ -29,6 +30,9 @@ var shown_level := -1.0
 var shown_slots := 0
 ## Seconds left of the fade-out of the part of the bar that was just lost, 0 when none.
 var loss_left := 0.0
+## The held bonus (`SurvivalRun.Bonus`) the ring shows, and the time driving its pulse.
+var shown_held := 0
+var _pulse := 0.0
 ## The "best score" label: text shown (empty when none) and the seconds it stays before fading.
 var best_text := ""
 var best_left := 0.0
@@ -52,6 +56,9 @@ func _ready() -> void:
 
 
 func update(run: SurvivalRun) -> void:
+	if run.held != shown_held:
+		shown_held = run.held
+		queue_redraw()
 	var level := run.shields.level()
 	if run.score != shown_score:
 		shown_score = run.score
@@ -75,6 +82,9 @@ func show_best(score: int) -> void:
 
 
 func _process(delta: float) -> void:
+	if shown_held != 0:
+		_pulse += delta
+		queue_redraw()
 	if best_left > 0.0:
 		best_left = maxf(best_left - delta, 0.0)
 		_best_label.modulate.a = clampf(best_left / BEST_FADE, 0.0, 1.0)
@@ -117,9 +127,23 @@ func _pause_rect() -> Rect2:
 
 
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
-			and _pause_rect().grow(8.0 * _scale()).has_point(event.position):
-		pause_pressed.emit()
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if _pause_rect().grow(8.0 * _scale()).has_point(event.position):
+			pause_pressed.emit()
+		else:
+			fire_pressed.emit()
+
+
+## Bonus colours (doc 06): Quake red, Time Dilation blue, Space Fold green.
+const BONUS_COLOURS := [Color.WHITE, Color(0.9, 0.1, 0.3), Color(0.3, 0.5, 1.0), Color(0.5, 0.8, 0.1)]
+
+
+func _draw_held_ring(s: float) -> void:
+	var colour: Color = BONUS_COLOURS[shown_held]
+	var pulse := 0.5 + 0.5 * sin(_pulse * 6.0)
+	var centre := Vector2((MARGIN + 14.0) * s, (MARGIN + 14.0) * s)
+	draw_arc(centre, (11.0 + 2.0 * pulse) * s, 0.0, TAU, 32, Color(colour, 0.6 + 0.4 * pulse), 3.0 * s, true)
+	draw_circle(centre, 6.0 * s, Color(colour, 0.35 + 0.3 * pulse))
 
 
 func _draw_pause_button() -> void:
@@ -135,6 +159,8 @@ func _draw_pause_button() -> void:
 func _draw() -> void:
 	var s := _scale()
 	var panel := _panel_size()
+	if shown_held != 0:
+		_draw_held_ring(s)
 	_draw_panel(Rect2(Vector2(0.0, size.y - panel.y), panel))
 	_draw_panel(Rect2(Vector2(size.x - panel.x, size.y - panel.y), panel))
 	_draw_pause_button()

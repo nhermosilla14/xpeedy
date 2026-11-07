@@ -1,6 +1,6 @@
 # 0007. Bonuses: Quake, Time Dilation and Space Fold
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0022

@@ -1,6 +1,6 @@
 # 0027. Firing, Quake and Space Fold
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0007

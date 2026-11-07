@@ -16,7 +16,7 @@
 | 0004 | [Look and interface close to the original](intent/0004-original-look.md) | Done |
 | 0005 | [Menus and app flow](intent/0005-menus-and-app-flow.md) | Done |
 | 0006 | [Rollers and bouncers](intent/0006-rollers-and-bouncers.md) | Done |
-| 0007 | [Bonuses: Quake, Time Dilation and Space Fold](intent/0007-bonuses.md) | Accepted |
+| 0007 | [Bonuses: Quake, Time Dilation and Space Fold](intent/0007-bonuses.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -46,9 +46,9 @@
 | 0023 | [Moving obstacles model: rollers](slices/0023-rollers.md) | Done |
 | 0024 | [Drawing rollers and bouncers](slices/0024-moving-obstacles-look.md) | Done |
 | 0025 | [Rollers and bouncers on the RG351P](slices/0025-moving-obstacles-on-device.md) | Done |
-| 0026 | [Bonus spots and the held bonus](slices/0026-bonus-spots.md) | In progress |
-| 0027 | [Firing, Quake and Space Fold](slices/0027-firing-quake-fold.md) | Accepted |
-| 0028 | [Time Dilation](slices/0028-time-dilation.md) | Accepted |
+| 0026 | [Bonus spots and the held bonus](slices/0026-bonus-spots.md) | Done |
+| 0027 | [Firing, Quake and Space Fold](slices/0027-firing-quake-fold.md) | Done |
+| 0028 | [Time Dilation](slices/0028-time-dilation.md) | Done |
 
 ## ADRs
 | # | Title | Status |

@@ -20,6 +20,9 @@ const float TRAIL_EDGE = 0.07;
 
 // Shield spots: a hex mesh of amber dots on near-black.
 const vec3 SPOT_BASE = vec3(0.02, 0.01, 0.01);
+const vec3 QUAKE_SPOT = vec3(0.64, 0.02, 0.26);
+const vec3 DILATION_SPOT = vec3(0.30, 0.50, 1.0);
+const vec3 FOLD_SPOT = vec3(0.47, 0.69, 0.0);
 const float SPOT_CELLS = 6.0;
 const float SPOT_RADIUS = 0.34;
 

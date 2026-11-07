@@ -11,11 +11,11 @@ const PURE := "pure"
 
 ## In menu order: key, target ms per segment, spikes, badge colour. The badge shows 1-5 triangles.
 const TABLE := [
-	{"key": CASUAL, "tps": 133.0, "spikes": true, "moving": true, "colour": Color("2CD9C8")},
-	{"key": EASY, "tps": 100.0, "spikes": true, "moving": true, "colour": Color("33CC55")},
-	{"key": STANDARD, "tps": 80.0, "spikes": true, "moving": true, "colour": Color("EBA52B")},
-	{"key": EXTREME, "tps": 67.0, "spikes": true, "moving": true, "colour": Color("E04A30")},
-	{"key": PURE, "tps": 50.0, "spikes": false, "moving": false, "colour": Color("3A44E0")},
+	{"key": CASUAL, "tps": 133.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("2CD9C8")},
+	{"key": EASY, "tps": 100.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("33CC55")},
+	{"key": STANDARD, "tps": 80.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("EBA52B")},
+	{"key": EXTREME, "tps": 67.0, "spikes": true, "moving": true, "bonuses": true, "colour": Color("E04A30")},
+	{"key": PURE, "tps": 50.0, "spikes": false, "moving": false, "bonuses": false, "colour": Color("3A44E0")},
 ]
 
 
@@ -47,4 +47,7 @@ static func config(key: String) -> RunConfig:
 	result.spikes_enabled = row["spikes"]
 	result.rollers_enabled = row["moving"]
 	result.bouncers_enabled = row["moving"]
+	result.quake_enabled = row["bonuses"]
+	result.dilation_enabled = row["bonuses"]
+	result.fold_enabled = row["bonuses"]
 	return result
