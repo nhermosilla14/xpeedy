@@ -1,6 +1,6 @@
 # 0005. Menus and app flow
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0018, 0019

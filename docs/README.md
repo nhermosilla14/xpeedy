@@ -14,7 +14,7 @@
 | 0002 | [Smooth frame pacing on the RG351P](intent/0002-smooth-frame-pacing.md) | Done |
 | 0003 | [Survival core: obstacles, shields and score](intent/0003-survival-core.md) | Done |
 | 0004 | [Look and interface close to the original](intent/0004-original-look.md) | Done |
-| 0005 | [Menus and app flow](intent/0005-menus-and-app-flow.md) | Accepted |
+| 0005 | [Menus and app flow](intent/0005-menus-and-app-flow.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -39,7 +39,7 @@
 | 0018 | [Survival difficulties and per-difficulty bests](slices/0018-difficulties.md) | Done |
 | 0019 | [Menu framework, main and difficulty screens](slices/0019-menus-and-app-flow.md) | Done |
 | 0020 | [Run menus and back handling](slices/0020-run-menus.md) | Done |
-| 0021 | [Settings and the menus on the RG351P](slices/0021-settings-and-device.md) | In progress |
+| 0021 | [Settings and the menus on the RG351P](slices/0021-settings-and-device.md) | Done |
 
 ## ADRs
 | # | Title | Status |

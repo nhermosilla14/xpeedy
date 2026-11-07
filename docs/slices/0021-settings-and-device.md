@@ -1,6 +1,6 @@
 # 0021. Settings and the menus on the RG351P
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (on-device run and final review)
 - Intents: 0005
@@ -31,3 +31,9 @@ documentation updated; the device check.
 - Desktop `--benchmark` at 480×320: about 117–120 fps. Package built: `build/portmaster/xpeedy.zip`.
 - Pending: the RG351P run (benchmark and a play session through the menus with the d-pad, A and B) and the
   user's final review; then this slice and intent 0005 are closed.
+
+## Device results (2026-11-07, RG351P)
+- `--benchmark`, 68 windows over about 680 s: first window 58.5 fps average with a 1 % low of 55.4 fps,
+  every later window 59.2–60.0 average; the bar (58 average, 50 low) held. One window shows the menu
+  state, because the user went through the pause menu to the main menu and started again during the run.
+- The user played through the menus with the d-pad, A and B: "simple but good enough".
