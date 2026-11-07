@@ -5,6 +5,8 @@ extends Node3D
 var obstacles_enabled := true
 ## Tests turn the start sequence, the saved best and the panels off.
 var countdown_enabled := true
+## Tests turn the menu off too: the scene then starts a run on load.
+var start_in_menu := true
 
 ## Seconds after a crash before the Game Over panel shows (the flash plays first).
 const GAME_OVER_DELAY := 1.0
@@ -25,6 +27,7 @@ var difficulty := Difficulty.STANDARD
 var _best := PersonalBest.new()
 var _plain := false
 var _over_shown := false
+var _in_menu := false
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
@@ -33,6 +36,7 @@ var _over_shown := false
 @onready var _fps: Label = $Hud/Fps
 @onready var _lights: StartLights = $Hud/Lights
 @onready var _screen: ScreenPanel = $Hud/Screen
+@onready var _menu: MenuController = $Hud/Menu
 @onready var _status: Hud = $Hud/Status
 @onready var _flash: ScreenFlash = $Hud/Flash
 @onready var _frame_stats: FrameStats = $FrameStats
@@ -54,14 +58,46 @@ func _ready() -> void:
 	_status.pause_pressed.connect(_toggle_pause)
 	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
-	var run_seed := options.run_seed
-	if run_seed < 0:
-		run_seed = int(Time.get_unix_time_from_system() * 1000.0) & 0xFFFFFFFF
+	_menu.play_requested.connect(_on_play_requested)
+	_menu.quit_requested.connect(get_tree().quit)
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
-	start_run(run_seed)
+	if start_in_menu and options.starts_in_menu():
+		enter_menu(MenuController.Page.DIFFICULTY if options.screen == "difficulty" else MenuController.Page.MAIN)
+	else:
+		start_run(_new_seed())
+
+
+func _new_seed() -> int:
+	if options.run_seed >= 0:
+		return options.run_seed
+	return int(Time.get_unix_time_from_system() * 1000.0) & 0xFFFFFFFF
+
+
+## Shows the menu and drops the run: the world and the HUD are hidden and nothing steps.
+func enter_menu(page: MenuController.Page) -> void:
+	_in_menu = true
+	_paused = false
+	_run = null
+	_screen.close()
+	_menu.preferred_difficulty = difficulty
+	_menu.open(page)
+	_set_menu_visible(true)
+
+
+func _set_menu_visible(menu: bool) -> void:
+	_in_menu = menu
+	for node in [_tunnel, _obstacles, _explosions, _status, _lights, $Hud/Flash]:
+		node.visible = not menu
+	_menu.visible = menu
+
+
+func _on_play_requested(key: String) -> void:
+	difficulty = key
+	start_run(_new_seed())
 
 
 func start_run(run_seed: int) -> void:
+	_set_menu_visible(false)
 	var config := Difficulty.config(difficulty)
 	config.generate_obstacles = obstacles_enabled and not options.clean
 	config.generate_spots = not options.clean
@@ -88,19 +124,17 @@ func start_run(run_seed: int) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if _track.crashed and Input.is_action_just_pressed("restart"):
-		start_run(_track.seed_value + 1)
+	if _in_menu:
+		_menu.poll()
 		return
-	if not _track.crashed and Input.is_action_just_pressed("pause"):
+	if _track.crashed:
+		if _handle_game_over_input():
+			return
+	elif Input.is_action_just_pressed("pause"):
 		_toggle_pause()
 		return
 	if _paused:
-		if Input.is_action_just_pressed("ui_down"):
-			_screen.move_selection(1)
-		elif Input.is_action_just_pressed("ui_up"):
-			_screen.move_selection(-1)
-		elif Input.is_action_just_pressed("restart"):
-			_on_choice(_screen.selected)
+		_navigate_panel()
 		return
 	var raw := Autopilot.plough(_run) if options.autopilot == "plough" else Input.get_axis("steer_left", "steer_right")
 	var dt := _clock.advance(delta)
@@ -115,24 +149,60 @@ func _physics_process(delta: float) -> void:
 	_refresh_view(dt)
 
 
+## Up/down move the panel's selection, accept confirms it. Returns true when the input was handled.
+func _navigate_panel() -> bool:
+	if Input.is_action_just_pressed("ui_down"):
+		_screen.move_selection(1)
+	elif Input.is_action_just_pressed("ui_up"):
+		_screen.move_selection(-1)
+	elif Input.is_action_just_pressed("ui_accept"):
+		_on_choice(_screen.selected)
+	elif Input.is_action_just_pressed("restart"):
+		start_run(_track.seed_value + 1)
+	else:
+		return false
+	return true
+
+
+## After a crash: before the panel shows, restart restarts at once; with the panel, it is navigated and
+## back goes to the main menu. Returns true when the input was handled and the tick is over.
+func _handle_game_over_input() -> bool:
+	if not _screen.visible:
+		if Input.is_action_just_pressed("restart"):
+			start_run(_track.seed_value + 1)
+			return true
+		return false
+	if Input.is_action_just_pressed("ui_cancel"):
+		enter_menu(MenuController.Page.MAIN)
+		return true
+	_navigate_panel()
+	return true
+
+
 func _toggle_pause() -> void:
 	if _track.crashed:
 		return
 	_paused = not _paused
 	if _paused:
-		_screen.open("pause", [] as Array[String], ["resume game", "restart"] as Array[String])
+		_screen.open("pause", [] as Array[String], ["resume game", "restart", "main menu"] as Array[String])
 	else:
 		_screen.close()
 
 
 func _on_choice(index: int) -> void:
 	if _paused:
-		if index == 0:
-			_toggle_pause()
-		else:
-			start_run(_track.seed_value + 1)
+		match index:
+			0:
+				_toggle_pause()
+			1:
+				start_run(_track.seed_value + 1)
+			_:
+				enter_menu(MenuController.Page.MAIN)
 	elif _track.crashed:
-		start_run(_track.seed_value + 1)
+		if index == 0:
+			start_run(_track.seed_value + 1)
+		else:
+			enter_menu(MenuController.Page.MAIN)
 
 
 ## Once the crash flash is over, shows the Game Over panel and records the personal best.
@@ -143,7 +213,7 @@ func _show_game_over() -> void:
 	var key := PersonalBest.key(difficulty)
 	_best.submit(key, _run.score)
 	_screen.open("game over", ["score: %d" % _run.score, "personal best: %d" % _best.get_best(key)] as Array[String],
-		["try again"] as Array[String])
+		["new game", "main menu"] as Array[String])
 
 
 ## Feedback for what happened this tick (ADR 0010).
@@ -185,6 +255,8 @@ func _start_segment(run_seed: int) -> float:
 
 ## What the benchmark log shows next to the frame rate, to tell how dense the track was.
 func _state_text() -> String:
+	if _run == null:
+		return "menu"
 	var level := ObstacleField.level_at(maxi(_track.window_start(), 0))
 	return "segment=%d level=%d obstacles=%d shields=%d score=%d" % [
 		_track.window_start(), level, _run.obstacles.all().size(), _run.shields.count, _run.score]

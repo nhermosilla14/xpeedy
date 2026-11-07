@@ -26,6 +26,7 @@ var _centre_at_smash := Vector3.ZERO
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("countdown_enabled", false)
+	_main.set("start_in_menu", false)
 	root.add_child(_main)
 	_main.set("obstacles_enabled", false)
 

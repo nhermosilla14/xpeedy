@@ -19,6 +19,7 @@ var _last_seed := 0
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("countdown_enabled", false)
+	_main.set("start_in_menu", false)
 	_main.set("options", LaunchOptions.parse(PackedStringArray(["--benchmark"])))
 	root.add_child(_main)
 

@@ -1,6 +1,6 @@
 # 0019. Menu framework, main and difficulty screens
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0005
@@ -28,3 +28,7 @@ and `--screen` options.
 
 ## Out of scope
 - Run menus (slice 0020), settings (slice 0021).
+
+## Results
+- Menus, backdrop and controller as in ADR 0018; screenshots in `build/look/m-*.png` (not in git). The
+  scene test `tests/e2e_menus.gd` covers the whole flow, slices 0019 and 0020 together.

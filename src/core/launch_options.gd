@@ -22,6 +22,11 @@ var clean := false
 var fps := false
 ## Survival difficulty key (see `Difficulty`).
 var difficulty := "standard"
+var difficulty_given := false
+## Do not show the menu: start a run directly.
+var no_menu := false
+## "main" or "difficulty": open the menu on that page (for screenshots).
+var screen := ""
 ## Skip the start sequence (tests and debugging).
 var no_countdown := false
 ## "in", "flat" or "out": start inside the first part of that shape (for looking at it).
@@ -66,6 +71,11 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 				o.no_countdown = true
 			"--difficulty":
 				o.difficulty = value
+				o.difficulty_given = true
+			"--no-menu":
+				o.no_menu = true
+			"--screen":
+				o.screen = value
 			"--fps":
 				o.fps = true
 			"--clean":
@@ -83,3 +93,11 @@ static func parse(args: PackedStringArray) -> LaunchOptions:
 func is_plain_run() -> bool:
 	return not (benchmark or invulnerable or ghost or no_countdown or clean) and shields == 0 \
 		and start_segment <= 0.0 and start_shape == "" and autopilot == ""
+
+
+## Does the game open on the menu? A plain launch does; so does `--screen`; a debug option that starts a
+## run directly (including `--difficulty`) or `--no-menu` does not.
+func starts_in_menu() -> bool:
+	if no_menu:
+		return false
+	return screen != "" or (is_plain_run() and not difficulty_given)

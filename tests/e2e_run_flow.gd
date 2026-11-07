@@ -16,6 +16,7 @@ var _seed := 0
 
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
+	_main.set("start_in_menu", false)
 	_main.set("options", LaunchOptions.parse(PackedStringArray(["--seed=44", "--difficulty=extreme"])))
 	root.add_child(_main)
 
@@ -54,7 +55,7 @@ func _physics_process(_delta: float) -> bool:
 				if run.score <= 0:
 					_errors.append("no score while racing")
 				_main.call("_toggle_pause")
-				if not screen.visible or screen.choices.size() != 2:
+				if not screen.visible or screen.choices.size() != 3:
 					_errors.append("the pause panel did not open")
 				_main.call("_physics_process", 0.0)
 				screen.move_selection(1)

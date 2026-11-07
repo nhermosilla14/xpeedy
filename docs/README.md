@@ -36,10 +36,10 @@
 | 0015 | [Typeface and HUD](slices/0015-font-and-hud.md) | Done |
 | 0016 | [Start sequence, pause and Game Over](slices/0016-start-pause-game-over.md) | Done |
 | 0017 | [The original look on the RG351P](slices/0017-original-look-on-device.md) | Done |
-| 0018 | [Survival difficulties and per-difficulty bests](slices/0018-difficulties.md) | Accepted |
-| 0019 | [Menu framework, main and difficulty screens](slices/0019-menus-and-app-flow.md) | Accepted |
-| 0020 | [Run menus and back handling](slices/0020-run-menus.md) | Accepted |
-| 0021 | [Settings and the menus on the RG351P](slices/0021-settings-and-device.md) | Accepted |
+| 0018 | [Survival difficulties and per-difficulty bests](slices/0018-difficulties.md) | Done |
+| 0019 | [Menu framework, main and difficulty screens](slices/0019-menus-and-app-flow.md) | Done |
+| 0020 | [Run menus and back handling](slices/0020-run-menus.md) | Done |
+| 0021 | [Settings and the menus on the RG351P](slices/0021-settings-and-device.md) | In progress |
 
 ## ADRs
 | # | Title | Status |

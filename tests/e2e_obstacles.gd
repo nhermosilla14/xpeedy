@@ -21,6 +21,7 @@ var _checked_instances := false
 func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("countdown_enabled", false)
+	_main.set("start_in_menu", false)
 	root.add_child(_main)
 	_first_seed = 11
 

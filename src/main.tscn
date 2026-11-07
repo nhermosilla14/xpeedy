@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1"]
 [ext_resource type="Script" path="res://src/view/tunnel_view.gd" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/view/explosion_view.gd" id="8"]
 [ext_resource type="Script" path="res://src/view/start_lights.gd" id="9"]
 [ext_resource type="Script" path="res://src/view/screen_panel.gd" id="10"]
+[ext_resource type="Script" path="res://src/view/menu_controller.gd" id="11"]
 
 [node name="Main" type="Node3D"]
 process_mode = 3
@@ -77,6 +78,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("10")
+
+[node name="Menu" type="Control" parent="Hud"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("11")
 
 [node name="FrameStats" type="Node" parent="."]
 script = ExtResource("4")
