@@ -13,12 +13,19 @@ const MAX_INDEX := 15
 ## From the level after this one, the single cube (index 0) is no longer drawn.
 const LAST_SINGLE_LEVEL := 5
 const HALF_RING := TrackModel.LANES / 2
+## Patterns that can become moving formations (doc 04), with a 50 % chance.
+const MOVING_INDICES := [0, 2, 3, 4, 6, 8]
+const MOVING_CHANCE := 0.5
 
 
 ## What the generator needs to know about where the pattern is placed.
 class Context:
 	var shape := PartSequence.Shape.IN
 	var spikes_enabled := true
+	## Rollers and bouncers (ADR 0020) and whether the pattern lies before the next shape change.
+	var rollers_enabled := false
+	var bouncers_enabled := false
+	var moving_ok := false
 
 
 ## A generated pattern with what chose it, for tests and debugging.
@@ -34,6 +41,9 @@ class Cell:
 	var offset: int
 	var kind: Obstacle.Kind
 	var colour_slot: int
+	## Rollers: turning direction. Moving obstacles: phase offset inside the pattern, in seconds.
+	var direction := 1
+	var phase := 0.0
 
 	func _init(segment_offset: int, lane_offset: int, obstacle_kind: Obstacle.Kind, slot: int) -> void:
 		dseg = segment_offset
@@ -50,12 +60,22 @@ class Formation:
 	var extra_colours := 0
 	## Every cell draws its own colour.
 	var mixed := false
+	## Contains rollers or bouncers: the pattern draws a common phase.
+	var moving := false
 
 	func _init(formation_name: String) -> void:
 		name = formation_name
 
-	func add(segment_offset: int, lane_offset: int, kind: Obstacle.Kind, slot: int = 0) -> void:
-		cells.append(Cell.new(segment_offset, lane_offset, kind, slot))
+	func add(segment_offset: int, lane_offset: int, kind: Obstacle.Kind, slot: int = 0) -> Cell:
+		var cell := Cell.new(segment_offset, lane_offset, kind, slot)
+		cells.append(cell)
+		return cell
+
+	func add_moving(segment_offset: int, lane_offset: int, kind: Obstacle.Kind, direction: int, phase: float) -> void:
+		var cell := add(segment_offset, lane_offset, kind)
+		cell.direction = direction
+		cell.phase = phase
+		moving = true
 
 
 static func generate(level: int, rng: XRandom, context: Context) -> Array[Obstacle]:
@@ -102,6 +122,10 @@ static func _choose(index: int, rng: XRandom, context: Context) -> Array:
 		return [_pick(spike, rng).call(rng), "spike"]
 	if not wall.is_empty() and context.shape != PartSequence.Shape.IN and rng.chance(WALL_CHANCE):
 		return [_pick(wall, rng).call(rng), "wall"]
+	if context.moving_ok and MOVING_INDICES.has(index) and rng.chance(MOVING_CHANCE):
+		var moving := _moving_alternative(index, rng, context)
+		if moving != null:
+			return [moving, "moving"]
 	return [_pick(regular, rng).call(rng), "regular"]
 
 
@@ -195,6 +219,103 @@ static func _alternatives(index: int) -> Dictionary:
 			}
 
 
+# --- Moving formations (ADR 0020) ---
+
+## The moving alternative of a pattern index, or null when what it needs is not enabled here.
+static func _moving_alternative(index: int, rng: XRandom, context: Context) -> Formation:
+	var roller := Obstacle.Kind.ROLLER
+	var bouncer := Obstacle.Kind.BOUNCER
+	var rollers := context.rollers_enabled
+	var bouncers := context.bouncers_enabled
+	match index:
+		0:
+			var kinds: Array[Obstacle.Kind] = []
+			if bouncers:
+				kinds.append(bouncer)
+			if rollers:
+				kinds.append(roller)
+			if kinds.is_empty():
+				return null
+			var kind := kinds[0] if kinds.size() == 1 or rng.chance(0.5) else kinds[1]
+			var f := Formation.new("moving_single_%s" % _kind_name(kind))
+			f.add_moving(0, 0, kind, _direction(rng), 0.0)
+			return f
+		2:
+			if _use_bouncers(rollers, bouncers, rng):
+				return _bouncer_column("moving_two_bouncers", 2, 0.15)
+			if not rollers:
+				return null
+			var d := _direction(rng)
+			var f := Formation.new("moving_two_rollers")
+			f.add_moving(0, 0, roller, d, 0.0)
+			f.add_moving(1, 0, roller, -d, 0.0)
+			return f
+		3:
+			if _use_bouncers(rollers, bouncers, rng):
+				return _bouncer_column("moving_three_bouncers", 3, 0.15)
+			if not rollers:
+				return null
+			var d := _direction(rng)
+			var f := Formation.new("moving_three_rollers")
+			for i in 3:
+				f.add_moving(i, 0, roller, d if i % 2 == 0 else -d, 0.0)
+			return f
+		4:
+			var can_bouncers := bouncers and context.shape != PartSequence.Shape.OUT
+			if _use_bouncers(rollers, can_bouncers, rng):
+				var f := Formation.new("moving_apart_bouncers")
+				f.wraps = true
+				f.add_moving(0, 0, bouncer, 1, 0.0)
+				f.add_moving(0, 4, bouncer, 1, 0.5)
+				return f
+			if not rollers:
+				return null
+			var d := _direction(rng)
+			var count := rng.range_int(2, 4)
+			var f := Formation.new("moving_roller_column%d" % count)
+			for i in count:
+				f.add_moving(i, 0, roller, d, 0.0)
+			return f
+		6:
+			if not rollers:
+				return null
+			var d := _direction(rng)
+			var count := rng.range_int(3, 7)
+			var f := Formation.new("moving_roller_snake%d" % count)
+			for i in count:
+				f.add_moving(i, 0, roller, d, 0.1 * i)
+			return f
+		8:
+			if not rollers:
+				return null
+			var d := _direction(rng)
+			var f := Formation.new("moving_roller_pairs")
+			f.wraps = true
+			for pair in 2:
+				for lane in [0, HALF_RING]:
+					f.add_moving(pair * 2, lane, roller, d if pair == 0 else -d, 0.0)
+			return f
+	return null
+
+
+## Bouncers if only they are available, rollers if only they are, and a 50/50 draw when both are.
+static func _use_bouncers(rollers: bool, bouncers: bool, rng: XRandom) -> bool:
+	if bouncers and rollers:
+		return rng.chance(0.5)
+	return bouncers
+
+
+static func _direction(rng: XRandom) -> int:
+	return 1 if rng.chance(0.5) else -1
+
+
+static func _bouncer_column(name: String, count: int, stagger: float) -> Formation:
+	var f := Formation.new(name)
+	for i in count:
+		f.add_moving(i, 0, Obstacle.Kind.BOUNCER, 1, stagger * i)
+	return f
+
+
 # --- Formation builders ---
 
 static func _kind_name(kind: Obstacle.Kind) -> String:
@@ -203,6 +324,10 @@ static func _kind_name(kind: Obstacle.Kind) -> String:
 			return "beams"
 		Obstacle.Kind.SPIKE:
 			return "spikes"
+		Obstacle.Kind.ROLLER:
+			return "rollers"
+		Obstacle.Kind.BOUNCER:
+			return "bouncers"
 	return "cubes"
 
 
@@ -298,8 +423,12 @@ static func _place(f: Formation, rng: XRandom, context: Context) -> Array[Obstac
 		start = rng.range_int(-lowest, TrackModel.LANES - highest)
 	else:
 		start = rng.range_int(0, TrackModel.LANES)
+	var base_phase := rng.range_int(0, 1000) / 1000.0 if f.moving else 0.0
 	var result: Array[Obstacle] = []
 	for i in f.cells.size():
 		var cell := f.cells[i]
-		result.append(Obstacle.make(cell.dseg, posmod(start + cell.offset, TrackModel.LANES), cell.kind, cell_colours[i]))
+		var o := Obstacle.make(cell.dseg, posmod(start + cell.offset, TrackModel.LANES), cell.kind, cell_colours[i])
+		o.direction = cell.direction
+		o.phase = base_phase + cell.phase
+		result.append(o)
 	return result

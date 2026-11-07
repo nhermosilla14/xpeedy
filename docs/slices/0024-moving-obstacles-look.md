@@ -1,6 +1,6 @@
 # 0024. Drawing rollers and bouncers
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (look review)
 - Intents: 0006
@@ -22,3 +22,8 @@ shake on a stomp, and the explosion position of a smashed moving obstacle.
 
 ## Out of scope
 - New colours or edge styles; sound.
+
+## Results
+- Captures `build/look/r-*.png` (rollers mid-step on a flat part) and `b-*.png` (bouncers in a tube). The
+  roller tips about its edge and lands square. The shader reserves `flat` as a keyword, so the variable is
+  named `is_flat`.

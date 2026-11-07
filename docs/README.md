@@ -41,10 +41,10 @@
 | 0019 | [Menu framework, main and difficulty screens](slices/0019-menus-and-app-flow.md) | Done |
 | 0020 | [Run menus and back handling](slices/0020-run-menus.md) | Done |
 | 0021 | [Settings and the menus on the RG351P](slices/0021-settings-and-device.md) | Done |
-| 0022 | [Moving obstacles model: bouncers](slices/0022-bouncers.md) | Accepted |
-| 0023 | [Moving obstacles model: rollers](slices/0023-rollers.md) | Accepted |
-| 0024 | [Drawing rollers and bouncers](slices/0024-moving-obstacles-look.md) | Accepted |
-| 0025 | [Rollers and bouncers on the RG351P](slices/0025-moving-obstacles-on-device.md) | Accepted |
+| 0022 | [Moving obstacles model: bouncers](slices/0022-bouncers.md) | Done |
+| 0023 | [Moving obstacles model: rollers](slices/0023-rollers.md) | Done |
+| 0024 | [Drawing rollers and bouncers](slices/0024-moving-obstacles-look.md) | Done |
+| 0025 | [Rollers and bouncers on the RG351P](slices/0025-moving-obstacles-on-device.md) | In progress |
 
 ## ADRs
 | # | Title | Status |

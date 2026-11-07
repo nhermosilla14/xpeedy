@@ -7,6 +7,8 @@ const SHIP_BACK := 0.6
 const SHIP_HALF_WIDTH := 0.25
 ## A tube beam also hits the opposite lane while the tunnel is at least 80 % tube-shaped.
 const BEAM_OPPOSITE_MAX_FLATNESS := 0.2
+## Landings of rollers up to this many segments ahead shake the camera.
+const STOMP_RANGE := 12.0
 
 var config: RunConfig
 var track: TrackModel
@@ -17,6 +19,8 @@ var trails := TrailMap.new()
 var score := 0
 ## The part of `score` that came from distance (+1 per segment); the rest are smash points.
 var distance_points := 0
+## Game time of the run in seconds (the sum of the steps): rollers and bouncers move with it (ADR 0020).
+var game_time := 0.0
 
 ## The start sequence (ADR 0017): STARTING lasts COUNTDOWN_SECONDS, then RACING. Light i starts at
 ## LIGHT_START + i seconds and fades over LIGHT_FADE.
@@ -34,7 +38,7 @@ var _events: Array[RunEvent] = []
 func _init(run_config: RunConfig, run_seed: int) -> void:
 	config = run_config
 	track = TrackModel.new(config.target_tps, run_seed)
-	obstacles = ObstacleField.new(run_seed, track.parts, config.spikes_enabled)
+	obstacles = ObstacleField.new(run_seed, track.parts, config.spikes_enabled, config.rollers_enabled, config.bouncers_enabled)
 	obstacles.obstacle_added.connect(trails.add_obstacle)
 	spots = SpotField.new(run_seed)
 	spots.spot_added.connect(trails.add_spot)
@@ -57,12 +61,14 @@ func step(dt: float, steer: float) -> void:
 		return
 	var seg_before := track.segment
 	var lane_before := track.lane_position()
+	game_time += dt
 	track.step(dt, steer)
 	if track.crashed:
 		_events.append(RunEvent.crash(track.crash_reason))
 		return
 	trails.advance(track.window_start())
 	_generate()
+	_update_rollers(dt)
 	if config.collisions_enabled:
 		_resolve_obstacles(seg_before, lane_before)
 	if not track.crashed:
@@ -74,6 +80,23 @@ func step(dt: float, steer: float) -> void:
 			_score_distance()
 	obstacles.forget_before(track.window_start() - 2)
 	spots.forget_before(track.window_start() - Spot.LENGTH - 2)
+
+
+## Moves the trail of every roller in the window to its danger lanes, and reports landings near the ship.
+func _update_rollers(dt: float) -> void:
+	var window_end := track.window_start() + TrackModel.VISIBLE_SEGMENTS
+	var stomped := false
+	for o in obstacles.rollers:
+		if not o.alive or o.seg >= window_end:
+			continue
+		var lanes := o.danger_lanes(game_time, config.target_tps)
+		if lanes != o.painted:
+			trails.set_lanes(o, lanes, obstacles)
+		if not stomped and o.seg - track.segment <= STOMP_RANGE and o.seg >= track.segment - 2.0 \
+				and MovingMath.roller_steps(game_time, o.phase, config.target_tps, o.shape) \
+				> MovingMath.roller_steps(game_time - dt, o.phase, config.target_tps, o.shape):
+			stomped = true
+			_events.append(RunEvent.stomp())
 
 
 func _tick_countdown(dt: float) -> void:
@@ -139,7 +162,7 @@ func _resolve_obstacles(seg_before: float, lane_before: float) -> void:
 
 	for s in range(ceili(seg_before - 1.0), floori(seg_after + SHIP_BACK) + 1):
 		for o in obstacles.at_segment(s):
-			if not (o.alive and _touches(o, lane_min, lane_max, wrap, opposite)):
+			if not (o.alive and _hits(o, lane_min, lane_max, wrap, opposite)):
 				continue
 			if shields.count < o.shield_cost():
 				if not config.crash_on_obstacles:
@@ -179,6 +202,15 @@ func _swept_lanes(lane_before: float) -> Vector2:
 	elif lane_before - lane_after > 8.0:
 		lane_after += TrackModel.LANES
 	return Vector2(minf(lane_before, lane_after) - SHIP_HALF_WIDTH, maxf(lane_before, lane_after) + SHIP_HALF_WIDTH)
+
+
+func _hits(o: Obstacle, lane_min: float, lane_max: float, wrap: bool, opposite: bool) -> bool:
+	if not o.is_moving():
+		return _touches(o, lane_min, lane_max, wrap, opposite)
+	for lane in o.danger_lanes(game_time, config.target_tps):
+		if _lane_hit(lane, lane_min, lane_max, wrap):
+			return true
+	return false
 
 
 static func _touches(o: Obstacle, lane_min: float, lane_max: float, wrap: bool, opposite: bool) -> bool:

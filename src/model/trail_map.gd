@@ -39,25 +39,38 @@ func advance(first: int) -> void:
 
 ## Paints the trail of `o` on its lane, and on the opposite lane for a tube beam.
 func add_obstacle(o: Obstacle) -> void:
-	_paint(o.lane, o.seg, o.colour, false)
-	if o.is_tube_beam():
-		_paint((o.lane + LANES / 2) % LANES, o.seg, o.colour, true)
+	for tile in o.trail_lanes():
+		_paint(tile.x, o.seg, o.colour, tile.y == 1)
 
 
 ## Removes the trail of `o`. Trails of farther obstacles it was covering are painted again.
 func remove_obstacle(o: Obstacle, field: ObstacleField) -> void:
-	var lanes := [o.lane]
-	if o.is_tube_beam():
-		lanes.append((o.lane + LANES / 2) % LANES)
-	for lane in lanes:
+	_clear_obstacle(o)
+	_repaint_behind(o, field)
+	version += 1
+
+
+## Moves a roller's trail to `lanes` (ADR 0020). Farther obstacles it was covering are painted again.
+func set_lanes(o: Obstacle, lanes: Array[int], field: ObstacleField) -> void:
+	_clear_obstacle(o)
+	o.painted = lanes
+	add_obstacle(o)
+	_repaint_behind(o, field)
+	version += 1
+
+
+func _clear_obstacle(o: Obstacle) -> void:
+	for tile in o.trail_lanes():
 		for seg in range(o.seg - TRAIL_LENGTH, o.seg + 1):
-			if _owns(seg) and _obstacle_segment(seg, lane) == o.seg:
-				_clear_trail(_index(seg, lane))
+			if _owns(seg) and _obstacle_segment(seg, tile.x) == o.seg:
+				_clear_trail(_index(seg, tile.x))
+
+
+func _repaint_behind(o: Obstacle, field: ObstacleField) -> void:
 	for seg in range(o.seg + 1, o.seg + TRAIL_LENGTH + 1):
 		for other in field.at_segment(seg):
 			if other != o and other.alive:
 				add_obstacle(other)
-	version += 1
 
 
 ## Marks the three tiles of a shield spot.

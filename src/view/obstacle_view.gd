@@ -26,6 +26,8 @@ func _ready() -> void:
 		_prism_mesh(0.0, 1.0),
 		_prism_mesh(0.15, BEAM_HEIGHT / lane_width),
 		_spike_mesh(SPIKE_HEIGHT / lane_width),
+		_prism_mesh(0.0, 1.0),
+		_prism_mesh(0.0, 1.0),
 	]
 	for mesh in meshes:
 		var multimesh := MultiMesh.new()
@@ -56,7 +58,7 @@ func refresh(field: ObstacleField) -> void:
 		return
 	_built_for = id
 	_built_version = field.version
-	var counts := [0, 0, 0]
+	var counts := [0, 0, 0, 0, 0]
 	for kind in _multimeshes.size():
 		var buffer := PackedFloat32Array()
 		buffer.resize(MAX_INSTANCES * FLOATS_PER_INSTANCE)
@@ -87,6 +89,16 @@ func instance_data(kind: int) -> PackedFloat32Array:
 	return _data[kind]
 
 
+## The third custom value (ADR 0021): colour index, plus 8 x shape, 24 if turning towards +lane, and
+## 48 for a roller or 96 for a bouncer. Static obstacles are just their colour index.
+static func code(o: Obstacle) -> float:
+	var value := o.colour
+	if o.kind == Obstacle.Kind.ROLLER or o.kind == Obstacle.Kind.BOUNCER:
+		value += 8 * o.shape + (24 if o.direction > 0 else 0)
+		value += 48 if o.kind == Obstacle.Kind.ROLLER else 96
+	return float(value)
+
+
 static func _write_instance(buffer: PackedFloat32Array, index: int, o: Obstacle) -> void:
 	var base := index * FLOATS_PER_INSTANCE
 	buffer[base + 0] = 1.0
@@ -94,8 +106,8 @@ static func _write_instance(buffer: PackedFloat32Array, index: int, o: Obstacle)
 	buffer[base + 10] = 1.0
 	buffer[base + 12] = float(o.lane)
 	buffer[base + 13] = float(o.seg)
-	buffer[base + 14] = float(o.colour)
-	buffer[base + 15] = 1.0
+	buffer[base + 14] = code(o)
+	buffer[base + 15] = 1.0 + o.phase
 
 
 ## A box over the tile footprint inset by `inset` on every side, `height` lane widths tall.

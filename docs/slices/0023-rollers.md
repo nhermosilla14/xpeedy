@@ -1,6 +1,6 @@
 # 0023. Moving obstacles model: rollers
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0006

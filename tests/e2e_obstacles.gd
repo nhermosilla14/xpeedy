@@ -114,7 +114,7 @@ func _free_lane(run: SurvivalRun) -> float:
 func _check_instances(run: SurvivalRun) -> void:
 	var view: ObstacleView = _main.get_node("Obstacles")
 	var counts := view.instance_counts()
-	var expected := [0, 0, 0]
+	var expected := [0, 0, 0, 0, 0]
 	for o in run.obstacles.all():
 		expected[o.kind] += 1
 	if counts != expected:

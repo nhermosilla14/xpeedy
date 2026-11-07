@@ -101,7 +101,7 @@ func _check_catalogue(run: SurvivalRun) -> void:
 		_errors.append("only %d patterns were generated up to segment 2300" % field.placed_points.size())
 	if ObstacleField.level_at(field.placed_points[field.placed_points.size() - 1]) < 15:
 		_errors.append("the last pattern is not at level 15")
-	var counts := [0, 0, 0]
+	var counts := [0, 0, 0, 0, 0]
 	for o in field.all():
 		counts[o.kind] += 1
 	if counts[Kind.CUBE] == 0 or counts[Kind.BEAM] == 0 or counts[Kind.SPIKE] == 0:

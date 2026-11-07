@@ -1,6 +1,6 @@
 # 0022. Moving obstacles model: bouncers
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0006
@@ -26,3 +26,8 @@ the code once both exist).
 
 ## Out of scope
 - Drawing (slice 0024), rollers.
+
+## Results
+- Slices 0022 and 0023 were built together: `MovingMath`, both kinds, patterns and trails are in
+  `tests/unit/test_moving.gd` (20 tests). The scene-level checks are the unit tests that step a `SurvivalRun`
+  (crash, pass and smash for bouncers and rollers).

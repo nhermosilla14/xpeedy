@@ -13,6 +13,7 @@ const CRASH_PITCH := deg_to_rad(45.0)
 const CRASH_PITCH_SECONDS := 1.0
 
 var _roll := 0.0
+var _shake_left := 0.0
 var _decor := XRandom.new(0xDEC0)
 
 
@@ -25,6 +26,16 @@ func _ready() -> void:
 
 func reset() -> void:
 	_roll = 0.0
+	_shake_left = 0.0
+
+
+## Shakes the camera for `seconds` (a roller landing nearby).
+func shake(seconds: float) -> void:
+	_shake_left = maxf(_shake_left, seconds)
+
+
+func is_shaking() -> bool:
+	return _shake_left > 0.0
 
 
 func follow(track: TrackModel, dt: float) -> void:
@@ -33,7 +44,8 @@ func follow(track: TrackModel, dt: float) -> void:
 	var up := geometry.normal(lane, track.segment)
 	var eye := geometry.surface(lane, track.segment) + up * EYE_HEIGHT
 	var target := geometry.surface(lane, track.segment + LOOK_AHEAD)
-	if track.is_morphing() and not track.crashed:
+	_shake_left = maxf(_shake_left - dt, 0.0)
+	if (track.is_morphing() or _shake_left > 0.0) and not track.crashed:
 		eye += Vector3(_shake(), _shake(), _shake())
 	look_at_from_position(eye, target, up)
 

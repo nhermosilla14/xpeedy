@@ -1,6 +1,6 @@
 # 0025. Rollers and bouncers on the RG351P
 
-- Status: Accepted
+- Status: In progress
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (on-device run and final review)
 - Intents: 0006

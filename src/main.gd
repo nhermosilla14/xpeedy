@@ -10,6 +10,8 @@ var start_in_menu := true
 
 ## Seconds after a crash before the Game Over panel shows (the flash plays first).
 const GAME_OVER_DELAY := 1.0
+## Camera shake of a roller landing nearby (doc 04).
+const STOMP_SECONDS := 0.1
 
 var _run: SurvivalRun
 var _track: TrackModel
@@ -231,13 +233,20 @@ func _show_events() -> void:
 				_explosions.spawn(_obstacle_centre(event.obstacle), event.obstacle.colour, _clock.time)
 			RunEvent.Kind.CRASH:
 				_flash.flash(Color.WHITE, 1.0, 1.0)
+			RunEvent.Kind.STOMP:
+				_camera.shake(STOMP_SECONDS)
 
 
-## World position of the middle of an obstacle, where its explosion starts.
+## World position of the middle of an obstacle where it is now, where its explosion starts.
 func _obstacle_centre(o: Obstacle) -> Vector3:
 	var geometry := _track.geometry
 	var height := (2.5 if o.kind == Obstacle.Kind.BEAM else 0.5) * TrackModel.SEGMENT_LENGTH
-	var lane := o.lane + 0.5
+	var lane_index := o.lane
+	if o.kind == Obstacle.Kind.ROLLER:
+		lane_index = o.danger_lanes(_run.game_time, _run.config.target_tps)[0]
+	elif o.kind == Obstacle.Kind.BOUNCER:
+		height += MovingMath.bouncer_height(_run.game_time, o.phase, _run.config.target_tps, o.shape)
+	var lane := lane_index + 0.5
 	var seg := o.seg + 0.5
 	return geometry.surface(lane, seg) + geometry.normal(lane, seg) * height
 
@@ -286,6 +295,8 @@ func _capture(path: String) -> void:
 func _refresh_view(dt: float) -> void:
 	_binding.refresh(_track)
 	_obstacles.refresh(_run.obstacles)
+	_obstacles.material.set_shader_parameter("game_time", _run.game_time)
+	_obstacles.material.set_shader_parameter("target_tps", _run.config.target_tps)
 	_trail_texture.refresh(_run.trails)
 	_status.update(_run)
 	_lights.update(_run)
