@@ -13,6 +13,7 @@
 | 0001 | [Tunnel prototype](intent/0001-tunnel-prototype.md) | Done |
 | 0002 | [Smooth frame pacing on the RG351P](intent/0002-smooth-frame-pacing.md) | Done |
 | 0003 | [Survival core: obstacles, shields and score](intent/0003-survival-core.md) | Done |
+| 0004 | [Look and interface close to the original](intent/0004-original-look.md) | Proposed |
 
 ## Slices
 | # | Title | Status |
