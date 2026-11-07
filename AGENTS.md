@@ -6,7 +6,9 @@ and `docs/vision.md` for goals.
 
 ## Clean-room rule (mandatory)
 Gameplay behaviour comes **only** from `docs/reference/speedx3d/`. Never read, decompile or copy the
-original SpeedX 3D code, binaries or assets, nor any project derived from them. If the reference is unclear, ask the user.
+original SpeedX 3D code or binaries, nor any project derived from them. Screenshots and other images of the original are never used. Never copy
+or trace any asset from them (textures, models, fonts, icons, sounds). If the reference is unclear, ask the
+user.
 
 ## Documentation discipline (mandatory)
 These rules apply to every change, by humans or agents:

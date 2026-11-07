@@ -45,3 +45,4 @@
 | 0011 | [Obstacles, trails and spots on the GPU, RGBA8 trail texture](adr/0011-gpu-obstacles-trails-spots-rgba8.md) | Accepted |
 | 0012 | [HUD with a common shield bar, flashes and explosions](adr/0012-hud-common-shield-bar.md) | Accepted |
 | 0013 | [Obstacle pattern generation rules](adr/0013-obstacle-pattern-rules.md) | Accepted |
+| 0014 | [Visual reference](adr/0014-visual-reference.md) | Accepted |
