@@ -40,4 +40,19 @@ spots, explosions and the HUD on screen, fix what does not, and close intent 000
 - CPU profile at full density (`tests/profile_tunnel.gd`): median tick 0.11 ms, 99th percentile 1.0 ms,
   slowest ticks about 1.1 ms (a new segment entering with a new pattern: 0.7 ms views, 0.3 ms
   generation); the one-time first tick is 29 ms (initial uploads).
-- Pending: the RG351P run with `--benchmark` and a normal session, and the user's confirmation.
+
+## RG351P benchmark (2026-11-06)
+- Anbernic RG351P, AmberELEC, PortMaster, `godot_4.4.1` + Weston, 480×320, `args.txt` = `--benchmark`
+  (log shows `Game arguments: -- --benchmark`), ~100 s, levels 16–23 with 18–35 obstacles in view:
+
+  | Window | Avg fps | 1 % low |
+  |---|---|---|
+  | 0–10 s | 58.4 | 56.6 |
+  | 10–100 s (nine windows) | 60.0 | 60.0 |
+
+- Passes intent 0003's bar (every window ≥ 58 fps average and ≥ 50 fps 1 % low). No shader, texture or
+  script errors in the log.
+- The run is deterministic across platforms: the device's `segment`, `level`, `obstacles` and `score`
+  values match the x86 desktop run window for window (for example segment 2425, 31 obstacles, score 725
+  at 10 s), so the portable PRNG (ADR 0004/0005) works on aarch64 too.
+- Pending: the user's own play session on the device and their confirmation.
