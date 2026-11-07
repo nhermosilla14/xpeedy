@@ -10,7 +10,7 @@ signal quit_requested
 signal race_requested(stage: int)
 signal restart_stage_requested(stage: int)
 
-enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART }
+enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART, UPGRADES }
 
 ## The Quit item is hidden where programs do not quit (Android, web).
 var can_quit := not (OS.has_feature("mobile") or OS.has_feature("web"))
@@ -20,6 +20,8 @@ var preferred_difficulty := Difficulty.STANDARD
 var settings := Settings.new()
 ## The stage progress the stage list shows (bars, padlocks); the owner sets it.
 var progress := StageProgress.new()
+## The credits and upgrade levels the shop shows and changes; the owner sets it.
+var economy := Economy.new()
 
 var _stack: Array[Page] = []
 var _backdrop := MenuBackdrop.new()
@@ -94,9 +96,10 @@ func activate() -> void:
 
 func _show_top(selected_item := 0) -> void:
 	var items: Array[Dictionary] = []
+	_screen.footer = ""
 	match _stack.back():
 		Page.MAIN:
-			_main_items = ["play"]
+			_main_items = ["play", "upgrades"]
 			if can_quit:
 				_main_items.append("quit")
 			for text in _main_items:
@@ -121,6 +124,14 @@ func _show_top(selected_item := 0) -> void:
 			items.append({"text": "restart stage %02d" % _pending_stage})
 			items.append({"text": "keep it"})
 			_screen.show_items(items, true, false, 1)
+		Page.UPGRADES:
+			for key in Upgrade.keys():
+				var lvl := economy.level(key)
+				items.append({"text": Upgrade.display_name(key), "progress": float(lvl) / Upgrade.levels(key),
+					"count": ("%d cr" % economy.next_price(key)) if lvl < Upgrade.levels(key) else "max",
+					"locked": lvl < Upgrade.levels(key) and not economy.next_unlocked(key)})
+			_screen.show_items(items, true, false, selected_item)
+			_screen.footer = "credits: %d" % economy.credits()
 		Page.SETTINGS:
 			items.append({"text": "invert: %s" % ("on" if settings.invert else "off")})
 			items.append({"text": "buttons: %s" % settings.layout})
@@ -137,6 +148,9 @@ func _on_activated(index: int) -> void:
 		Page.MAIN:
 			if _main_items[index] == "play":
 				_stack.append(Page.MODE)
+				_show_top()
+			elif _main_items[index] == "upgrades":
+				_stack.append(Page.UPGRADES)
 				_show_top()
 			else:
 				quit_requested.emit()
@@ -155,6 +169,9 @@ func _on_activated(index: int) -> void:
 				_show_top()
 			else:
 				race_requested.emit(stage)
+		Page.UPGRADES:
+			economy.buy(Upgrade.keys()[index])
+			_show_top(index)
 		Page.RESTART:
 			if index == 0:
 				restart_stage_requested.emit(_pending_stage)

@@ -1,6 +1,6 @@
 # 0037. Credits, the catalogue and the passive upgrades
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0010

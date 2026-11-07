@@ -4,10 +4,10 @@ extends RefCounted
 
 
 ## `start_score` is the stage's running score the race begins with.
-static func from_spec(spec: RaceSpec, start_score := 0) -> RunConfig:
+static func from_spec(spec: RaceSpec, start_score := 0, speed_factor := RaceSpec.SPEED_FACTOR) -> RunConfig:
 	var config := RunConfig.standard()
 	config.race = spec
-	config.target_tps = spec.target_tps()
+	config.target_tps = spec.speed * speed_factor
 	config.spikes_enabled = spec.spikes
 	config.rollers_enabled = spec.rollers
 	config.bouncers_enabled = spec.bouncers

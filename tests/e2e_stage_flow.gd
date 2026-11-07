@@ -19,6 +19,10 @@ func _initialize() -> void:
 	_main.set("options", LaunchOptions.parse(PackedStringArray([])))
 	_main.set("obstacles_enabled", false)
 	root.add_child(_main)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
+	var economy := Economy.new("user://e2e_economy.cfg")
+	_main.set("_economy", economy)
+	_main.get_node("Hud/Menu").set("economy", economy)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(PATH))
 	var progress := StageProgress.new(PATH)
 	_main.set("_progress", progress)
@@ -145,6 +149,7 @@ func _physics_process(_delta: float) -> bool:
 
 
 func _finish() -> bool:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(PATH))
 	if _errors.is_empty():
 		print("  ok    e2e stage flow (stages, locks, race label, finished and game over panels, restart)")

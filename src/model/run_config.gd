@@ -27,6 +27,11 @@ var race: RaceSpec
 var parts: Array[Vector2i] = []
 var run_length := 0
 var start_score := 0
+## Active upgrade levels (ADR 0029): Shield Recharger, Tachyon Torpedo and Phase Shift; 0 when not bought or not
+## allowed in the mode.
+var recharger_level := 0
+var torpedo_level := 0
+var phase_level := 0
 ## Debugging: shields the run starts with (`--shields=N` on the command line).
 var start_shields := 0
 ## Debugging: with this off, obstacles the shields can't pay for are ignored instead of crashing.

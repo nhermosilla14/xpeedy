@@ -60,9 +60,9 @@
 | 0034 | [Race-driven generation](slices/0034-race-driven-generation.md) | Done |
 | 0035 | [Finishing a race and stage progress](slices/0035-finish-and-stage-progress.md) | Done |
 | 0036 | [Mode and stage menus, and the race flow](slices/0036-stage-menus-and-race-flow.md) | Done |
-| 0037 | [Credits, the catalogue and the passive upgrades](slices/0037-economy-and-passive-upgrades.md) | Accepted |
-| 0038 | [Upgrades shop and credit rewards](slices/0038-upgrades-shop-and-rewards.md) | Accepted |
-| 0039 | [Active upgrades: the model](slices/0039-active-upgrades-model.md) | Accepted |
+| 0037 | [Credits, the catalogue and the passive upgrades](slices/0037-economy-and-passive-upgrades.md) | Done |
+| 0038 | [Upgrades shop and credit rewards](slices/0038-upgrades-shop-and-rewards.md) | Done |
+| 0039 | [Active upgrades: the model](slices/0039-active-upgrades-model.md) | In progress |
 | 0040 | [Active upgrades: buttons, input and look](slices/0040-active-upgrades-ui.md) | Accepted |
 | 0041 | [Keep going](slices/0041-keep-going.md) | Accepted |
 

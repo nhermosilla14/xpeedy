@@ -19,6 +19,10 @@ func _initialize() -> void:
 	_main.set("start_in_menu", false)
 	_main.set("options", LaunchOptions.parse(PackedStringArray(["--seed=44", "--difficulty=extreme"])))
 	root.add_child(_main)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
+	var economy := Economy.new("user://e2e_economy.cfg")
+	_main.set("_economy", economy)
+	_main.get_node("Hud/Menu").set("economy", economy)
 
 
 func _physics_process(_delta: float) -> bool:
@@ -97,6 +101,7 @@ func _physics_process(_delta: float) -> bool:
 
 
 func _finish() -> bool:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_best.cfg"))
 	if _errors.is_empty():
 		print("  ok    e2e run flow (lights, countdown, pause, game over)")

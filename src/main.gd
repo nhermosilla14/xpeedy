@@ -40,6 +40,9 @@ var stage := 0
 var race := 0
 var _catalogue := StageCatalogue.new()
 var _progress := StageProgress.new()
+var _economy := Economy.new()
+## Credits paid by the run that just ended, for the panel.
+var _reward := 0
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
@@ -79,6 +82,7 @@ func _ready() -> void:
 	_frame_stats.extra = _state_text
 	_menu.settings = _settings
 	_menu.progress = _progress
+	_menu.economy = _economy
 	_menu.race_requested.connect(func(s: int) -> void: start_race(s, _progress.next_race(s)))
 	_menu.restart_stage_requested.connect(func(s: int) -> void:
 		_progress.restart(s)
@@ -88,7 +92,7 @@ func _ready() -> void:
 	_menu.quit_requested.connect(get_tree().quit)
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
 	if start_in_menu and options.starts_in_menu():
-		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS, "mode": MenuController.Page.MODE, "stages": MenuController.Page.STAGES}.get(options.screen, MenuController.Page.MAIN))
+		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS, "mode": MenuController.Page.MODE, "stages": MenuController.Page.STAGES, "upgrades": MenuController.Page.UPGRADES}.get(options.screen, MenuController.Page.MAIN))
 	elif options.race.contains("-"):
 		start_race(options.race.get_slice("-", 0).to_int(), options.race.get_slice("-", 1).to_int())
 	else:
@@ -136,8 +140,12 @@ func start_race(stage_number: int, race_number: int) -> void:
 func start_run(run_seed: int) -> void:
 	_set_menu_visible(false)
 	var config := Difficulty.config(difficulty)
+	var upgraded := options.is_plain_run()
 	if stage > 0:
-		config = RaceConfig.from_spec(_catalogue.race(stage, race), _progress.score(stage))
+		config = RaceConfig.from_spec(_catalogue.race(stage, race), _progress.score(stage),
+			Upgrades.speed_factor(_economy) if upgraded else RaceSpec.SPEED_FACTOR)
+	if upgraded:
+		Upgrades.apply(config, _economy, Upgrade.STAGE if stage > 0 else difficulty)
 	config.generate_obstacles = obstacles_enabled and not options.clean
 	config.generate_spots = config.generate_spots and not options.clean
 	_plain = countdown_enabled and options.is_plain_run()
@@ -160,6 +168,7 @@ func start_run(run_seed: int) -> void:
 	_screen.close()
 	_paused = false
 	_over_shown = false
+	_reward = 0
 	_finish_wait = 0.0
 	_restart_wait = 0.0
 	if _plain:
@@ -235,6 +244,10 @@ func _handle_finished(delta: float) -> void:
 			title = "stage finished"
 			lines.append("personal best: %d" % _progress.best(stage))
 			choices = ["main menu"]
+		if _reward > 0:
+			lines.append("credits: +%d" % _reward)
+		if _economy.any_buyable():
+			choices.insert(choices.size() - 1, "upgrades")
 		_screen.open(title, lines, choices)
 	if _screen.visible:
 		if Input.is_action_just_pressed("ui_cancel"):
@@ -293,10 +306,13 @@ func _on_choice(index: int) -> void:
 			_:
 				enter_menu(MenuController.Page.MAIN)
 	elif _run.finished:
-		if index == 0 and race < StageProgress.RACES:
-			start_race(stage, race + 1)
-		else:
-			enter_menu(MenuController.Page.MAIN)
+		match _screen.choices[index]:
+			"next run":
+				start_race(stage, race + 1)
+			"upgrades":
+				enter_menu(MenuController.Page.UPGRADES)
+			_:
+				enter_menu(MenuController.Page.MAIN)
 	elif _track.crashed:
 		if index == 0:
 			_retry()
@@ -316,8 +332,11 @@ func _show_game_over() -> void:
 		var key := PersonalBest.key(difficulty)
 		_best.submit(key, _run.score)
 		best_line = "personal best: %d" % _best.get_best(key)
-	_screen.open("game over", ["score: %d" % _run.score, best_line] as Array[String],
-		["new game", "main menu"] as Array[String])
+		_reward = _economy.survival_score(_run.score)
+	var over_lines: Array[String] = ["score: %d" % _run.score, best_line]
+	if _reward > 0:
+		over_lines.append("credits: +%d" % _reward)
+	_screen.open("game over", over_lines, ["new game", "main menu"] as Array[String])
 
 
 ## Feedback for what happened this tick (ADR 0010).
@@ -336,7 +355,9 @@ func _show_events() -> void:
 			RunEvent.Kind.RACE_FINISHED:
 				_flash.flash(Color(0.5, 1.0, 0.5), 0.75, 1.0)
 				if options.is_plain_run():
+					var is_new := race == _progress.done(stage) + 1
 					_progress.finish_race(stage, race, _run.score)
+					_reward = _economy.race_finished(stage, is_new, race >= StageProgress.RACES)
 			RunEvent.Kind.STOMP:
 				_camera.shake(STOMP_SECONDS)
 			RunEvent.Kind.BONUS_PICKUP:

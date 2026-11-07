@@ -19,6 +19,8 @@ const BADGE_TRIANGLE := Color(0.1, 0.08, 0.1, 0.85)
 var items: Array[Dictionary] = []
 var has_back := false
 var has_gear := false
+## A line of text at the bottom centre (the credit balance in the shop).
+var footer := ""
 ## Index into the navigation order: the items, then the back arrow and the gear if there are any.
 var selected := 0
 
@@ -120,6 +122,8 @@ func _draw() -> void:
 			x += h * 1.05
 		draw_string(font, Vector2(x, rect.position.y + h * 0.78), items[i]["text"],
 			HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, colour)
+	if footer != "":
+		draw_string(font, Vector2(0.0, size.y - h * 0.35), footer, HORIZONTAL_ALIGNMENT_CENTER, size.x, int(h * 0.5), SELECTED_COLOUR)
 	for i in items.size():
 		if items[i].has("progress"):
 			_draw_progress(i)

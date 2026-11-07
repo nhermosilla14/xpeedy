@@ -16,6 +16,10 @@ func _initialize() -> void:
 	_main = load("res://src/main.tscn").instantiate()
 	_main.set("options", LaunchOptions.parse(PackedStringArray(["--seed=9"])))
 	root.add_child(_main)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
+	var economy := Economy.new("user://e2e_economy.cfg")
+	_main.set("_economy", economy)
+	_main.get_node("Hud/Menu").set("economy", economy)
 	var settings := Settings.new("user://e2e_settings.cfg")
 	_main.set("_settings", settings)
 	_main.get_node("Hud/Menu").set("settings", settings)
@@ -96,7 +100,7 @@ func _physics_process(_delta: float) -> bool:
 				menu.back()
 				if menu.current_page() != MenuController.Page.MAIN:
 					_errors.append("back did not return to the main page")
-				menu.move(2)
+				menu.move(3)
 				menu.activate()
 				if menu.current_page() != MenuController.Page.SETTINGS:
 					_errors.append("the gear did not open settings")
@@ -137,6 +141,7 @@ func _physics_process(_delta: float) -> bool:
 
 
 func _finish() -> bool:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_economy.cfg"))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://e2e_settings.cfg"))
 	if _errors.is_empty():
 		print("  ok    e2e menus (main, difficulty, run, pause, game over, back)")
