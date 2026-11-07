@@ -1,6 +1,6 @@
 # 0017. The original look on the RG351P
 
-- Status: In progress
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent, Nicolás Hermosilla P. (on-device run and final review)
 - Intents: 0004
@@ -23,3 +23,12 @@ look with the user, and close intent 0004.
 
 ## Out of scope
 - New features.
+
+## Results (2026-11-07)
+- RG351P `--benchmark` (480×320): 58.4 fps average in the first 10 s window, 60.0 in every later one up to
+  170 s; 1 % low 60 fps. No ADR 0015 fallback was needed.
+- Desktop (OpenGL ES, 480×320): about 116–120 fps average.
+- A normal session with the countdown, pause (d-pad selection added after the first run) and Game Over
+  works on the device.
+- Remaining differences from the original (menus, app flow, rollers, bouncers, bonuses, hazard zones, flat
+  ribbon and outside tube close up, smash details, sound) go into new intents.

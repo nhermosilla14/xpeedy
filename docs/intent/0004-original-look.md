@@ -1,6 +1,6 @@
 # 0004. Look and interface close to the original
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0014, 0015, 0016, 0017
