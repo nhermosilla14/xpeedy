@@ -21,6 +21,7 @@
 | 0009 | [Stage mode](intent/0009-stage-mode.md) | Done |
 | 0010 | [Upgrades and economy](intent/0010-upgrades-and-economy.md) | Done |
 | 0011 | [Sound, music and haptics](intent/0011-sound-and-haptics.md) | Done |
+| 0012 | [Help pages](intent/0012-help-pages.md) | Accepted |
 
 ## Slices
 | # | Title | Status |
@@ -69,6 +70,7 @@
 | 0042 | [Generated audio and the sound player](slices/0042-audio-assets-and-player.md) | Done |
 | 0043 | [Sounds and music in the game](slices/0043-sound-wiring.md) | Done |
 | 0044 | [Sound, music and vibration settings](slices/0044-sound-settings.md) | Done |
+| 0045 | [Help pages](slices/0045-help-pages.md) | In progress |
 
 ## ADRs
 | # | Title | Status |
@@ -104,3 +106,4 @@
 | 0029 | [Active upgrades, the HUD buttons and keep going](adr/0029-active-upgrades-and-keep-going.md) | Accepted |
 | 0030 | [The photosensitivity warning and the credits screen](adr/0030-warning-and-credits-screens.md) | Accepted |
 | 0031 | [Generated audio, the sound player and haptics](adr/0031-procedural-audio-and-haptics.md) | Accepted |
+| 0032 | [Help pages as data shown in the menu's text panel](adr/0032-help-pages.md) | Accepted |
