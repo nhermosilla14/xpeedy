@@ -1,6 +1,6 @@
 # 0012. Help pages
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-08
 - Owner: Nicolás Hermosilla P., agent
 - Related ADRs: 0032

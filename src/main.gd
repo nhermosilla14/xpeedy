@@ -106,8 +106,10 @@ func _ready() -> void:
 	_menu.quit_requested.connect(get_tree().quit)
 	difficulty = options.difficulty if Difficulty.is_valid(options.difficulty) else Difficulty.STANDARD
 	if start_in_menu and options.starts_in_menu():
-		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS, "mode": MenuController.Page.MODE, "stages": MenuController.Page.STAGES, "upgrades": MenuController.Page.UPGRADES, "credits": MenuController.Page.CREDITS}.get(options.screen, MenuController.Page.MAIN),
+		enter_menu({"difficulty": MenuController.Page.DIFFICULTY, "settings": MenuController.Page.SETTINGS, "mode": MenuController.Page.MODE, "stages": MenuController.Page.STAGES, "upgrades": MenuController.Page.UPGRADES, "credits": MenuController.Page.CREDITS, "help": MenuController.Page.HELP}.get(options.screen, MenuController.Page.MAIN),
 			show_warning and options.screen == "")
+		if options.screen.begins_with("help:"):
+			_menu.show_help_topic(options.screen.get_slice(":", 1), options.screen.get_slice(":", 2).to_int())
 	elif options.race.contains("-"):
 		start_race(options.race.get_slice("-", 0).to_int(), options.race.get_slice("-", 1).to_int())
 	else:

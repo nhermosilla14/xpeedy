@@ -31,7 +31,7 @@ var difficulty := "standard"
 var difficulty_given := false
 ## Do not show the menu: start a run directly.
 var no_menu := false
-## "main", "mode", "difficulty", "stages", "upgrades", "credits" or "settings": open the menu on that page (for screenshots).
+## "main", "mode", "difficulty", "stages", "upgrades", "credits", "help" or "settings": open the menu on that page (for screenshots).
 var screen := ""
 ## Skip the start sequence (tests and debugging).
 var no_countdown := false

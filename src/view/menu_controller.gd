@@ -13,7 +13,7 @@ signal settings_changed
 signal race_requested(stage: int)
 signal restart_stage_requested(stage: int)
 
-enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART, UPGRADES, CREDITS, WARNING }
+enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART, UPGRADES, CREDITS, WARNING, HELP, HELP_TOPIC }
 
 const WARNING_LINES: Array[String] = [
 	"this game has flashes and",
@@ -48,6 +48,8 @@ var _screen := MenuScreen.new()
 var _info := ScreenPanel.new()
 var _main_items: Array[String] = []
 var _pending_stage := 0
+var _help_topic := ""
+var _help_page := 0
 
 
 func _ready() -> void:
@@ -73,6 +75,15 @@ func open(page: Page, warning := false) -> void:
 		_stack.append(page)
 	if warning and not settings.warning_seen:
 		_stack.append(Page.WARNING)
+	_show_top()
+
+
+## Opens the help list and then one topic at one page (for screenshots).
+func show_help_topic(topic: String, page := 0) -> void:
+	open(Page.HELP)
+	_help_topic = topic
+	_help_page = clampi(page, 0, HelpPages.pages(topic).size() - 1)
+	_stack.append(Page.HELP_TOPIC)
 	_show_top()
 
 
@@ -104,7 +115,7 @@ func poll() -> void:
 	if _is_info_page():
 		if Input.is_action_just_pressed("ui_accept"):
 			_on_info_chosen(0)
-		elif Input.is_action_just_pressed("ui_cancel") and current_page() == Page.CREDITS:
+		elif Input.is_action_just_pressed("ui_cancel") and current_page() != Page.WARNING:
 			back()
 		return
 	if Input.is_action_just_pressed("ui_down"):
@@ -122,10 +133,15 @@ func move(step: int) -> void:
 
 
 func _is_info_page() -> bool:
-	return _stack.back() == Page.WARNING or _stack.back() == Page.CREDITS
+	return _stack.back() in [Page.WARNING, Page.CREDITS, Page.HELP_TOPIC]
 
 
 func _on_info_chosen(_index: int) -> void:
+	if current_page() == Page.HELP_TOPIC and _help_page + 1 < HelpPages.pages(_help_topic).size():
+		_help_page += 1
+		clicked.emit()
+		_show_top()
+		return
 	if current_page() == Page.WARNING:
 		settings.warning_seen = true
 		settings.save()
@@ -148,9 +164,21 @@ func _show_top(selected_item := 0) -> void:
 		Page.CREDITS:
 			_info.open("credits", CREDITS_LINES, ["back"] as Array[String])
 			return
+		Page.HELP_TOPIC:
+			var pages := HelpPages.pages(_help_topic)
+			var lines: Array[String] = []
+			lines.assign(pages[_help_page])
+			var last := _help_page + 1 >= pages.size()
+			_info.open("%s %d/%d" % [_help_topic, _help_page + 1, pages.size()], lines,
+				["back" if last else "next"] as Array[String])
+			return
+		Page.HELP:
+			for topic in HelpPages.topics():
+				items.append({"text": topic})
+			_screen.show_items(items, true, false, selected_item)
 	match _stack.back():
 		Page.MAIN:
-			_main_items = ["play", "upgrades", "credits"]
+			_main_items = ["play", "upgrades", "help", "credits"]
 			if can_quit:
 				_main_items.append("quit")
 			for text in _main_items:
@@ -209,6 +237,9 @@ func _on_activated(index: int) -> void:
 			if _main_items[index] == "play":
 				_stack.append(Page.MODE)
 				_show_top()
+			elif _main_items[index] == "help":
+				_stack.append(Page.HELP)
+				_show_top()
 			elif _main_items[index] == "credits":
 				_stack.append(Page.CREDITS)
 				_show_top()
@@ -232,6 +263,11 @@ func _on_activated(index: int) -> void:
 				_show_top()
 			else:
 				race_requested.emit(stage)
+		Page.HELP:
+			_help_topic = HelpPages.topics()[index]
+			_help_page = 0
+			_stack.append(Page.HELP_TOPIC)
+			_show_top()
 		Page.UPGRADES:
 			economy.buy(Upgrade.keys()[index])
 			_show_top(index)

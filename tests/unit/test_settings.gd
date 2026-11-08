@@ -157,7 +157,7 @@ func test_the_credits_page_names_the_author_and_gamelion() -> void:
 	menu._ready()
 	menu.open(MenuController.Page.MAIN)
 	check("credits" in menu.page_item_texts(), "credits item on the main menu")
-	menu.move(2)
+	menu.move(3)
 	menu.activate()
 	check_eq(menu.current_page(), MenuController.Page.CREDITS)
 	var text := " ".join(menu._info.lines)

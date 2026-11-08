@@ -101,7 +101,7 @@ func _physics_process(_delta: float) -> bool:
 				menu.back()
 				if menu.current_page() != MenuController.Page.MAIN:
 					_errors.append("back did not return to the main page")
-				menu.move(4)
+				menu.move(5)
 				menu.activate()
 				if menu.current_page() != MenuController.Page.SETTINGS:
 					_errors.append("the gear did not open settings")
