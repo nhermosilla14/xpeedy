@@ -20,7 +20,6 @@ godot_runtime="godot_4.4.1"
 godot_executable="godot441.$DEVICE_ARCH"
 weston_runtime="weston_pkg_0.2"
 pck_filename="xpeedy.pck"
-gptk_filename="xpeedy.gptk"
 
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 echo "Xpeedy on ${CFW_NAME} ${DEVICE_NAME} ${DISPLAY_WIDTH}x${DISPLAY_HEIGHT} ${DEVICE_ARCH}"
@@ -59,7 +58,7 @@ if [ -f "$GAMEDIR/args.txt" ]; then
 fi
 echo "Game arguments: ${GAME_ARGS:-none}"
 
-$GPTOKEYB "$godot_executable" -c "$GAMEDIR/$gptk_filename" &
+$GPTOKEYB "$godot_executable" &
 
 $ESUDO env $weston_dir/westonwrap.sh headless noop kiosk crusty_x11egl \
 LD_PRELOAD= XDG_DATA_HOME=$CONFDIR $godot_dir/$godot_executable \

@@ -113,3 +113,4 @@
 | 0034 | [No use of the original's assets](adr/superseded/0034-no-use-of-original-assets.md) | Superseded by 0036 |
 | 0035 | [The PortMaster zip is built by GitHub Actions](adr/0035-portmaster-zip-in-github-actions.md) | Accepted |
 | 0036 | [Reference screenshots: local visual reference, never published](adr/0036-reference-screenshots-local-only.md) | Accepted |
+| 0037 | [PortMaster package: no gptokeyb mapping file, PortMaster layout and names](adr/0037-portmaster-no-gptk-and-layout.md) | Accepted |

@@ -45,7 +45,7 @@
 | `src/view/` | Nodes that draw the model: `TunnelView`, `ObstacleView`, `ShipCamera`; `TrackShaderBinding` uploads the data they share; `TrailTexture` uploads the trail map; `Palette` holds the obstacle colours; `Hud` and `ScreenFlash` show score, shields and flashes; `StartLights` and `ScreenPanel` (Pause, Game Over) and `UiFont` make up the interface; `PersonalBest` and `Settings` (`src/core/`) save the best scores and the settings; `MenuController`, `MenuScreen` and `MenuBackdrop` are the menus (ADR 0018), `Difficulty` (`src/model/`) the five Survival difficulties; `Spot.Kind` and `SurvivalRun.held` carry the bonuses (ADR 0022); `SoundPlayer` (`src/view/`) plays the generated effects and music of `assets/audio/` and `SoundMap` (`src/core/`) maps run events to sounds and vibration (ADR 0031); `Upgrade`, `Upgrades` and `Economy` (credits, upgrade levels; ADR 0028, 0029) and `Torpedo` add the upgrades; `RaceSpec`, `RaceParser`, `RaceConfig` and `StageCatalogue` (`src/model/`) run the 48 races of `data/stages/`, saved by `StageProgress` (`src/core/`) (ADR 0024, 0025); `Zone` and `ZoneField` (`src/model/`) the hazard zones, lived by `SurvivalRun` (ADR 0023); `MovingMath` (`src/model/`) the closed-form motion of rollers and bouncers, repeated in `obstacle.gdshader` (ADR 0020, 0021); `ExplosionView` draws smash fragments |
 | `tests/` | Unit tests (`tests/unit/`) and end-to-end scene scripts (`tests/e2e_*.gd`) |
 | `tools/` | Container wrapper, test, export and packaging scripts |
-| `packaging/portmaster/` | PortMaster port: launch script (Godot 4.4.1 runtime under Weston), metadata, gptk |
+| `packaging/portmaster/` | PortMaster port: launch script (Godot 4.4.1 runtime under Weston), metadata and art (ADR 0037) |
 
 ## Key rules
 - **Model / view split**: the model never touches nodes; views only read it (ADR 0004).
@@ -142,5 +142,5 @@
   dummy renderer, so shaders are only verified on a real GPU.
 - The root node runs with process mode Always (works around the Godot 4.3+ idle bug on handhelds),
   and stdout is flushed on every print so `[bench]` lines survive the port being killed.
-- Handheld input: gptokeyb maps D-pad/left stick to arrow keys; Godot's native gamepad input stays on
-  (both drive the same actions, so a double input just saturates the axis).
+- Handheld input: Godot reads the gamepad natively (D-pad, A/B/Start through the UI and steering actions, the left
+  stick through `SteerInput`); gptokeyb runs without a mapping file, for the quit hotkey only (ADR 0037).

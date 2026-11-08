@@ -36,9 +36,10 @@ launch if Wi-Fi is available, otherwise copy the `.squashfs` files into `PortMas
 Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/xpeedy/log.txt` every 10 s. On a handheld,
 put options in `ports/xpeedy/args.txt` (for example `--benchmark`) to pass them to the game.
 
-For publishing, `tools/package-portmaster.sh` also assembles `build/portmaster/submission/` (the port files plus
-`cover.png`, `screenshot.png` and `preview.mp4` from `packaging/portmaster/`). `tools/make-portmaster-art.sh`
-regenerates those three from the game (needs the Linux build, python3 with PIL and ffmpeg).
+For publishing, `tools/package-portmaster.sh` also assembles `build/portmaster/submission/`, the layout of a PortMaster
+pull request (the port files plus `cover.png` and `screenshot.png` from `packaging/portmaster/`; ADR 0037).
+`tools/make-portmaster-art.sh` regenerates the images and `preview.mp4` from the game (needs the Linux build, python3
+with PIL and ffmpeg).
 
 ### Release
 1. Set the version in `project.godot` (`config/version`) and commit it.
@@ -88,7 +89,7 @@ src/                  game code: core/ (helpers), model/ (gameplay state), view/
 tests/                unit tests (unit/), end-to-end scene scripts (e2e_*.gd), runner
 tools/                godot.sh (containerised Godot), test.sh, export.sh, package-portmaster.sh
 .github/workflows/    GitHub Actions: builds the PortMaster zip on push to main and on v* tags
-packaging/portmaster/ PortMaster launch script, port.json, gameinfo.xml, gptk mapping
+packaging/portmaster/ PortMaster launch script, port.json, gameinfo.xml, cover and screenshot (ADR 0037)
 docs/                 vision, architecture, intents, slices, ADRs
 docs/reference/       behavioural reference of the original game (clean-room spec)
 project.godot         Godot project; export_presets.cfg holds export targets
