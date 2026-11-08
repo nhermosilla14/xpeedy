@@ -1,6 +1,6 @@
 # 0044. Sound, music and vibration settings
 
-- Status: Accepted
+- Status: Done
 - Date: 2026-11-07
 - Owner: agent
 - Intents: 0011

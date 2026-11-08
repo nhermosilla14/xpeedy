@@ -49,11 +49,13 @@ var _economy := Economy.new()
 ## Credits paid by the run that just ended, for the panel.
 var _reward := 0
 var _keep_asked := false
+var _light_started := [false, false, false]
 
 @onready var _tunnel: TunnelView = $Tunnel
 @onready var _obstacles: ObstacleView = $Obstacles
 @onready var _explosions: ExplosionView = $Explosions
 @onready var _torpedoes: TorpedoView = $Torpedoes
+@onready var _sound: SoundPlayer = $Sound
 @onready var _camera: ShipCamera = $Camera
 @onready var _fps: Label = $Hud/Fps
 @onready var _lights: StartLights = $Hud/Lights
@@ -89,6 +91,10 @@ func _ready() -> void:
 	_screen.chosen.connect(_on_choice)
 	_frame_stats.extra = _state_text
 	_menu.settings = _settings
+	_menu.clicked.connect(_sound.play.bind("click"))
+	_menu.settings_changed.connect(_apply_audio_settings)
+	_apply_audio_settings()
+	_sound.start_music()
 	_menu.progress = _progress
 	_menu.economy = _economy
 	_menu.race_requested.connect(func(s: int) -> void: start_race(s, _progress.next_race(s)))
@@ -106,6 +112,10 @@ func _ready() -> void:
 		start_race(options.race.get_slice("-", 0).to_int(), options.race.get_slice("-", 1).to_int())
 	else:
 		start_run(_new_seed())
+
+
+func _apply_audio_settings() -> void:
+	_sound.set_options(_settings.sound, _settings.music, _settings.vibration)
 
 
 func _new_seed() -> int:
@@ -182,6 +192,7 @@ func start_run(run_seed: int) -> void:
 	_paused = false
 	_over_shown = false
 	_keep_asked = false
+	_light_started = [false, false, false]
 	_reward = 0
 	_finish_wait = 0.0
 	_restart_wait = 0.0
@@ -327,6 +338,7 @@ func _toggle_pause() -> void:
 
 
 func _on_choice(index: int) -> void:
+	_sound.play("click")
 	if _paused:
 		match index:
 			0:
@@ -382,6 +394,10 @@ func _show_game_over() -> void:
 ## Feedback for what happened this tick (ADR 0010).
 func _show_events() -> void:
 	for event in _run.take_events():
+		var cue := SoundMap.for_event(event.kind, event.bonus)
+		if not cue.is_empty():
+			_sound.play(cue["sound"])
+			_sound.vibrate(cue["vibrate"])
 		match event.kind:
 			RunEvent.Kind.SHIELD_PICKUP:
 				_flash.flash(Color(1.0, 0.7, 0.2), 0.75, 0.3)
@@ -518,6 +534,10 @@ func _refresh_view(dt: float) -> void:
 	_trail_texture.refresh(_run.trails)
 	_status.update(_run)
 	_lights.update(_run)
+	for i in 3:
+		if not _light_started[i] and _lights.progress[i] >= 0.0:
+			_light_started[i] = true
+			_sound.play("beep")
 	_tint.visible = _run.dilation_left > 0.0
 	_race_label.visible = stage > 0 and _run.phase == SurvivalRun.Phase.STARTING
 	_race_label.text = "stage %02d / run %02d" % [stage, race]

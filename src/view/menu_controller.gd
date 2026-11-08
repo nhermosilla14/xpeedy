@@ -6,6 +6,9 @@ extends Control
 
 signal play_requested(difficulty: String)
 signal quit_requested
+## The player pressed a menu item (for the click sound), and a setting changed (the owner applies it).
+signal clicked
+signal settings_changed
 ## A stage was chosen (it starts its next unfinished race), or its restart was confirmed.
 signal race_requested(stage: int)
 signal restart_stage_requested(stage: int)
@@ -91,6 +94,7 @@ func selected_index() -> int:
 ## Goes up one level; does nothing on the main page.
 func back() -> void:
 	if _stack.size() > 1:
+		clicked.emit()
 		_stack.pop_back()
 		_show_top()
 
@@ -182,15 +186,24 @@ func _show_top(selected_item := 0) -> void:
 		Page.SETTINGS:
 			items.append({"text": "invert: %s" % ("on" if settings.invert else "off")})
 			items.append({"text": "buttons: %s" % settings.layout})
+			items.append({"text": "sound: %s" % _on_off(settings.sound)})
+			items.append({"text": "music: %s" % _on_off(settings.music)})
+			items.append({"text": "vibration: %s" % _on_off(settings.vibration)})
 			_screen.show_items(items, true, false, selected_item)
 
 
 func _open_settings() -> void:
+	clicked.emit()
 	_stack.append(Page.SETTINGS)
 	_show_top()
 
 
+static func _on_off(value: bool) -> String:
+	return "on" if value else "off"
+
+
 func _on_activated(index: int) -> void:
+	clicked.emit()
 	match _stack.back():
 		Page.MAIN:
 			if _main_items[index] == "play":
@@ -228,10 +241,18 @@ func _on_activated(index: int) -> void:
 			else:
 				back()
 		Page.SETTINGS:
-			if index == 0:
-				settings.invert = not settings.invert
-			else:
-				settings.layout = InputLayout.XBOX if settings.layout == InputLayout.NINTENDO else InputLayout.NINTENDO
-				InputLayout.apply(settings.layout)
+			match index:
+				0:
+					settings.invert = not settings.invert
+				1:
+					settings.layout = InputLayout.XBOX if settings.layout == InputLayout.NINTENDO else InputLayout.NINTENDO
+					InputLayout.apply(settings.layout)
+				2:
+					settings.sound = not settings.sound
+				3:
+					settings.music = not settings.music
+				_:
+					settings.vibration = not settings.vibration
 			settings.save()
+			settings_changed.emit()
 			_show_top(index)

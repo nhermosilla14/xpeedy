@@ -20,7 +20,7 @@
 | 0008 | [Hazard zones](intent/0008-hazard-zones.md) | Done |
 | 0009 | [Stage mode](intent/0009-stage-mode.md) | Done |
 | 0010 | [Upgrades and economy](intent/0010-upgrades-and-economy.md) | Done |
-| 0011 | [Sound, music and haptics](intent/0011-sound-and-haptics.md) | Accepted |
+| 0011 | [Sound, music and haptics](intent/0011-sound-and-haptics.md) | Done |
 
 ## Slices
 | # | Title | Status |
@@ -66,9 +66,9 @@
 | 0039 | [Active upgrades: the model](slices/0039-active-upgrades-model.md) | Done |
 | 0040 | [Active upgrades: buttons, input and look](slices/0040-active-upgrades-ui.md) | Done |
 | 0041 | [Keep going](slices/0041-keep-going.md) | Done |
-| 0042 | [Generated audio and the sound player](slices/0042-audio-assets-and-player.md) | Accepted |
-| 0043 | [Sounds and music in the game](slices/0043-sound-wiring.md) | Accepted |
-| 0044 | [Sound, music and vibration settings](slices/0044-sound-settings.md) | Accepted |
+| 0042 | [Generated audio and the sound player](slices/0042-audio-assets-and-player.md) | Done |
+| 0043 | [Sounds and music in the game](slices/0043-sound-wiring.md) | Done |
+| 0044 | [Sound, music and vibration settings](slices/0044-sound-settings.md) | Done |
 
 ## ADRs
 | # | Title | Status |
