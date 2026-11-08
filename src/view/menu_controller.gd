@@ -168,7 +168,7 @@ func _show_top(selected_item := 0) -> void:
 			var about := about_pages()
 			var about_lines: Array[String] = []
 			about_lines.assign(about[_about_page])
-			_info.open("about %d/%d" % [_about_page + 1, about.size()], about_lines,
+			_info.open("about", about_lines,
 				["back" if _about_page + 1 >= about.size() else "next"] as Array[String])
 			return
 		Page.HELP_TOPIC:
