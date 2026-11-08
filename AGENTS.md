@@ -48,5 +48,6 @@ These rules apply to every change, by humans or agents:
 ## Conventions
 - Tooling: Godot 4.4.1 runs from the `docker.io/barichello/godot-ci:4.4.1` podman image (includes export templates) via `tools/godot.sh`; no host install needed. Tests: own minimal runner (`tests/run_tests.gd`, `TestCase`) plus `tests/e2e_*.gd` scene scripts, run by `tools/test.sh`. Exports via `tools/export.sh`; PortMaster zip via `tools/package-portmaster.sh` (layout follows PortMaster's Godot 4 + Weston ports).
 - Workflow: trunk-based on `main`, small focused commits, short-lived branches only when needed.
+- Release: a `v*` tag builds the PortMaster zip and attaches it to a GitHub release (`.github/workflows/portmaster.yml`, ADR 0035). CI runs the same tools in the godot-ci image with `GODOT_LOCAL=1`, which makes `tools/godot.sh` use the Godot on PATH. The version lives in `project.godot` (`config/version`).
 - Style: statically typed GDScript following the official Godot style guide; tabs for indentation.
 - Never commit secrets (Android keystores, signing passwords); keep them out of git via `.gitignore`.

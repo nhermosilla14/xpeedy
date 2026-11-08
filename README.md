@@ -10,13 +10,14 @@ handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 ## Prerequisites
 - [Podman](https://podman.io/) 4+. Godot 4.4.1 and its export templates come from the
-  `docker.io/barichello/godot-ci:4.4.1` image, pulled on first use. Override it with `GODOT_IMAGE`.
+  `docker.io/barichello/godot-ci:4.4.1` image, pulled on first use. Override it with `GODOT_IMAGE`, or set
+  `GODOT_LOCAL=1` to use a Godot 4.4.1 already on the PATH (CI does this).
 - Optional: a local Godot 4.4.1 editor (standard build, not .NET) to edit scenes.
 - For PortMaster testing: a handheld with PortMaster and its `godot_4.4.1` and Weston runtimes.
 
 ## Getting started
 ```sh
-git clone <repo-url> Xpeedy && cd Xpeedy
+git clone https://github.com/nhermosilla14/xpeedy.git Xpeedy && cd Xpeedy
 tools/test.sh        # unit + end-to-end tests (headless, in the container)
 tools/export.sh      # builds build/linux/xpeedy.x86_64
 build/linux/xpeedy.x86_64
@@ -38,6 +39,15 @@ put options in `ports/xpeedy/args.txt` (for example `--benchmark`) to pass them 
 For publishing, `tools/package-portmaster.sh` also assembles `build/portmaster/submission/` (the port files plus
 `cover.png`, `screenshot.png` and `preview.mp4` from `packaging/portmaster/`). `tools/make-portmaster-art.sh`
 regenerates those three from the game (needs the Linux build, python3 with PIL and ffmpeg).
+
+### Release
+1. Set the version in `project.godot` (`config/version`) and commit it.
+2. Tag it and push the tag:
+   ```sh
+   git tag v0.9.0 && git push origin v0.9.0
+   ```
+GitHub Actions (`.github/workflows/portmaster.yml`) builds `xpeedy.zip` and attaches it to the release. Every
+push to `main` builds it too; download it from the run's artifacts (`xpeedy-portmaster`) on the Actions page.
 
 ## Usage
 | Action | Keyboard | Gamepad |
@@ -77,6 +87,7 @@ The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A co
 src/                  game code: core/ (helpers), model/ (gameplay state), view/ (drawing), main scene
 tests/                unit tests (unit/), end-to-end scene scripts (e2e_*.gd), runner
 tools/                godot.sh (containerised Godot), test.sh, export.sh, package-portmaster.sh
+.github/workflows/    GitHub Actions: builds the PortMaster zip on push to main and on v* tags
 packaging/portmaster/ PortMaster launch script, port.json, gameinfo.xml, gptk mapping
 docs/                 vision, architecture, intents, slices, ADRs
 docs/reference/       behavioural reference of the original game (clean-room spec)
