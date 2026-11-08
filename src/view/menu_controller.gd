@@ -13,7 +13,7 @@ signal settings_changed
 signal race_requested(stage: int)
 signal restart_stage_requested(stage: int)
 
-enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART, UPGRADES, CREDITS, WARNING, HELP, HELP_TOPIC }
+enum Page { MAIN, DIFFICULTY, SETTINGS, MODE, STAGES, RESTART, UPGRADES, ABOUT, WARNING, HELP, HELP_TOPIC }
 
 const WARNING_LINES: Array[String] = [
 	"this game has flashes and",
@@ -21,14 +21,14 @@ const WARNING_LINES: Array[String] = [
 	"triggering for people who",
 	"are sensitive to them.",
 ]
-const CREDITS_LINES: Array[String] = [
-	"xpeedy: a clone of speedx 3d",
-	"developed by",
-	"nicolas hermosilla",
-	"github: nhermosilla14",
-	"original idea by the great",
-	"developers at gamelion",
-]
+## The about pages (ADR 0033): the version and licence, then the credits.
+static func about_pages() -> Array:
+	var version: String = ProjectSettings.get_setting("application/config/version", "dev")
+	return [
+		["xpeedy", "version %s" % version, "a clone of speedx 3d", "free software, gpl-3.0"],
+		["developed by", "nicolas hermosilla", "github: nhermosilla14", "original idea by the great",
+			"developers at gamelion", "font: orbitron, sil ofl"],
+	]
 
 ## The Quit item is hidden where programs do not quit (Android, web).
 var can_quit := not (OS.has_feature("mobile") or OS.has_feature("web"))
@@ -50,6 +50,7 @@ var _main_items: Array[String] = []
 var _pending_stage := 0
 var _help_topic := ""
 var _help_page := 0
+var _about_page := 0
 
 
 func _ready() -> void:
@@ -73,7 +74,7 @@ func open(page: Page, warning := false) -> void:
 		_stack.append(Page.MODE)
 	if page != Page.MAIN:
 		_stack.append(page)
-	if warning and not settings.warning_seen:
+	if warning:
 		_stack.append(Page.WARNING)
 	_show_top()
 
@@ -133,18 +134,20 @@ func move(step: int) -> void:
 
 
 func _is_info_page() -> bool:
-	return _stack.back() in [Page.WARNING, Page.CREDITS, Page.HELP_TOPIC]
+	return _stack.back() in [Page.WARNING, Page.ABOUT, Page.HELP_TOPIC]
 
 
 func _on_info_chosen(_index: int) -> void:
+	if current_page() == Page.ABOUT and _about_page + 1 < about_pages().size():
+		_about_page += 1
+		clicked.emit()
+		_show_top()
+		return
 	if current_page() == Page.HELP_TOPIC and _help_page + 1 < HelpPages.pages(_help_topic).size():
 		_help_page += 1
 		clicked.emit()
 		_show_top()
 		return
-	if current_page() == Page.WARNING:
-		settings.warning_seen = true
-		settings.save()
 	back()
 
 
@@ -161,8 +164,12 @@ func _show_top(selected_item := 0) -> void:
 		Page.WARNING:
 			_info.open("warning", WARNING_LINES, ["i understand"] as Array[String])
 			return
-		Page.CREDITS:
-			_info.open("credits", CREDITS_LINES, ["back"] as Array[String])
+		Page.ABOUT:
+			var about := about_pages()
+			var about_lines: Array[String] = []
+			about_lines.assign(about[_about_page])
+			_info.open("about %d/%d" % [_about_page + 1, about.size()], about_lines,
+				["back" if _about_page + 1 >= about.size() else "next"] as Array[String])
 			return
 		Page.HELP_TOPIC:
 			var pages := HelpPages.pages(_help_topic)
@@ -178,7 +185,7 @@ func _show_top(selected_item := 0) -> void:
 			_screen.show_items(items, true, false, selected_item)
 	match _stack.back():
 		Page.MAIN:
-			_main_items = ["play", "upgrades", "help", "credits"]
+			_main_items = ["play", "upgrades", "help", "about"]
 			if can_quit:
 				_main_items.append("quit")
 			for text in _main_items:
@@ -214,6 +221,7 @@ func _show_top(selected_item := 0) -> void:
 		Page.SETTINGS:
 			items.append({"text": "invert: %s" % ("on" if settings.invert else "off")})
 			items.append({"text": "buttons: %s" % settings.layout})
+			items.append({"text": "stick: %s" % ("flipped" if settings.stick_flipped else "normal")})
 			items.append({"text": "sound: %s" % _on_off(settings.sound)})
 			items.append({"text": "music: %s" % _on_off(settings.music)})
 			items.append({"text": "vibration: %s" % _on_off(settings.vibration)})
@@ -240,8 +248,9 @@ func _on_activated(index: int) -> void:
 			elif _main_items[index] == "help":
 				_stack.append(Page.HELP)
 				_show_top()
-			elif _main_items[index] == "credits":
-				_stack.append(Page.CREDITS)
+			elif _main_items[index] == "about":
+				_about_page = 0
+				_stack.append(Page.ABOUT)
 				_show_top()
 			elif _main_items[index] == "upgrades":
 				_stack.append(Page.UPGRADES)
@@ -284,8 +293,10 @@ func _on_activated(index: int) -> void:
 					settings.layout = InputLayout.XBOX if settings.layout == InputLayout.NINTENDO else InputLayout.NINTENDO
 					InputLayout.apply(settings.layout)
 				2:
-					settings.sound = not settings.sound
+					settings.stick_flipped = not settings.stick_flipped
 				3:
+					settings.sound = not settings.sound
+				4:
 					settings.music = not settings.music
 				_:
 					settings.vibration = not settings.vibration

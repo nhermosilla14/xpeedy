@@ -104,6 +104,7 @@
 | 0027 | [The analog sticks are left to the game on handhelds](adr/0027-analog-sticks-left-to-the-game.md) | Accepted |
 | 0028 | [Credits, the upgrade catalogue and the passive upgrades](adr/0028-economy-and-passive-upgrades.md) | Accepted |
 | 0029 | [Active upgrades, the HUD buttons and keep going](adr/0029-active-upgrades-and-keep-going.md) | Accepted |
-| 0030 | [The photosensitivity warning and the credits screen](adr/0030-warning-and-credits-screens.md) | Accepted |
+| 0030 | [The photosensitivity warning and the credits screen](adr/superseded/0030-warning-and-credits-screens.md) | Superseded by 0033 |
 | 0031 | [Generated audio, the sound player and haptics](adr/0031-procedural-audio-and-haptics.md) | Accepted |
 | 0032 | [Help pages as data shown in the menu's text panel](adr/0032-help-pages.md) | Accepted |
+| 0033 | [Stick direction, the warning on every launch, the About page and the PortMaster art](adr/0033-stick-direction-warning-about-and-publishing-art.md) | Accepted |

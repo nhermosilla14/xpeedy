@@ -5,8 +5,8 @@ tunnel at high speed and steer around obstacles. It targets desktop, Android and
 handhelds (down to the Anbernic RG351P). See [docs/vision.md](docs/vision.md).
 
 > Status: the Survival core is playable on desktop and on the RG351P at a locked 60 fps ([intent 0003](docs/intent/0003-survival-core.md)):
-> menus, five difficulties, tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Rollers and bouncers ([intent 0006](docs/intent/0006-rollers-and-bouncers.md)) are in on every difficulty but Pure. Bonuses (Quake, Time Dilation, Space Fold; [intent 0007](docs/intent/0007-bonuses.md)) are in; fire the one you hold with Enter, Space, A or a tap. The five hazard zones ([intent 0008](docs/intent/0008-hazard-zones.md)) and Stage mode with its 48 races ([intent 0009](docs/intent/0009-stage-mode.md)) are in. Upgrades, credits and keep going ([intent 0010](docs/intent/0010-upgrades-and-economy.md)) are in: the shop is "upgrades" on the main menu, and in a run Q, W and E (gamepad X, Y and R1, or the buttons on the left edge) use the Shield Recharger, Tachyon Torpedo and Phase Shift. Sound, music and vibration ([intent 0011](docs/intent/0011-sound-and-haptics.md)) are in, each with a Settings switch; the audio is synthesised by `tools/make-audio.py`. The in-game help pages ([intent 0012](docs/intent/0012-help-pages.md)) explain controls, obstacles, shields, bonuses, zones, upgrades and modes. Not yet:
-> Android and tilt.
+> menus, five difficulties, tunnel, obstacles, trails, shields, smashing, score, with the original's look and interface ([intent 0004](docs/intent/0004-original-look.md)): start lights, pause, Game Over, saved personal best. Rollers and bouncers ([intent 0006](docs/intent/0006-rollers-and-bouncers.md)) are in on every difficulty but Pure. Bonuses (Quake, Time Dilation, Space Fold; [intent 0007](docs/intent/0007-bonuses.md)) are in; fire the one you hold with Enter, Space, A or a tap. The five hazard zones ([intent 0008](docs/intent/0008-hazard-zones.md)) and Stage mode with its 48 races ([intent 0009](docs/intent/0009-stage-mode.md)) are in. Upgrades, credits and keep going ([intent 0010](docs/intent/0010-upgrades-and-economy.md)) are in: the shop is "upgrades" on the main menu, and in a run Q, W and E (gamepad X, Y and R1, or the buttons on the left edge) use the Shield Recharger, Tachyon Torpedo and Phase Shift. Sound, music and vibration ([intent 0011](docs/intent/0011-sound-and-haptics.md)) are in, each with a Settings switch; the audio is synthesised by `tools/make-audio.py`. The in-game help pages ([intent 0012](docs/intent/0012-help-pages.md)) explain controls, obstacles, shields, bonuses, zones, upgrades and modes. Android and tilt controls were dropped. Not yet: Custom difficulty and achievements.
+>
 
 ## Prerequisites
 - [Podman](https://podman.io/) 4+. Godot 4.4.1 and its export templates come from the
@@ -34,6 +34,10 @@ The port needs the `godot_4.4.1` and `weston_pkg_0.2` runtimes; PortMaster downl
 launch if Wi-Fi is available, otherwise copy the `.squashfs` files into `PortMaster/libs/`.
 Benchmark lines (`[bench] ... avg=… fps low1%=… fps`) are written to `ports/xpeedy/log.txt` every 10 s. On a handheld,
 put options in `ports/xpeedy/args.txt` (for example `--benchmark`) to pass them to the game.
+
+For publishing, `tools/package-portmaster.sh` also assembles `build/portmaster/submission/` (the port files plus
+`cover.png`, `screenshot.png` and `preview.mp4` from `packaging/portmaster/`). `tools/make-portmaster-art.sh`
+regenerates those three from the game (needs the Linux build, python3 with PIL and ffmpeg).
 
 ## Usage
 | Action | Keyboard | Gamepad |
@@ -66,7 +70,7 @@ Debugging options for the exported game, after `--` on the command line:
 | `--start-shape=in\|flat\|out` | start inside the first part of that shape |
 | `--screenshot=PATH[,SECONDS]` | save the viewport to a PNG after the delay and quit; `tools/look-shots.sh` uses it |
 
-The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A confirm, Esc or B go back; with a mouse or touch an item activates when released. "play" opens the mode page: "single" (the four stages, locked until the earlier ones are done) or "survival" (the five difficulties); the gear opens settings (invert steering, button layout nintendo or xbox); the back arrow is reached with up/down, and Select goes back too. A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
+The game opens on the menu: up/down (arrows, d-pad) select, Enter, Space or A confirm, Esc or B go back; with a mouse or touch an item activates when released. "play" opens the mode page: "single" (the four stages, locked until the earlier ones are done) or "survival" (the five difficulties); the gear opens settings (invert steering, button layout nintendo or xbox, the left stick's direction, sound, music, vibration); the back arrow is reached with up/down, and Select goes back too. A run starts with three lights (3.8 s). Pause with Esc, P, Start or the pause button; in the pause panel Up/Down select and A or Enter confirms; after a crash R, Enter, Space or A restarts after a crash (the Game Over panel shows the score and the saved personal best). Select + Start quits on handhelds. Use `--fps` to show the frame rate.
 
 ## Project structure
 ```
@@ -103,12 +107,12 @@ See [docs/README.md](docs/README.md).
 Xpeedy is a clone of SpeedX 3D, developed by Nicolás Hermosilla (nhermosilla14). Many thanks to the great
 developers at GameLion for the original idea. The game was written clean-room from behavioural notes; no
 asset of the original is used. The typeface is Orbitron (SIL Open Font License, `assets/fonts/OFL.txt`). The
-credits are also in the game ("credits" on the main menu).
+credits and the version are also in the game ("about" on the main menu).
 
 ## Warning
 
 This game contains flashes and visual effects that may be triggering for people who are sensitive to them.
-The game shows this warning on its first launch.
+The game shows this warning every time it starts.
 
 ## License
 GPL-3.0-or-later. See [LICENSE](LICENSE).

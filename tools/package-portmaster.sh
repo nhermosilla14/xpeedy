@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Builds the PortMaster port: exports the ARM64 .pck and assembles build/portmaster/xpeedy.zip
-# (Xpeedy.sh + xpeedy/ folder, as listed in port.json).
+# (Xpeedy.sh + xpeedy/ folder, as listed in port.json) and build/portmaster/submission/, the layout of a
+# PortMaster pull request (the port files plus cover.png, screenshot.png and preview.mp4).
 set -euo pipefail
 
 TOOLS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,4 +25,13 @@ cp "$REPO/packaging/portmaster/port.json" "$REPO/packaging/portmaster/gameinfo.x
 	"$REPO/packaging/portmaster/README.md" "$STAGE/xpeedy/"
 
 (cd "$STAGE" && zip -qr "$OUT/xpeedy.zip" Xpeedy.sh xpeedy)
-echo "Built $OUT/xpeedy.zip"
+SUB="$OUT/submission"
+mkdir -p "$SUB"
+cp "$STAGE/Xpeedy.sh" "$SUB/"
+cp -r "$STAGE/xpeedy" "$SUB/"
+cp "$REPO/packaging/portmaster/port.json" "$REPO/packaging/portmaster/gameinfo.xml" \
+	"$REPO/packaging/portmaster/README.md" "$SUB/"
+for art in cover.png screenshot.png preview.mp4; do
+	[ -f "$REPO/packaging/portmaster/$art" ] && cp "$REPO/packaging/portmaster/$art" "$SUB/"
+done
+echo "Built $OUT/xpeedy.zip and $SUB"

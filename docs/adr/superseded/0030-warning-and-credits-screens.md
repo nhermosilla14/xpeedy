@@ -1,6 +1,6 @@
 # 0030. The photosensitivity warning and the credits screen
 
-- Status: Accepted
+- Status: Superseded by 0033
 - Date: 2026-11-07
 - Deciders: Nicolás Hermosilla P. (requested), agent
 - Intent: none (a request between intents 0010 and the next)

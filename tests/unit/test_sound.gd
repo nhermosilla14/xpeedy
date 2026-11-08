@@ -122,10 +122,10 @@ func test_the_settings_page_switches_audio_and_tells_the_owner() -> void:
 	var changes := []
 	menu.settings_changed.connect(func() -> void: changes.append(1))
 	menu.open(MenuController.Page.SETTINGS)
-	for index in [2, 3, 4]:
+	for index in [3, 4, 5]:
 		menu.move(index - menu.selected_index())
 		menu.activate()
-	check_eq(menu.page_item_texts().slice(2), ["sound: off", "music: off", "vibration: off"] as Array[String])
+	check_eq(menu.page_item_texts().slice(3), ["sound: off", "music: off", "vibration: off"] as Array[String])
 	check_eq(changes.size(), 3)
 	var saved := Settings.new(PATH)
 	check(not saved.sound and not saved.music and not saved.vibration, "saved")
