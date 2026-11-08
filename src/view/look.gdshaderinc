@@ -1,6 +1,5 @@
 // Shared look constants (ADR 0015). Colours are linear values as the shaders use them; the comments give
-// the approximate screen colour they should produce, taken from the reference notes
-//.
+// the approximate screen colour they should produce.
 
 // Surface: blue-violet with soft wide bands along the track.
 const vec3 SURFACE_LIGHT = vec3(0.34, 0.31, 0.64);   // about #5A52A8

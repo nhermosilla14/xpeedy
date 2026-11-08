@@ -13,7 +13,7 @@ build these in Godot that scales from 480×320 to a phone.
 
 ## Decision
 - **Typeface**: Orbitron (SIL Open Font License 1.1) at its Black weight (900). Of thirteen open fonts
-  compared by eye it is the closest: heavy, squared, geometric,
+  compared against the look notes it is the closest: heavy, squared, geometric,
   lowercase. Runner-up: Oxanium ExtraBold. Orbitron is a variable font, so the weight is set with a
   `FontVariation`. The font and its `OFL.txt` are bundled in `assets/fonts/`, and the licence is shipped in
   every package (PortMaster `licenses/`, desktop and Android builds).

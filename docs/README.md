@@ -88,7 +88,7 @@
 | 0011 | [Obstacles, trails and spots on the GPU, RGBA8 trail texture](adr/0011-gpu-obstacles-trails-spots-rgba8.md) | Accepted |
 | 0012 | [HUD with a common shield bar, flashes and explosions](adr/0012-hud-common-shield-bar.md) | Accepted |
 | 0013 | [Obstacle pattern generation rules](adr/0013-obstacle-pattern-rules.md) | Accepted |
-| 0014 | [Visual reference](adr/0014-visual-reference.md) | Accepted |
+| 0014 | [Visual reference](adr/superseded/0014-visual-reference.md) | Superseded by 0034 |
 | 0015 | [The original's world look, drawn procedurally](adr/0015-procedural-world-look.md) | Accepted |
 | 0016 | [Interface style: typeface, HUD and screen panels](adr/0016-interface-style.md) | Accepted |
 | 0017 | [Run flow: start sequence, pause and personal best](adr/0017-run-flow-and-personal-best.md) | Accepted |
@@ -108,3 +108,4 @@
 | 0031 | [Generated audio, the sound player and haptics](adr/0031-procedural-audio-and-haptics.md) | Accepted |
 | 0032 | [Help pages as data shown in the menu's text panel](adr/0032-help-pages.md) | Accepted |
 | 0033 | [Stick direction, the warning on every launch, the About page and the PortMaster art](adr/0033-stick-direction-warning-about-and-publishing-art.md) | Accepted |
+| 0034 | [No use of the original's assets](adr/0034-no-use-of-original-assets.md) | Accepted |

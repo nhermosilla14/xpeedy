@@ -7,7 +7,7 @@
 
 ## Goal
 Xpeedy looks and feels like the original SpeedX 3D, as closely as we can get from the observations in
-the look notes, removed by ADR 0034 (no
+the look notes removed by ADR 0034 (no
 asset is copied). The world, the HUD and the end-of-run screen change; the rules do not. Details we could
 not observe (the flat ribbon and outside tube close up, smash and explosion, shield display with shields,
 bonuses, hazard zones) follow the same style by extension and are refined later.
@@ -50,7 +50,7 @@ bonuses, hazard zones) follow the same style by extension and are refined later.
   a 1 % low of at least 50 fps (as in intents 0002 and 0003).
 - No asset of the original is used: the font, the dotted pattern and every shape are our own or
   open-licence.
-- The user reviews side-by-side screenshots and confirms the look is close.
+- The user reviews the look on screen and confirms it is close.
 
 ## Out of scope
 - Main menu, mode and difficulty screens, the pause menu's choices beyond a pause button, settings, and

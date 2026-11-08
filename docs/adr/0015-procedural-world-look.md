@@ -8,9 +8,9 @@
 ## Context
 Intent 0004 asks for the original's look: a blue-violet banded tunnel with thick soft rails on every lane
 boundary, translucent trails with bright edge lines, dark glassy obstacles with neon outlines, a
-perforated amber mesh for shield spots. The RG351P's Mali-G31 is
+perforated amber mesh for shield spots (look notes removed, ADR 0034). The RG351P's Mali-G31 is
 fill-rate limited (ADR 0002), cannot sample float textures (ADR 0011), and the project must not use any
-asset of the original (ADR 0014). The tunnel and obstacles are already placed by shaders (ADR 0007, 0011).
+asset of the original (ADR 0034). The tunnel and obstacles are already placed by shaders (ADR 0007, 0011).
 
 ## Decision
 - **Everything is procedural.** No new textures and no image assets: patterns are computed in the
