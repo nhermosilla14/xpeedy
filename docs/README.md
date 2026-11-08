@@ -6,6 +6,8 @@
 ## Reference
 - [SpeedX 3D mechanics reference](reference/speedx3d/README.md) — behavioural spec of the original
   game; the only source of truth for gameplay (clean-room).
+- [The original's look](reference/original-look.md) — observations of its visual style, from screenshots
+  kept outside git (ADR 0036).
 
 ## Intents
 | # | Title | Status |
@@ -108,5 +110,6 @@
 | 0031 | [Generated audio, the sound player and haptics](adr/0031-procedural-audio-and-haptics.md) | Accepted |
 | 0032 | [Help pages as data shown in the menu's text panel](adr/0032-help-pages.md) | Accepted |
 | 0033 | [Stick direction, the warning on every launch, the About page and the PortMaster art](adr/0033-stick-direction-warning-about-and-publishing-art.md) | Accepted |
-| 0034 | [No use of the original's assets](adr/0034-no-use-of-original-assets.md) | Accepted |
+| 0034 | [No use of the original's assets](adr/superseded/0034-no-use-of-original-assets.md) | Superseded by 0036 |
 | 0035 | [The PortMaster zip is built by GitHub Actions](adr/0035-portmaster-zip-in-github-actions.md) | Accepted |
+| 0036 | [Reference screenshots: local visual reference, never published](adr/0036-reference-screenshots-local-only.md) | Accepted |

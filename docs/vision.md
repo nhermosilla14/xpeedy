@@ -28,7 +28,8 @@ platforms where it can still be played, including handhelds that the original ne
 ## Constraints
 - **Clean-room implementation**: the only source of behaviour is
   [`docs/reference/speedx3d/`](reference/speedx3d/README.md). The original game's code and binaries,
-  and any project derived from them, must not be consulted. No asset of the original is ever copied.
+  and any project derived from them, must not be consulted. Screenshots of the original may serve as a visual
+  reference for the look only, kept out of git and never published; no asset is ever copied or traced (ADR 0036).
 - No "SpeedX" branding; all assets are original or under compatible licenses.
 - Must stay within the RK3326's performance budget (see ADR 0002).
 

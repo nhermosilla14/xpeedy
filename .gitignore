@@ -21,3 +21,6 @@ credentials*
 # Device logs copied for analysis
 log.txt
 
+# Screenshots of the original game: a local visual reference only, never published (ADR 0036)
+/reference-screenshots/
+

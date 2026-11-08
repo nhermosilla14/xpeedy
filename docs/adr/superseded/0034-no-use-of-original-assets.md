@@ -1,7 +1,7 @@
 # 0034. No use of the original's assets
 
 - Replaces: 0014-visual-reference
-- Status: Accepted
+- Status: Superseded by 0036
 - Date: 2026-11-08
 - Deciders: Nicolás Hermosilla P. (requested), agent
 - Intent: none (preparing the repository for publication)
