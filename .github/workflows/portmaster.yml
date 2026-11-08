@@ -1,0 +1,46 @@
+name: PortMaster package
+
+# Builds build/portmaster/xpeedy.zip (ADR 0035). Every push to main or manual run uploads it as an artifact;
+# a version tag (v*) also attaches it to a GitHub release.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-22.04
+    container: docker.io/barichello/godot-ci:4.4.1
+    env:
+      GODOT_LOCAL: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the PortMaster zip
+        run: tools/package-portmaster.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xpeedy-portmaster
+          path: build/portmaster/xpeedy.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: xpeedy-portmaster
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: xpeedy.zip
+          fail_on_unmatched_files: true

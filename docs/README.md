@@ -109,3 +109,4 @@
 | 0032 | [Help pages as data shown in the menu's text panel](adr/0032-help-pages.md) | Accepted |
 | 0033 | [Stick direction, the warning on every launch, the About page and the PortMaster art](adr/0033-stick-direction-warning-about-and-publishing-art.md) | Accepted |
 | 0034 | [No use of the original's assets](adr/0034-no-use-of-original-assets.md) | Accepted |
+| 0035 | [The PortMaster zip is built by GitHub Actions](adr/0035-portmaster-zip-in-github-actions.md) | Accepted |

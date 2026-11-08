@@ -7,4 +7,10 @@ IMAGE="${GODOT_IMAGE:-docker.io/barichello/godot-ci:4.4.1}"
 TIMEOUT="${GODOT_TIMEOUT:-300}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Inside the godot-ci image (GitHub Actions), run the Godot on PATH directly instead of a nested container.
+if [ "${GODOT_LOCAL:-0}" = "1" ]; then
+	cd "$REPO_ROOT"
+	exec godot "$@"
+fi
+
 exec podman run --rm --timeout "$TIMEOUT" -v "$REPO_ROOT":/src:Z -w /src "$IMAGE" godot "$@"
