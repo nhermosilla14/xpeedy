@@ -58,10 +58,30 @@ if [ -f "$GAMEDIR/args.txt" ]; then
 fi
 echo "Game arguments: ${GAME_ARGS:-none}"
 
-$GPTOKEYB "$godot_executable" &
+# Gamepads the game must not read natively. gptokeyb2 (-x) forwards every gamepad to the game as one Xbox 360 pad
+# (vendor 045e, product 028e), which is kept. Godot ignores the ids listed in SDL_GAMECONTROLLER_IGNORE_DEVICES (ADR 0038).
+native_pads() {
+  local line vendor="" product="" handlers="" ids=""
+  while IFS= read -r line; do
+    case "$line" in
+      I:*) vendor="${line#*Vendor=}"; vendor="${vendor%% *}"; product="${line#*Product=}"; product="${product%% *}" ;;
+      H:*) handlers="$line" ;;
+      "")
+        if [[ "$handlers" == *js[0-9]* && ! ( "$vendor" == 045e && "$product" == 028e ) ]]; then
+          ids+="${vendor}/${product},"
+        fi
+        handlers="" ;;
+    esac
+  done < <(cat "${1:-/proc/bus/input/devices}"; echo)
+  echo "${ids%,}"
+}
+native_list="$(native_pads)"
+echo "Native gamepads hidden from the game: ${native_list:-none}"
+
+$GPTOKEYB2 "$godot_executable" -x &
 
 $ESUDO env $weston_dir/westonwrap.sh headless noop kiosk crusty_x11egl \
-LD_PRELOAD= XDG_DATA_HOME=$CONFDIR $godot_dir/$godot_executable \
+LD_PRELOAD= SDL_GAMECONTROLLER_IGNORE_DEVICES="$native_list" XDG_DATA_HOME=$CONFDIR $godot_dir/$godot_executable \
 --resolution ${DISPLAY_WIDTH}x${DISPLAY_HEIGHT} -f \
 --rendering-driver opengl3_es --audio-driver ALSA --main-pack $GAMEDIR/gamedata/$pck_filename $GAME_ARGS
 

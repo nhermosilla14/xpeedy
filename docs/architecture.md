@@ -142,5 +142,5 @@
   dummy renderer, so shaders are only verified on a real GPU.
 - The root node runs with process mode Always (works around the Godot 4.3+ idle bug on handhelds),
   and stdout is flushed on every print so `[bench]` lines survive the port being killed.
-- Handheld input: Godot reads the gamepad natively (D-pad, A/B/Start through the UI and steering actions, the left
-  stick through `SteerInput`); gptokeyb runs without a mapping file, for the quit hotkey only (ADR 0037).
+- Handheld input: gptokeyb2 in xbox360 mode forwards every gamepad to the game as one virtual Xbox 360 pad; Godot
+  ignores the physical pads by vendor and product id (ADR 0038, prototype).
