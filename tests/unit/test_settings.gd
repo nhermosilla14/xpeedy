@@ -178,17 +178,17 @@ func test_the_about_pages_show_the_version_and_the_credits() -> void:
 	_clean()
 
 
-func test_the_stick_setting_defaults_by_platform_and_is_saved() -> void:
+func test_the_stick_setting_defaults_to_normal_and_is_saved() -> void:
 	_clean()
 	var settings := Settings.new(PATH)
-	check_eq(settings.stick_flipped, Settings.default_stick_flipped())
+	check_eq(settings.stick_flipped, false, "normal by default")
 	settings.stick_flipped = not settings.stick_flipped
 	settings.save()
 	check_eq(Settings.new(PATH).stick_flipped, settings.stick_flipped)
 	var file := FileAccess.open(PATH, FileAccess.WRITE)
 	file.store_string("[input]\nstick=\"sideways\"\n")
 	file.close()
-	check_eq(Settings.new(PATH).stick_flipped, Settings.default_stick_flipped(), "a bad value falls back")
+	check_eq(Settings.new(PATH).stick_flipped, false, "a bad value falls back")
 	_clean()
 
 

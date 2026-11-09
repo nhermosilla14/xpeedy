@@ -5,7 +5,8 @@
 - Deciders: Nicolás Hermosilla P. (requested), agent
 - Intent: none (controller input on handhelds)
 - Replaces: the gamepad parts of 0037-portmaster-no-gptk-and-layout (gptokeyb without a mapping file, native gamepad
-  input) and the stick part of 0027-analog-sticks-left-to-the-game (sticks read natively)
+  input), the stick part of 0027-analog-sticks-left-to-the-game (sticks read natively) and the default of the stick
+  setting in 0033 (flipped on handhelds)
 
 ## Context
 Native gamepad input in Godot reads the controller's raw buttons when SDL has no mapping for it. Reports from
@@ -28,8 +29,10 @@ gptokeyb2's `interpose` library only records the last file descriptor it opens; 
 - The left stick reaches the game as the virtual pad's analog axis, so it stays analog (no key steering, unlike ADR
   0027's key mapping).
 - No `.gptk` file. `project.godot` is unchanged.
-- The layout setting (ADR 0026) and the stick direction setting (ADR 0033) keep working in Godot, because they act on
-  the virtual pad's buttons and axes.
+- The layout setting (ADR 0026) keeps working in Godot, because it acts on the virtual pad's buttons.
+- The stick direction setting (ADR 0033) stays, but its default is normal. The virtual pad carries the stick already
+  normalized, so the flip that handhelds needed for the native pad inverted it on the RG351P. The setting is only
+  saved when someone changes it, so devices that never changed it follow the new default.
 
 ## Alternatives considered
 - `libcrusty.so` from the community patch, which blocks `/dev/input` in Godot: a closed binary with no source, and it

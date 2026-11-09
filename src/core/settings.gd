@@ -8,9 +8,9 @@ const SECTION := "steering"
 var invert := false
 ## Gamepad face-button layout, "nintendo" or "xbox" (ADR 0026).
 var layout := InputLayout.NINTENDO
-## Flip the left stick's direction for steering (ADR 0033). Handhelds (Linux on arm64) default to flipped: the
-## RG351P reports its stick the other way round. The d-pad and keys are never flipped.
-var stick_flipped := Settings.default_stick_flipped()
+## Flip the left stick's direction for steering (ADR 0033). Off by default: gamepads reach the game through the
+## virtual Xbox 360 pad, which already has the stick the right way round (ADR 0038). The d-pad and keys are never flipped.
+var stick_flipped := false
 ## Sound effects, music and vibration (ADR 0031).
 var sound := true
 var music := true
@@ -40,11 +40,6 @@ func _init(path := "user://settings.cfg") -> void:
 static func _flag(file: ConfigFile, section: String, key: String) -> bool:
 	var value: Variant = file.get_value(section, key, true)
 	return value if value is bool else true
-
-
-## Handhelds run Linux on arm64; desktops and phones do not need the flip.
-static func default_stick_flipped() -> bool:
-	return OS.get_name() == "Linux" and Engine.get_architecture_name() == "arm64"
 
 
 func save() -> void:
