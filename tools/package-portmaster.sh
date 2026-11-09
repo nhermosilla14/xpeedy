@@ -16,7 +16,7 @@ mkdir -p "$STAGE/xpeedy/gamedata" "$STAGE/xpeedy/licenses"
 "$TOOLS/godot.sh" --headless --import >/dev/null 2>&1 || true
 "$TOOLS/godot.sh" --headless --export-pack "PortMaster" build/portmaster/xpeedy.pck
 
-cp "$OUT/xpeedy.pck" "$STAGE/xpeedy/gamedata/"
+cp "$OUT/xpeedy.pck" "$PM/override.cfg" "$STAGE/xpeedy/gamedata/"
 cp "$PM/Xpeedy.sh" "$STAGE/"
 cp "$PM/cover.png" "$STAGE/xpeedy/"
 cp "$REPO/LICENSE" "$STAGE/xpeedy/licenses/LICENSE.xpeedy.txt"

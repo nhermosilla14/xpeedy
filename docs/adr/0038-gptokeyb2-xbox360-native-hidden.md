@@ -29,6 +29,9 @@ gptokeyb2's `interpose` library only records the last file descriptor it opens; 
 - The left stick reaches the game as the virtual pad's analog axis, so it stays analog (no key steering, unlike ADR
   0027's key mapping).
 - No `.gptk` file. `project.godot` is unchanged.
+- Touch-to-mouse emulation is off in the PortMaster build. `packaging/portmaster/override.cfg` is copied next to
+  `xpeedy.pck` in `gamedata/`, where Godot reads it. A touch on the handheld's screen then reaches the game as touch
+  only, not as a mouse click, so the HUD buttons and menu clicks ignore stray touches. Desktop builds keep the default.
 - The layout setting (ADR 0026) keeps working in Godot, because it acts on the virtual pad's buttons.
 - The stick direction setting (ADR 0033) stays, but its default is normal. The virtual pad carries the stick already
   normalized, so the flip that handhelds needed for the native pad inverted it on the RG351P. The setting is only
