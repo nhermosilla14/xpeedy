@@ -1,6 +1,6 @@
 # 0038. Gamepads go through gptokeyb2 in xbox360 mode; native gamepads are hidden from Godot
 
-- Status: Proposed (prototype on the branch `prototype/gptokeyb2-xbox360`; becomes Accepted after the RG351P test)
+- Status: Accepted (tested on the RG351P and the RGSP; the touch part, `override.cfg`, is still to be confirmed on the RP5)
 - Date: 2026-11-08
 - Deciders: Nicolás Hermosilla P. (requested), agent
 - Intent: none (controller input on handhelds)

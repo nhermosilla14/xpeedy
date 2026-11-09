@@ -45,7 +45,7 @@ with PIL and ffmpeg).
 1. Set the version in `project.godot` (`config/version`) and commit it.
 2. Tag it and push the tag:
    ```sh
-   git tag v0.9.0 && git push origin v0.9.0
+   git tag vX.Y.Z && git push origin vX.Y.Z   # for example v0.9.1
    ```
 GitHub Actions (`.github/workflows/portmaster.yml`) builds `xpeedy.zip` and attaches it to the release. Every
 push to `main` builds it too; download it from the run's artifacts (`xpeedy-portmaster`) on the Actions page.
